@@ -1,0 +1,24 @@
+name: makers-market
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_DATABASE=makers_market
+      - MYSQL_USER=mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+      
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile 
+
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://mysql:mysql@mysql/makers_market
+    depends_on:
+      - db
