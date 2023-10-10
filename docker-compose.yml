@@ -3,9 +3,10 @@ services:
   db:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=mysql
-      - MYSQL_DATABASE=makers
-      - MYSQL_USER=mysql
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -19,6 +20,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://mysql:mysql@mysql/makers
+      - DATABASE_URL=mysql+pymysql://mysql:${MYSQL_USER}@${MYSQL_PASSWORD}/${MYSQL_DATABASE}
     depends_on:
       - db
