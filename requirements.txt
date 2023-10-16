@@ -19,3 +19,4 @@ watchfiles==0.20.0
 websockets==11.0.3
 sqlalchemy==1.4.31
 pymysql
+python-multipart
