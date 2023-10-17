@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 from db.database import Base
 
-ProductWishList = Table(
+ProductWishlist = Table(
     'product_wishlist',
     Base.metadata,
     Column('product_id', Integer, ForeignKey('product.id')),
@@ -13,7 +13,7 @@ ProductWishList = Table(
 )
 
 
-class WishList(Base):
+class Wishlist(Base):
     __tablename__ = "wishlist"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -21,4 +21,4 @@ class WishList(Base):
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
-    products = relationship("Product", secondary="ProductWishList", back_populates="wishlist")
+    products = relationship("Product", secondary=ProductWishlist, back_populates="wishlists")

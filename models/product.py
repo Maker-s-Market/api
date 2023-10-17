@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, engine
 from models.category import Category, ProductCategory
+from models.wishList import ProductWishlist
 from schemas.product import CreateProduct
 from fastapi import HTTPException
 
@@ -36,6 +37,7 @@ class Product(Base):
 
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
+    wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
 
 def increment_number_views(db: Session, product_id: int):

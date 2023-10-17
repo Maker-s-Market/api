@@ -35,4 +35,3 @@ class User(Base):
 
     # ! Falta FollowING and Followers
     wishlist_id = Column(Integer, ForeignKey("wishlist.id"))
-    my_products = relationship("Product", back_populates="user")
