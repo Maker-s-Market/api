@@ -1,11 +1,17 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import Session, relationship
 
 from db.database import Base
-from models.product import ProductCategory
 from schemas.category import CreateCategory
+
+ProductCategory = Table(
+    'product_category',
+    Base.metadata,
+    Column('product_id', Integer, ForeignKey('product.id')),
+    Column('category_id', Integer, ForeignKey('category.id'))
+)
 
 
 class Category(Base):
