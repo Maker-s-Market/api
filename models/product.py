@@ -63,7 +63,7 @@ def create_product(db: Session, product: CreateProduct):
         db.refresh(db_product)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Error creating product")
-    return {"product": db_product, "categories": categories}
+    return db_product
 
 
 def edit_product():
