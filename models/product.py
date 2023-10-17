@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship, Session
 from db.database import Base, engine
 from models.category import Category, ProductCategory
 from schemas.product import CreateProduct
+from fastapi import HTTPException
 
 
 class Product(Base):
@@ -13,7 +14,7 @@ class Product(Base):
 
     # CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), index=True, unique=True)
+    name = Column(String(255), index=True, nullable=False)
     description = Column(String(255), index=True, nullable=False)
     price = Column(Float, index=True, nullable=False)
     stockable = Column(Boolean, index=True, nullable=False)
@@ -47,20 +48,22 @@ def increment_number_views(db: Session, product_id: int):
 
 def create_product(db: Session, product: CreateProduct):
     categories = []
-    for category_id in product.categories:
-        db_category = db.query(Category).filter(Category.id == category_id).first()
+    for category in product.categories:
+        db_category = db.query(Category).filter(Category.id == category.id).first()
         if db_category:
             categories.append(db_category)
         else:
-            # TODO: Throw error
-            pass
+            raise HTTPException(status_code=404, detail="Category not found")
     product.categories = []
-    db_product = Product(**product.dict())
-    db.add(db_product)
-    db_product.categories = categories
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    try:
+        db_product = Product(**product.dict())
+        db.add(db_product)
+        db_product.categories = categories
+        db.commit()
+        db.refresh(db_product)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error creating product")
+    return {"product": db_product, "categories": categories}
 
 
 def edit_product():

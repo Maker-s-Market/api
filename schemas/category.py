@@ -22,4 +22,7 @@ class CreateCategory(BaseModel):
     icon: str
 
 
+class CategoryIdentifier(BaseModel):
+    id: int
+
 

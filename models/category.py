@@ -1,5 +1,6 @@
 import datetime
 
+from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import Session, relationship
 
@@ -36,6 +37,9 @@ class Category(Base):
 
 
 def create_category(db: Session, category: CreateCategory):
+    if (db.query(Category).filter(Category.name == category.name).first()
+            or db.query(Category).filter(Category.slug == category.slug).first()):
+        raise HTTPException(status_code=400, detail="Category already exists")
     db_category = Category(**category.dict())
     db.add(db_category)
     db.commit()

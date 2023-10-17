@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-from schemas.category import CategoryBase
+from schemas.category import CategoryBase, CategoryIdentifier
 
 
 class ProductBase(BaseModel):
@@ -32,4 +32,4 @@ class CreateProduct(BaseModel):
     stockable: bool
     stock: Optional[int]
     # image: str
-    categories: List[int] = []
+    categories: List[CategoryIdentifier] = []
