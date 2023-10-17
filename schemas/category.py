@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -7,9 +9,8 @@ class CategoryBase(BaseModel):
     slug: str
     icon: str
     numberViews: int = 0
-    created_at: float | None
-    updated_at: float | None
-    deleted_at: float | None
+    created_at: Optional[float]
+    updated_at: Optional[float]
 
     class Config:
         orm_mode = True
@@ -19,5 +20,9 @@ class CreateCategory(BaseModel):
     name: str
     slug: str
     icon: str
+
+
+class CategoryIdentifier(BaseModel):
+    id: int
 
 

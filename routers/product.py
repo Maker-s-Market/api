@@ -11,9 +11,10 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
     return get_product_by_id(product_id, db)
 
 
-# @router.post("/product")
-# async def create_product():
-#     return {"message": "create product"}
+@router.post("/product")
+async def create_product(product: CreateProduct, db: Session = Depends(get_db)):
+    return new_product(db=db, product=product)
+
 #
 #
 # @router.put("/product")

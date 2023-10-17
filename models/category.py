@@ -1,11 +1,18 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime
+from fastapi import HTTPException
+from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import Session, relationship
 
 from db.database import Base
-from models.product import ProductCategory
 from schemas.category import CreateCategory
+
+ProductCategory = Table(
+    'product_category',
+    Base.metadata,
+    Column('product_id', Integer, ForeignKey('product.id')),
+    Column('category_id', Integer, ForeignKey('category.id'))
+)
 
 
 class Category(Base):
@@ -30,6 +37,9 @@ class Category(Base):
 
 
 def create_category(db: Session, category: CreateCategory):
+    if (db.query(Category).filter(Category.name == category.name).first()
+            or db.query(Category).filter(Category.slug == category.slug).first()):
+        raise HTTPException(status_code=400, detail="Category already exists")
     db_category = Category(**category.dict())
     db.add(db_category)
     db.commit()
