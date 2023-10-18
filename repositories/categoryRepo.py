@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from schemas.category import CreateCategory
 from models.category import create_category, Category as CategoryModel
 
-#mudar nome disto
+
+# mudar nome disto
 def new_category(db: Session, cat: CreateCategory):
     return create_category(db=db, category=cat)
 

@@ -40,10 +40,11 @@ class Product(Base):
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
-    def increment_number_views(self):
-        print(self.number_views)
+    def increment_number_views(self, db: Session):
         self.number_views += 1
-        print(self.number_views)
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
 
     def add_category(self, category: Category):
         self.categories.append(category)
@@ -88,6 +89,7 @@ def create_product(db: Session, product: CreateProduct):
         raise HTTPException(status_code=400, detail="Error creating product")
     return db_product
 
+
 def edit_product():
     pass
 
@@ -97,16 +99,3 @@ def delete_product(product_id: int, db: Session):
 
     pass
 
-
-def read_product(product_id: int, db: Session):
-    prod = None
-
-    try:
-        prod = db.query(Product).filter(Product.id == product_id).first()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Server Error, can't search database")
-
-    if prod == None:
-        raise HTTPException(status_code=404, detail="Product ID not found in database")
-
-    return {"product": prod}
