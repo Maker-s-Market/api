@@ -3,11 +3,12 @@ import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey, Table
 from sqlalchemy.orm import relationship, Session
 
-from db.database import Base, engine
+from db.base import Base
 from models.category import Category, ProductCategory
 from models.wishList import ProductWishlist
 from schemas.product import CreateProduct
 from fastapi import HTTPException
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class Product(Base):
