@@ -5,7 +5,9 @@ from uuid import UUID
 
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 
-from db.database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+from db.base import Base
 
 
 class Role(enum.Enum):

@@ -3,7 +3,9 @@ import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import Session, relationship
 
-from db.database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+from db.base import Base
 from schemas.category import CreateCategory
 
 ProductCategory = Table(
