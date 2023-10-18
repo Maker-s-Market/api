@@ -21,10 +21,12 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(200), index=True, nullable=False)
     hashed_password = Column(String(200), index=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
+    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(),
+                        nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True)
     is_active = Column(Boolean, index=True, default=True)
     role = Column(Enum(Role))  # Ver se isto dá certo ou não
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -39,7 +41,6 @@ class Category(Base):
     products = relationship("Product", back_populates="category")
 
 
-
 class Review(Base):
     __tablename__ = "review"
 
@@ -50,6 +51,7 @@ class Review(Base):
 
     user_id = Column(Integer, ForeignKey("user.id"))
     product_id = Column(Integer, ForeignKey("product.id"))
+
 
 class Rating(Base):
     __tablename__ = "rating"
@@ -62,6 +64,7 @@ class Rating(Base):
     user_id = Column(Integer, ForeignKey("user.id"))
     product_id = Column(Integer, ForeignKey("product.id"))
 
+
 class WishList(Base):
     __tablename__ = "wishlist"
 
@@ -72,6 +75,7 @@ class WishList(Base):
     user_id = Column(Integer, ForeignKey("user.id"))
     product_id = Column(Integer, ForeignKey("product.id"))
 
+
 class ShoppingCart(Base):
     __tablename__ = "shoppingcart"
 
@@ -81,6 +85,7 @@ class ShoppingCart(Base):
 
     user_id = Column(Integer, ForeignKey("user.id"))
 
+
 class Order(Base):
     __tablename__ = "order"
 
@@ -89,8 +94,9 @@ class Order(Base):
     created_at = Column(String(255), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
     updated_at = Column(String(255), index=True)
     status = Column(Integer, index=True, default=0, nullable=False)
-    
+
     cart_id = Column(Integer, ForeignKey("shoppingcart.id"))
+
 
 class OrderLine(Base):
     __tablename__ = "orderline"

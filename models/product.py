@@ -85,17 +85,8 @@ def create_product(db: Session, product: CreateProduct):
         db_product.add_categories(categories)
         db.commit()
         db.refresh(db_product)
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=400, detail="Error creating product")
     return db_product
 
-
-def edit_product():
-    pass
-
-
-def delete_product(product_id: int, db: Session):
-    prod = None
-
-    pass
 
