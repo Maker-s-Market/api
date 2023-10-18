@@ -70,9 +70,21 @@ def edit_product():
     pass
 
 
-def delete_product():
+def delete_product(product_id: int, db: Session):
+    prod = None
+
     pass
 
 
-def read_product():
-    pass
+def read_product(product_id: int, db: Session):
+    prod = None
+    
+    try:
+        prod = db.query(Product).filter(Product.id == product_id).first()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Server Error, can't search database")
+    
+    if prod == None:
+        raise HTTPException(status_code=404, detail="Product ID not found in database")
+
+    return {"product": prod}

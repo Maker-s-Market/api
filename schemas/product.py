@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -10,7 +11,6 @@ class ProductBase(BaseModel):
     description: str
     price: float
     stockable: bool
-    stock: Optional[int]
     discount: Optional[float]
     number_views: Optional[int]
 
@@ -19,7 +19,7 @@ class ProductBase(BaseModel):
 
     # image: str
     user_id: Optional[int]
-    categories: List[CategoryBase] = []
+    categories: list[CategoryBase]
 
     class Config:
         orm_mode = True
@@ -32,4 +32,4 @@ class CreateProduct(BaseModel):
     stockable: bool
     stock: Optional[int]
     # image: str
-    categories: List[CategoryIdentifier] = []
+    categories: list[CategoryIdentifier]
