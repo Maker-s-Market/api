@@ -46,14 +46,29 @@ class Product(Base):
         db.commit()
         db.refresh(self)
 
-    def add_category(self, category: Category):
-        self.categories.append(category)
-
-    def remove_category(self, category: Category):
-        self.categories.remove(category)
-
-    def add_categories(self, categories):
+    def add_categories(self, categories, db: Session):
         self.categories.extend(categories)
+        db.commit()
+        db.refresh(self)
+
+    def update_product(self, db: Session, product: CreateProduct):
+        self.name = product.name
+        self.description = product.description
+        self.price = product.price
+        self.stockable = product.stockable
+        self.stock = product.stock
+        self.discount = product.discount
+        self.categories = []
+        for category in product.categories:
+            db_category = db.query(Category).filter(Category.id == category.id).first()
+            if db_category:
+                self.categories.append(db_category)
+            else:
+                raise HTTPException(status_code=404, detail="Category not found")
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
 
     def to_dict(self):
         return {
@@ -70,6 +85,20 @@ class Product(Base):
             'categories': [category.to_dict() for category in self.categories]
         }
 
+    def to_dict_not_categories(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'stockable': self.stockable,
+            'stock': self.stock,
+            'discount': self.discount,
+            'number_views': self.number_views,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+        }
+
 
 def create_product(db: Session, product: CreateProduct):
     categories = set()
@@ -83,9 +112,9 @@ def create_product(db: Session, product: CreateProduct):
     try:
         db_product = Product(**product.dict())
         db.add(db_product)
-        db_product.add_categories(categories)
         db.commit()
         db.refresh(db_product)
+        db_product.add_categories(categories=categories, db=db)
     except Exception:
         raise HTTPException(status_code=400, detail="Error creating product")
     return db_product

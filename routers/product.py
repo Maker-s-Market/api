@@ -23,12 +23,15 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
 async def create_product(product: CreateProduct, db: Session = Depends(get_db)):
     return JSONResponse(status_code=201, content=jsonable_encoder(new_product(db=db, product=product).to_dict()))
 
-#
-#
-# @router.put("/product")
-# async def update_product():
-#     return {"message": "update product"}
-#
+
+@router.put("/product/{product_id}")
+async def update_product(product_id: str, edit_product: CreateProduct, db: Session = Depends(get_db)):
+    product = get_product_by_id(product_id, db)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    product_response = product.update_product(db=db, product=edit_product)
+    return JSONResponse(status_code=200, content=jsonable_encoder(product_response.to_dict()))
+
 #
 # @router.delete("/product")
 # async def delete_product():

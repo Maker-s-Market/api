@@ -18,7 +18,8 @@ async def create_category(cat: CreateCategory, db: Session = Depends(get_db)):
 
 @router.get("/categories")
 async def get_categories(db: Session = Depends(get_db)):
-    return JSONResponse(status_code=200, content=jsonable_encoder([get_all_categories(db=db)]))
+    return JSONResponse(status_code=200, content=jsonable_encoder([category.to_dict()
+                                                                   for category in get_all_categories(db=db)]))
 
 
 @router.get("/category/{category_id}")
@@ -29,7 +30,7 @@ async def get_category(category_id: str, db: Session = Depends(get_db)):
     products = get_products_by_category(db=db, category_id=category_id)
     category.increment_number_views(db=db)
     json_compatible_item_data = jsonable_encoder(category.to_dict())
-    json_compatible_item_data['products'] = jsonable_encoder([product.to_dict() for product in products])
+    json_compatible_item_data['products'] = jsonable_encoder([product.to_dict_not_categories() for product in products])
     return JSONResponse(status_code=200, content=json_compatible_item_data)
 
 
