@@ -41,7 +41,7 @@ class Category(Base):
 
     def update_category(self, db: Session, category: CreateCategory):
         self.name = category.name
-        self.slug = category.slug
+        self.slug = category.name.replace(" ", "-").lower()
         self.icon = category.icon
         self.updated_at = datetime.datetime.now()
         db.commit()
