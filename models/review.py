@@ -8,7 +8,7 @@ from db.database import Base
 class Review(Base):
     __tablename__ = "review"
 
-    # CHANGE TO UUID
+    #  TODO CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String(1000), index=True, nullable=False, default="")
 

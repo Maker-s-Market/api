@@ -13,7 +13,7 @@ from fastapi import HTTPException
 class Product(Base):
     __tablename__ = "product"
 
-    # CHANGE TO uuid
+    #  TODO CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), index=True, nullable=False)
     description = Column(String(255), index=True, nullable=False)
@@ -39,13 +39,33 @@ class Product(Base):
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
+    def increment_number_views(self):
+        print(self.number_views)
+        self.number_views += 1
+        print(self.number_views)
 
-def increment_number_views(db: Session, product_id: int):
-    db_product = db.query(Product).filter(Product.id == product_id).first()
-    db_product.number_views += 1
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    def add_category(self, category: Category):
+        self.categories.append(category)
+
+    def remove_category(self, category: Category):
+        self.categories.remove(category)
+
+    def add_categories(self, categories: list[Category]):
+        self.categories.extend(categories)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'stockable': self.stockable,
+            'stock': self.stock,
+            'discount': self.discount,
+            'number_views': self.number_views,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
 
 def create_product(db: Session, product: CreateProduct):
@@ -60,21 +80,10 @@ def create_product(db: Session, product: CreateProduct):
     try:
         db_product = Product(**product.dict())
         db.add(db_product)
-        db_product.categories = categories
+        db_product.add_categories(categories)
         db.commit()
         db.refresh(db_product)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Error creating product")
     return db_product
 
-
-def edit_product():
-    pass
-
-
-def delete_product():
-    pass
-
-
-def read_product():
-    pass

@@ -16,6 +16,7 @@ ProductWishlist = Table(
 class Wishlist(Base):
     __tablename__ = "wishlist"
 
+    #  TODO CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)

@@ -9,6 +9,7 @@ from db.database import Base
 class Rating(Base):
     __tablename__ = "rating"
 
+    # TODO CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
     rating = Column(Float, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
