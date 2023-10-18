@@ -3,16 +3,18 @@ import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey, Table
 from sqlalchemy.orm import relationship, Session
 
-from db.database import Base, engine
+from db.base import Base
 from models.category import Category, ProductCategory
+from models.wishList import ProductWishlist
 from schemas.product import CreateProduct
 from fastapi import HTTPException
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class Product(Base):
     __tablename__ = "product"
 
-    # CHANGE TO uuid
+    #  TODO CHANGE TO uuid
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), index=True, nullable=False)
     description = Column(String(255), index=True, nullable=False)
@@ -36,14 +38,35 @@ class Product(Base):
 
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
+    wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
+    def increment_number_views(self):
+        print(self.number_views)
+        self.number_views += 1
+        print(self.number_views)
 
-def increment_number_views(db: Session, product_id: int):
-    db_product = db.query(Product).filter(Product.id == product_id).first()
-    db_product.number_views += 1
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    def add_category(self, category: Category):
+        self.categories.append(category)
+
+    def remove_category(self, category: Category):
+        self.categories.remove(category)
+
+    def add_categories(self, categories: list[Category]):
+        self.categories.extend(categories)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'stockable': self.stockable,
+            'stock': self.stock,
+            'discount': self.discount,
+            'number_views': self.number_views,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
 
 def create_product(db: Session, product: CreateProduct):
@@ -58,13 +81,12 @@ def create_product(db: Session, product: CreateProduct):
     try:
         db_product = Product(**product.dict())
         db.add(db_product)
-        db_product.categories = categories
+        db_product.add_categories(categories)
         db.commit()
         db.refresh(db_product)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Error creating product")
-    return {"product": db_product, "categories": categories}
-
+    return db_product
 
 def edit_product():
     pass
@@ -78,12 +100,12 @@ def delete_product(product_id: int, db: Session):
 
 def read_product(product_id: int, db: Session):
     prod = None
-    
+
     try:
         prod = db.query(Product).filter(Product.id == product_id).first()
     except Exception as e:
         raise HTTPException(status_code=500, detail="Server Error, can't search database")
-    
+
     if prod == None:
         raise HTTPException(status_code=404, detail="Product ID not found in database")
 

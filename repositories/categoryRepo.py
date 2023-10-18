@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from schemas.category import CreateCategory
-from models.category import create_category, Category as CategoryModel, increment_number_views
+from models.category import create_category, Category as CategoryModel
 
 #mudar nome disto
 def new_category(db: Session, cat: CreateCategory):
@@ -17,7 +17,6 @@ def get_category_by_id(db: Session, category_id: int):
 
 
 def get_products_by_category(db: Session, category_id: int):
-    increment_number_views(db=db, category_id=category_id)
     return db.query(CategoryModel).filter(CategoryModel.id == category_id).first().products
 
 
