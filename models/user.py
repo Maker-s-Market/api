@@ -39,7 +39,7 @@ class User(Base):
 
     # POR CAUSA DO RGPD
     deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
-    is_active = Column(Integer, index=True, default=1, nullable=False)
+    is_active = Column(Integer, index=True, default=True, nullable=False)
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
     followed = relationship(

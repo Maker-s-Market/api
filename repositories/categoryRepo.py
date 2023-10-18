@@ -10,7 +10,7 @@ def new_category(db: Session, cat: CreateCategory):
 
 
 def get_all_categories(db: Session):
-    return db.query(CategoryModel).all()
+    return db.query(CategoryModel).filter().all()
 
 
 def get_category_by_id(db: Session, category_id: str):

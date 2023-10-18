@@ -15,10 +15,6 @@ class Review(Base):
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
 
-    # # POR CAUSA DO RGPD
-    # deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
-    # is_active = Column(Integer, index=True, default=1, nullable=False)
-
     # BETTER
     user_id = Column(String(50), ForeignKey("user.id"))
     product_id = Column(String(50), ForeignKey("product.id"))

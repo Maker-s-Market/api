@@ -31,10 +31,6 @@ class Category(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
-    is_active = Column(Integer, index=True, default=1, nullable=False)
-
     products = relationship('Product', secondary=ProductCategory, back_populates='categories')
 
     def increment_number_views(self, db: Session):
@@ -53,10 +49,8 @@ class Category(Base):
         return self
 
     def delete_category(self, db: Session):
-        self.deleted_at = datetime.datetime.now()
-        self.is_active = 0
+        db.delete(self)
         db.commit()
-        db.refresh(self)
         return self
 
     def to_dict(self):

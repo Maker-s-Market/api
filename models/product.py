@@ -29,10 +29,6 @@ class Product(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
-    is_active = Column(Integer, index=True, default=1, nullable=False)
-
     # Change to image
     # image = Column()
 
@@ -68,6 +64,11 @@ class Product(Base):
         self.updated_at = datetime.datetime.now()
         db.commit()
         db.refresh(self)
+        return self
+
+    def delete(self, db: Session):
+        db.delete(self)
+        db.commit()
         return self
 
     def to_dict(self):
