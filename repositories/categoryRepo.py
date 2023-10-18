@@ -13,11 +13,11 @@ def get_all_categories(db: Session):
     return db.query(CategoryModel).all()
 
 
-def get_category_by_id(db: Session, category_id: int):
+def get_category_by_id(db: Session, category_id: str):
     return db.query(CategoryModel).filter(CategoryModel.id == category_id).first()
 
 
-def get_products_by_category(db: Session, category_id: int):
+def get_products_by_category(db: Session, category_id: str):
     return db.query(CategoryModel).filter(CategoryModel.id == category_id).first().products
 
 

@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
@@ -14,17 +13,15 @@ from schemas.category import CreateCategory
 ProductCategory = Table(
     'product_category',
     Base.metadata,
-    Column('product_id', Integer, ForeignKey('product.id')),
-    Column('category_id', Integer, ForeignKey('category.id'))
+    Column('product_id', String(50), ForeignKey('product.id')),
+    Column('category_id', String(50), ForeignKey('category.id'))
 )
 
 
 class Category(Base):
     __tablename__ = "category"
 
-    # TODO CHANGE TO uuid
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    # id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    id = Column(String(50), primary_key=True, index=True, default=str(uuid.uuid4()))
     name = Column(String(200), index=True, unique=True, nullable=False)
     slug = Column(String(200), index=True, unique=True, default="", nullable=False)
     icon = Column(String(200), index=True, nullable=False)

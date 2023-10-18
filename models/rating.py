@@ -1,7 +1,7 @@
 import datetime
+from uuid import uuid4
 
 from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
-from sqlalchemy.orm import relationship
 
 from db.base import Base
 
@@ -9,8 +9,7 @@ from db.base import Base
 class Rating(Base):
     __tablename__ = "rating"
 
-    # TODO CHANGE TO uuid
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
     rating = Column(Float, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
@@ -19,5 +18,5 @@ class Rating(Base):
     # deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
     # is_active = Column(Integer, index=True, default=1, nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"))
-    product_id = Column(Integer, ForeignKey("product.id"))
+    user_id = Column(String(50), ForeignKey("user.id"))
+    product_id = Column(String(50), ForeignKey("product.id"))

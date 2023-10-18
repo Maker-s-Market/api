@@ -12,14 +12,11 @@ router = APIRouter(tags=['Product'])
 
 
 @router.get("/product/{product_id}")
-async def get_product(product_id: int, db: Session = Depends(get_db)):
+async def get_product(product_id: str, db: Session = Depends(get_db)):
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-
-    response = product.to_dict()
-    response['categories'] = [category.to_dict() for category in product.categories]
-    return JSONResponse(status_code=200, content=jsonable_encoder(response))
+    return JSONResponse(status_code=200, content=jsonable_encoder(product.to_dict()))
 
 
 @router.post("/product")

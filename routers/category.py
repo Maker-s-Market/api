@@ -22,7 +22,7 @@ async def get_categories(db: Session = Depends(get_db)):
 
 
 @router.get("/category/{category_id}")
-async def get_category(category_id: int, db: Session = Depends(get_db)):
+async def get_category(category_id: str, db: Session = Depends(get_db)):
     category = get_category_by_id(db=db, category_id=category_id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")

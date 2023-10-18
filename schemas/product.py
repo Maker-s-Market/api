@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from schemas.category import CategoryIdentifier
 
+
 class CreateProduct(BaseModel):
     name: str
     description: str

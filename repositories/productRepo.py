@@ -4,7 +4,7 @@ from schemas.product import CreateProduct
 from models.product import create_product, Product as ProductModel
 
 
-def get_product_by_id(product_id: int, db: Session):
+def get_product_by_id(product_id: str, db: Session):
     return db.query(ProductModel).filter(ProductModel.id == product_id).first()
 
 

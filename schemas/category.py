@@ -9,6 +9,6 @@ class CreateCategory(BaseModel):
 
 
 class CategoryIdentifier(BaseModel):
-    id: int
+    id: str
 
 

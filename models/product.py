@@ -1,6 +1,7 @@
 import datetime
+from uuid import uuid4
 
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Session
 
 from db.base import Base
@@ -14,8 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 class Product(Base):
     __tablename__ = "product"
 
-    #  TODO CHANGE TO uuid
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
     name = Column(String(255), index=True, nullable=False)
     description = Column(String(255), index=True, nullable=False)
     price = Column(Float, index=True, nullable=False)
@@ -36,7 +36,7 @@ class Product(Base):
     # Change to image
     # image = Column()
 
-    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
@@ -52,7 +52,7 @@ class Product(Base):
     def remove_category(self, category: Category):
         self.categories.remove(category)
 
-    def add_categories(self, categories: list[Category]):
+    def add_categories(self, categories):
         self.categories.extend(categories)
 
     def to_dict(self):
@@ -66,16 +66,17 @@ class Product(Base):
             'discount': self.discount,
             'number_views': self.number_views,
             'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'updated_at': self.updated_at,
+            'categories': [category.to_dict() for category in self.categories]
         }
 
 
 def create_product(db: Session, product: CreateProduct):
-    categories = []
+    categories = set()
     for category in product.categories:
         db_category = db.query(Category).filter(Category.id == category.id).first()
         if db_category:
-            categories.append(db_category)
+            categories.add(db_category)
         else:
             raise HTTPException(status_code=404, detail="Category not found")
     product.categories = []

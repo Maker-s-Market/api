@@ -1,4 +1,5 @@
 import datetime
+from uuid import uuid4
 
 from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
@@ -8,16 +9,15 @@ from db.base import Base
 ProductWishlist = Table(
     'product_wishlist',
     Base.metadata,
-    Column('product_id', Integer, ForeignKey('product.id')),
-    Column('wishlist_id', Integer, ForeignKey('wishlist.id'))
+    Column('product_id', String(50), ForeignKey('product.id')),
+    Column('wishlist_id', String(50), ForeignKey('wishlist.id'))
 )
 
 
 class Wishlist(Base):
     __tablename__ = "wishlist"
 
-    #  TODO CHANGE TO uuid
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),

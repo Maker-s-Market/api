@@ -1,7 +1,6 @@
-import uuid
 import datetime
 import enum
-from uuid import UUID
+from uuid import uuid4
 
 from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Table
 from sqlalchemy.orm import relationship
@@ -13,8 +12,8 @@ from db.base import Base
 followers = Table(
     'followers',
     Base.metadata,
-    Column('follower_id', Integer, ForeignKey('user.id')),
-    Column('followed_id', Integer, ForeignKey('user.id'))
+    Column('follower_id', String(50), ForeignKey('user.id')),
+    Column('followed_id', String(50), ForeignKey('user.id'))
 )
 
 
@@ -27,8 +26,7 @@ class Role(enum.Enum):
 class User(Base):
     __tablename__ = "user"
 
-    #  TODO CHANGE TO uuid
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
     name = Column(String(200), index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
     # photo = Column(String(200), index=True, nullable=False)
@@ -43,7 +41,7 @@ class User(Base):
     deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
     is_active = Column(Integer, index=True, default=1, nullable=False)
 
-    wishlist_id = Column(Integer, ForeignKey("wishlist.id"))
+    wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
     followed = relationship(
         "User",
         secondary=followers,
