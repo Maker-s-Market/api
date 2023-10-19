@@ -6,9 +6,7 @@ from uuid import UUID
 from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
-from sqlalchemy.ext.declarative import declarative_base
-
-from db.base import Base
+from db.database import Base
 
 followers = Table(
     'followers',

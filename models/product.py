@@ -3,12 +3,12 @@ import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey, Table
 from sqlalchemy.orm import relationship, Session
 
-from db.base import Base
+from db.database import Base
 from models.category import Category, ProductCategory
 from models.wishList import ProductWishlist
 from schemas.product import CreateProduct
-from fastapi import HTTPException
-from sqlalchemy.ext.declarative import declarative_base
+from fastapi import HTTPException, Depends
+from db.database import get_db, Base
 
 
 class Product(Base):
@@ -69,7 +69,7 @@ class Product(Base):
         }
 
 
-def create_product(db: Session, product: CreateProduct):
+def create_product(product: CreateProduct, db: Session = Depends(get_db)):
     categories = []
     for category in product.categories:
         db_category = db.query(Category).filter(Category.id == category.id).first()
@@ -79,7 +79,7 @@ def create_product(db: Session, product: CreateProduct):
             raise HTTPException(status_code=404, detail="Category not found")
     product.categories = []
     try:
-        db_product = Product(**product.dict())
+        db_product = Product(**product.model_dump())
         db.add(db_product)
         db_product.add_categories(categories)
         db.commit()
