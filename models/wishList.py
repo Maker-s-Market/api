@@ -1,10 +1,10 @@
 import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Table
+from sqlalchemy import Column, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
-from db.base import Base
+from db.database import Base
 
 ProductWishlist = Table(
     'product_wishlist',

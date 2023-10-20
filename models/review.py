@@ -1,9 +1,9 @@
 import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, String, DateTime
 
-from db.base import Base
+from db.database import Base
 
 
 class Review(Base):
@@ -15,6 +15,5 @@ class Review(Base):
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(), nullable=False)
 
-    # BETTER
     user_id = Column(String(50), ForeignKey("user.id"))
     product_id = Column(String(50), ForeignKey("product.id"))

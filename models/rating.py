@@ -1,9 +1,9 @@
 import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
+from sqlalchemy import Column, String, DateTime, Float, ForeignKey
 
-from db.base import Base
+from db.database import Base
 
 
 class Rating(Base):

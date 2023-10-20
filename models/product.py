@@ -1,15 +1,14 @@
 import datetime
 from uuid import uuid4
 
+from fastapi import HTTPException, Depends
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Session
 
-from db.base import Base
+from db.database import get_db, Base
 from models.category import Category, ProductCategory
 from models.wishList import ProductWishlist
 from schemas.product import CreateProduct
-from fastapi import HTTPException
-from sqlalchemy.ext.declarative import declarative_base
 
 
 class Product(Base):
@@ -23,26 +22,24 @@ class Product(Base):
     stock = Column(Integer, index=True)
     discount = Column(Float, index=True, default=0)
     number_views = Column(Integer, index=True, default=0)
+    # photo = Column(String(255), index=True, nullable=True)
 
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    # Change to image
-    # image = Column()
-
-    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=True)  # TODO CHANGE TO FALSE
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
-    def increment_number_views(self, db: Session):
+    def increment_number_views(self, db: Session = Depends(get_db)):
         self.number_views += 1
         self.updated_at = datetime.datetime.now()
         db.commit()
         db.refresh(self)
 
-    def add_categories(self, categories, db: Session):
+    def add_categories(self, categories, db: Session = Depends(get_db)):
         self.categories.extend(categories)
         db.commit()
         db.refresh(self)
@@ -66,7 +63,7 @@ class Product(Base):
         db.refresh(self)
         return self
 
-    def delete(self, db: Session):
+    def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
         db.commit()
         return self
@@ -101,7 +98,7 @@ class Product(Base):
         }
 
 
-def create_product(db: Session, product: CreateProduct):
+def create_product(product: CreateProduct, db: Session = Depends(get_db)):
     categories = set()
     for category in product.categories:
         db_category = db.query(Category).filter(Category.id == category.id).first()
@@ -111,7 +108,7 @@ def create_product(db: Session, product: CreateProduct):
             raise HTTPException(status_code=404, detail="Category not found")
     product.categories = []
     try:
-        db_product = Product(**product.dict())
+        db_product = Product(**product.model_dump())
         db.add(db_product)
         db.commit()
         db.refresh(db_product)
@@ -119,5 +116,3 @@ def create_product(db: Session, product: CreateProduct):
     except Exception:
         raise HTTPException(status_code=400, detail="Error creating product")
     return db_product
-
-

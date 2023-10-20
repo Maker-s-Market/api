@@ -1,13 +1,11 @@
 import datetime
 import uuid
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import Session, relationship
 
-from sqlalchemy.ext.declarative import declarative_base
-
-from db.base import Base
+from db.database import Base, get_db
 from schemas.category import CreateCategory
 
 ProductCategory = Table(
@@ -33,13 +31,13 @@ class Category(Base):
 
     products = relationship('Product', secondary=ProductCategory, back_populates='categories')
 
-    def increment_number_views(self, db: Session):
+    def increment_number_views(self, db: Session = Depends(get_db)):
         self.number_views += 1
         self.updated_at = datetime.datetime.now()
         db.commit()
         db.refresh(self)
 
-    def update_category(self, db: Session, category: CreateCategory):
+    def update_category(self, category: CreateCategory, db: Session = Depends(get_db)):
         self.name = category.name
         self.slug = category.name.replace(" ", "-").lower()
         self.icon = category.icon
@@ -48,7 +46,7 @@ class Category(Base):
         db.refresh(self)
         return self
 
-    def delete_category(self, db: Session):
+    def delete_category(self, db: Session = Depends(get_db)):
         db.delete(self)
         db.commit()
         return self
@@ -65,10 +63,10 @@ class Category(Base):
         }
 
 
-def create_category(db: Session, category: CreateCategory):
+def create_category(category: CreateCategory, db: Session = Depends(get_db)):
     if db.query(Category).filter(Category.name == category.name).first():
         raise HTTPException(status_code=400, detail="Category already exists")
-    db_category = Category(**category.dict())
+    db_category = Category(**category.model_dump())
     db_category.slug = db_category.name.replace(" ", "-").lower()
     db.add(db_category)
     db.commit()
