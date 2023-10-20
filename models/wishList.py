@@ -5,7 +5,6 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 from db.database import Base
-from utils import generate_uuid
 
 ProductWishlist = Table(
     'product_wishlist',

@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Path
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from repositories.productRepo import get_product_by_id, new_product
+from repositories.productRepo import get_product_by_id, new_product, get_all_products, get_top_products_db, \
+    get_products_by_filters
 
 from db.database import get_db
 from schemas.product import CreateProduct
@@ -45,9 +48,33 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/products")
-async def get_products(db: Session = Depends(get_db)):
-    return JSONResponse(status_code=200, content=jsonable_encoder({"products": "Not implemented yet"}))
+async def get_products(q: str = None,
+                       limit: int = 10,
+                       sort: str = "newest",
+                       category: list = None,
+                       price_min: int = None,
+                       price_max: int = None,
+                       discount: bool = None,
+                       # location: str = None,
+                       db: Session = Depends(get_db)):
+    if category is None:
+        category = []
+
+    if sort not in ["newest", "oldest", "price_asc", "price_desc", "relevance"]:
+        raise HTTPException(status_code=400, detail="Invalid sort parameter")
+
+    if price_max is not None and price_min is not None and price_max < price_min:
+        raise HTTPException(status_code=400, detail="Invalid price range")
+
+    return JSONResponse(status_code=200, content=jsonable_encoder(
+        [product.to_dict() for product in get_products_by_filters(q=q,
+                                                                  price_min=price_min,
+                                                                  price_max=price_max,
+                                                                  limit=limit,
+                                                                  db=db)]))
+
 
 @router.get("/top/products")
 async def get_top_products(db: Session = Depends(get_db)):
-    return JSONResponse(status_code=200, content=jsonable_encoder({"products": "Not implemented yet"}))
+    return JSONResponse(status_code=200, content=jsonable_encoder([product.to_dict()
+                                                                   for product in get_top_products_db(db=db)]))

@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session, relationship
 
 from db.database import Base, get_db
 from schemas.category import CreateCategory
-from utils import generate_uuid
 
 ProductCategory = Table(
     'product_category',

@@ -4,11 +4,11 @@ from uuid import uuid4
 from sqlalchemy import Column, ForeignKey, String, DateTime
 
 from db.database import Base
-from utils import generate_uuid
 
 
 def random_uuid():
     return str(uuid4())
+
 
 class Review(Base):
     __tablename__ = "review"

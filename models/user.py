@@ -6,7 +6,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Tabl
 from sqlalchemy.orm import relationship
 
 from db.database import Base
-from utils import generate_uuid
 
 followers = Table(
     'followers',
