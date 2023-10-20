@@ -9,7 +9,7 @@ from db.base import Base
 class Rating(Base):
     __tablename__ = "rating"
 
-    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
+    id = Column(String(50), primary_key=True, index=True, default=uuid4)
     rating = Column(Float, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)

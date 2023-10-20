@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 class Product(Base):
     __tablename__ = "product"
 
-    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
+    id = Column(String(50), primary_key=True, index=True, default=uuid4)
     name = Column(String(255), index=True, nullable=False)
     description = Column(String(255), index=True, nullable=False)
     price = Column(Float, index=True, nullable=False)

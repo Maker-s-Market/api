@@ -1,5 +1,5 @@
 import datetime
-import uuid
+from uuid import uuid4
 
 from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
@@ -21,7 +21,7 @@ ProductCategory = Table(
 class Category(Base):
     __tablename__ = "category"
 
-    id = Column(String(50), primary_key=True, index=True, default=str(uuid.uuid4()))
+    id = Column(String(50), primary_key=True, index=True, default=uuid4)
     name = Column(String(200), index=True, unique=True, nullable=False)
     slug = Column(String(200), index=True, unique=True, default="", nullable=False)
     icon = Column(String(200), index=True, nullable=False)

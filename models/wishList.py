@@ -17,7 +17,7 @@ ProductWishlist = Table(
 class Wishlist(Base):
     __tablename__ = "wishlist"
 
-    id = Column(String(50), primary_key=True, index=True, default=str(uuid4()))
+    id = Column(String(50), primary_key=True, index=True, default=uuid4)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
