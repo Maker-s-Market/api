@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Tabl
 from sqlalchemy.orm import relationship
 
 from db.database import Base
+from utils import generate_uuid
 
 followers = Table(
     'followers',
@@ -13,6 +14,10 @@ followers = Table(
     Column('follower_id', String(50), ForeignKey('user.id')),
     Column('followed_id', String(50), ForeignKey('user.id'))
 )
+
+
+def random_uuid():
+    return str(uuid4())
 
 
 class Role(enum.Enum):
@@ -24,7 +29,7 @@ class Role(enum.Enum):
 class User(Base):
     __tablename__ = "user"
 
-    id = Column(String(50), primary_key=True, index=True, default=uuid4)
+    id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(200), index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
     # photo = Column(String(200), index=True, nullable=False)

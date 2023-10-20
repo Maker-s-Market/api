@@ -5,6 +5,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 from db.database import Base
+from utils import generate_uuid
 
 ProductWishlist = Table(
     'product_wishlist',
@@ -14,10 +15,14 @@ ProductWishlist = Table(
 )
 
 
+def random_uuid():
+    return str(uuid4())
+
+
 class Wishlist(Base):
     __tablename__ = "wishlist"
 
-    id = Column(String(50), primary_key=True, index=True, default=uuid4)
+    id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),

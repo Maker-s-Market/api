@@ -5,11 +5,14 @@ from sqlalchemy import Column, String, DateTime, Float, ForeignKey
 
 from db.database import Base
 
+def random_uuid():
+    return str(uuid4())
+
 
 class Rating(Base):
     __tablename__ = "rating"
 
-    id = Column(String(50), primary_key=True, index=True, default=uuid4)
+    id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     rating = Column(Float, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)

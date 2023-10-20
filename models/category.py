@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, relationship
 
 from db.database import Base, get_db
 from schemas.category import CreateCategory
+from utils import generate_uuid
 
 ProductCategory = Table(
     'product_category',
@@ -16,10 +17,13 @@ ProductCategory = Table(
 )
 
 
+def random_uuid():
+    return str(uuid4())
+
 class Category(Base):
     __tablename__ = "category"
 
-    id = Column(String(50), primary_key=True, index=True, default=uuid4)
+    id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(200), index=True, unique=True, nullable=False)
     slug = Column(String(200), index=True, unique=True, default="", nullable=False)
     icon = Column(String(200), index=True, nullable=False)
