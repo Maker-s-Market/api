@@ -42,3 +42,12 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     product.delete(db=db)
     return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Product deleted"}))
+
+
+@router.get("/products")
+async def get_products(db: Session = Depends(get_db)):
+    return JSONResponse(status_code=200, content=jsonable_encoder({"products": "Not implemented yet"}))
+
+@router.get("/top/products")
+async def get_top_products(db: Session = Depends(get_db)):
+    return JSONResponse(status_code=200, content=jsonable_encoder({"products": "Not implemented yet"}))
