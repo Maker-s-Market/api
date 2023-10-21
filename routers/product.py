@@ -68,7 +68,7 @@ async def get_products(q: str = "", limit: int = 10,
                         content=jsonable_encoder([product.to_dict() for product in result]))
 
 
-@router.get("/top/product")
+@router.get("/top/products")
 async def get_top_products(db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder([product.to_dict()
                                                                    for product in get_top_products_db(db=db)]))
