@@ -1,9 +1,16 @@
 from contextlib import asynccontextmanager
+from uuid import uuid4
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
+from db.database import get_db
+from models.category import Category
+from models.product import Product
 from routers import product, category
 
 
@@ -31,6 +38,7 @@ app.include_router(product.router)
 async def root():
     return {"message": "hello World!"}
 
+
 # @app.post('/style')
 # async def predict(img_bytes: bytes = File(...)):
 #     img = io.BytesIO(img_bytes)
@@ -39,3 +47,24 @@ async def root():
 #         img,
 #         media_type="image/jpg",
 #     )
+
+
+@app.post("/insert_data")
+async def insert_data(db: Session = Depends(get_db)):
+    db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="category1", icon="icon1", slug="category1"))
+    db.add(Category(id=str(uuid4()), name="category2", icon="icon2", slug="category2"))
+    db.commit()
+
+    db.add(Product(id=str(uuid4()), name="product1", description="description1", price=10000, stockable=True,
+                   stock=10, discount=10, number_views=1))
+    db.add(Product(id=str(uuid4()), name="product2", description="description2", price=20000, stockable=True,
+                   stock=20, discount=20, number_views=2))
+    db.add(Product(id=str(uuid4()), name="product3", description="description3", price=30000, stockable=True,
+                   stock=30, discount=30, number_views=3))
+    new_product = Product(id=str(uuid4()), name="product4", description="description4", price=40000, stockable=True,
+                          stock=40, discount=40, number_views=4)
+    db.add(new_product)
+    db.commit()
+    category_to_product = db.query(Category).filter(Category.id == "06e0da01-57fd-4441-95be-0d25c764ea57").first()
+    new_product.add_categories([category_to_product], db=db)
+    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "INSERT DATA SUCCESS"}))

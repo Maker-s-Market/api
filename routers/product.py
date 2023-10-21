@@ -20,23 +20,6 @@ router = APIRouter(tags=['Product'])
 MESSAGE_NOT_FOUND = "Product not found"
 
 
-@router.post("/insert_data")
-async def insert_data(db: Session = Depends(get_db)):
-    db.add(Product(id=str(uuid4()), name="product1", description="description1", price=10000, stockable=True,
-                   stock=10, discount=10, number_views=1))
-    db.add(Product(id=str(uuid4()), name="product2", description="description2", price=20000, stockable=True,
-                   stock=20, discount=20, number_views=2))
-    db.add(Product(id=str(uuid4()), name="product3", description="description3", price=30000, stockable=True,
-                   stock=30, discount=30, number_views=3))
-    product = Product(id=str(uuid4()), name="product4", description="description4", price=40000, stockable=True,
-                      stock=40, discount=40, number_views=4)
-    db.add(product)
-    db.commit()
-    category = db.query(Category).filter(Category.id == "06e0da01-57fd-4441-95be-0d25c764ea57").first()
-    product.add_categories([category], db=db)
-    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "INSERT PRODUCT SUCCESS"}))
-
-
 @router.get("/product/{product_id}")
 async def get_product(product_id: str, db: Session = Depends(get_db)):
     product = get_product_by_id(product_id, db)
@@ -76,9 +59,8 @@ async def get_products(q: str = "", limit: int = 10,
                        category_id: str = None, db: Session = Depends(get_db)):
                        # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
 
-    if category_id is not None:
-        if not get_category_by_id(category_id, db):
-            raise HTTPException(status_code=404, detail="Category not found")
+    if category_id is not None and not get_category_by_id(category_id, db):
+        raise HTTPException(status_code=404, detail="Category not found")
 
     if price_max is not None and price_min is not None and price_max < price_min:
         raise HTTPException(status_code=400, detail="Invalid price range")
