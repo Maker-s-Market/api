@@ -1,19 +1,12 @@
-from typing import Annotated
-from uuid import uuid4
-
-from fastapi import APIRouter, Depends, HTTPException, Path, Body
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from models.category import Category
-from models.product import Product
-from repositories.categoryRepo import get_category_by_id
-from repositories.productRepo import get_product_by_id, new_product, get_all_products, get_top_products_db, \
-    get_products_by_filters
-
 from db.database import get_db
-from schemas.category import CategoryIdentifier
+from repositories.categoryRepo import get_category_by_id
+from repositories.productRepo import get_product_by_id, new_product, get_top_products_db, \
+    get_products_by_filters
 from schemas.product import CreateProduct
 
 router = APIRouter(tags=['Product'])
@@ -30,12 +23,14 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/product")
-async def create_product(product: CreateProduct, db: Session = Depends(get_db)):
+async def create_product(product: CreateProduct,
+                         db: Session = Depends(get_db)):
     return JSONResponse(status_code=201, content=jsonable_encoder(new_product(db=db, product=product).to_dict()))
 
 
 @router.put("/product/{product_id}")
 async def update_product(product_id: str, edit_product: CreateProduct, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the owner can edit the product)
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
@@ -45,6 +40,7 @@ async def update_product(product_id: str, edit_product: CreateProduct, db: Sessi
 
 @router.delete("/product/{product_id}")
 async def delete_product(product_id: str, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the owner can delete the product)
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
@@ -57,7 +53,7 @@ async def get_products(q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False,
                        category_id: str = None, db: Session = Depends(get_db)):
-                       # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
+    # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
 
     if category_id is not None and not get_category_by_id(category_id, db):
         raise HTTPException(status_code=404, detail="Category not found")
@@ -72,7 +68,7 @@ async def get_products(q: str = "", limit: int = 10,
                         content=jsonable_encoder([product.to_dict() for product in result]))
 
 
-@router.get("/top/products")
+@router.get("/products/relevant")
 async def get_top_products(db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder([product.to_dict()
                                                                    for product in get_top_products_db(db=db)]))

@@ -1,3 +1,4 @@
+from fastapi import UploadFile, File
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -11,5 +12,5 @@ class CreateProduct(BaseModel):
     stockable: bool
     stock: int
     discount: float
-    # image: str #TODO image
+    image: str
     categories: List[CategoryIdentifier] = []

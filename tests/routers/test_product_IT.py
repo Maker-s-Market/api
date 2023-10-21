@@ -1,5 +1,4 @@
 import pytest
-
 from fastapi.testclient import TestClient
 
 from main import app
@@ -9,6 +8,13 @@ from tests.test_sql_app import TestingSessionLocal
 
 client = TestClient(app)
 
+@pytest.fixture(scope="module", autouse=True)
+def load_data():
+    db = TestingSessionLocal()
+    db.query(Category).delete()
+    db.query(Product).delete()
+    db.commit()
+    db.close()
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -30,7 +36,8 @@ def test_normal_post_product():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [],
+                               "image": "image1"
                            })
 
     assert response.status_code == 201, response.text
@@ -43,6 +50,7 @@ def test_normal_post_product():
     assert data["stock"] == 2
     assert data["discount"] == 0
     assert data["categories"] == []
+    assert data["image"] == "image1"
 
 
 def test_post_wrong_category():
@@ -56,7 +64,8 @@ def test_post_wrong_category():
                                "discount": 0,
                                "categories": [{
                                    "id": "non existent id"
-                               }]
+                               }],
+                               "image": "image1"
                            }
                            )
 
@@ -73,7 +82,8 @@ def test_get_product():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [],
+                               "image": "image1"
                            }
                            )
 
@@ -94,6 +104,7 @@ def test_get_product():
     assert data["stock"] == 2
     assert data["discount"] == 0
     assert data["categories"] == []
+    assert data["image"] == "image1"
 
 
 def test_no_correct_id_product():
@@ -114,7 +125,8 @@ def test_put_not_existing_product():
                               "stockable": True,
                               "stock": 2,
                               "discount": 0,
-                              "categories": []
+                              "categories": [],
+                              "image": "image1"
                           })
 
     assert response.status_code == 404, response.text
@@ -130,7 +142,8 @@ def test_put_existing_product_no_category():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [],
+                               "image": "image1"
                            }
                            )
 
@@ -144,7 +157,8 @@ def test_put_existing_product_no_category():
                               "stockable": False,
                               "stock": 0,
                               "discount": 0,
-                              "categories": []
+                              "categories": [],
+                              "image": "image1"
                           })
 
     assert response.status_code == 200, response.text
@@ -159,6 +173,7 @@ def test_put_existing_product_no_category():
     assert data["stock"] == 0
     assert data["discount"] == 0
     assert data["categories"] == []
+    assert data["image"] == "image1"
 
 
 def test_put_existing_product_no_existing_category():
@@ -170,7 +185,8 @@ def test_put_existing_product_no_existing_category():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [],
+                               "image": "image1"
                            }
                            )
 
@@ -186,7 +202,8 @@ def test_put_existing_product_no_existing_category():
                               "discount": 0,
                               "categories": [{
                                   "id": "some non existing id"
-                              }]
+                              }],
+                              "image": "image1"
                           })
 
     assert response.status_code == 404, response.text
@@ -218,7 +235,8 @@ def test_put_existing_product_existing_category():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [], 
+                               "image": "image1"
                            }
                            )
 
@@ -239,7 +257,8 @@ def test_put_existing_product_existing_category():
                                   {
                                       "id": str(category2_id)
                                   }
-                              ]
+                              ],
+                              "image": "image1"
                           })
 
     assert response.status_code == 200, response.text
@@ -252,6 +271,7 @@ def test_put_existing_product_existing_category():
     assert data["stockable"] == True
     assert data["stock"] == 2
     assert data["discount"] == 0
+    assert data["image"] == "image1"
 
     assert len(data["categories"]) == 2
     assert data["categories"][0]["id"] == category1_id or data["categories"][0]["id"] == category2_id
@@ -269,7 +289,8 @@ def test_delete_existing_product():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": []
+                               "categories": [],
+                               "image": "image1"
                            }
                            )
 

@@ -11,6 +11,7 @@ client = TestClient(app)
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
+    db.query(Category).delete()
     db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="Category1x", icon="icon1", slug="category1x"))
     db.commit()
     db.close()
@@ -95,7 +96,8 @@ def test_get_category_by_id_not_existing():
 
 
 def test_get_top_category():
-    response = client.get("/top/category")
+    
+    response = client.get("/category/relevant")
 
     assert response.status_code == 200, response.text
 

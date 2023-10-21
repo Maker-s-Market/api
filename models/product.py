@@ -26,7 +26,7 @@ class Product(Base):
     stock = Column(Integer, index=True)
     discount = Column(Integer, index=True, default=0)
     number_views = Column(Integer, index=True, default=0)
-    # photo = Column(String(255), index=True, nullable=True) # TODO ADD PHOTO
+    image = Column(String(255), index=True, nullable=True)# TODO ADD PHOTO
 
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
@@ -81,25 +81,11 @@ class Product(Base):
             'stockable': self.stockable,
             'stock': self.stock,
             'discount': self.discount,
+            'image': self.image,
             'number_views': self.number_views,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            # im
             'categories': [category.to_dict() for category in self.categories]
-        }
-
-    def to_dict_not_categories(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'price': self.price,
-            'stockable': self.stockable,
-            'stock': self.stock,
-            'discount': self.discount,
-            'number_views': self.number_views,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at,
         }
 
 
