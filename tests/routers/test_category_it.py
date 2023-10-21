@@ -1,36 +1,12 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from db.database import get_db, Base
 from main import app
 from models.category import Category
-
-SQLALCHEMY_DATABASE_URL = "sqlite://"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(bind=engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
+from tests.test_sql_app import TestingSessionLocal
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
+
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -141,6 +117,7 @@ def test_delete_not_existing_category():
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Category not found'}
+
 
 def test_delete_existing_category():
     response = client.delete("/category/06e0da01-57fd-4441-95be-0d25c764ea57")
