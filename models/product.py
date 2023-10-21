@@ -81,6 +81,7 @@ class Product(Base):
             'stockable': self.stockable,
             'stock': self.stock,
             'discount': self.discount,
+            'image': self.image,
             'number_views': self.number_views,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
@@ -88,7 +89,7 @@ class Product(Base):
         }
 
 
-def create_product(product: CreateProduct, image: str, db: Session = Depends(get_db)):
+def create_product(product: CreateProduct, db: Session = Depends(get_db)):
     categories = set()
     for category in product.categories:
         db_category = db.query(Category).filter(Category.id == category.id).first()

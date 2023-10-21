@@ -1,7 +1,4 @@
-import os
-
-import boto3
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
@@ -14,14 +11,6 @@ from schemas.product import CreateProduct
 
 router = APIRouter(tags=['Product'])
 MESSAGE_NOT_FOUND = "Product not found"
-
-# Configure AWS credentials
-s3 = boto3.client(
-    's3',
-    region_name=os.getenv("AWS_REGION"),
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
-)
 
 
 @router.get("/product/{product_id}")
@@ -36,22 +25,6 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
 @router.post("/product")
 async def create_product(product: CreateProduct,
                          db: Session = Depends(get_db)):
-
-    print(product)
-    # Generate a unique filename for the uploaded file
-    # filename = file.filename
-    #
-    # # Upload the file to the S3 bucket
-    # s3.upload_fileobj(file.file, os.getenv("BUCKET_NAME"), filename)
-    #
-    # # Generate a pre-signed URL to access the image in S3
-    # presigned_url = s3.generate_presigned_url(
-    #     'get_object',
-    #     Params={'Bucket': os.getenv("BUCKET_NAME"), 'Key': filename.s3_key},
-    #     ExpiresIn=3600
-    # )
-    # print(presigned_url)
-
     return JSONResponse(status_code=201, content=jsonable_encoder(new_product(db=db, product=product).to_dict()))
 
 
@@ -78,7 +51,7 @@ async def get_products(q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False,
                        category_id: str = None, db: Session = Depends(get_db)):
-                       # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
+    # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
 
     if category_id is not None and not get_category_by_id(category_id, db):
         raise HTTPException(status_code=404, detail="Category not found")
