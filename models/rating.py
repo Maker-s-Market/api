@@ -5,6 +5,7 @@ from sqlalchemy import Column, String, DateTime, Float, ForeignKey
 
 from db.database import Base
 
+
 def random_uuid():
     return str(uuid4())
 
