@@ -31,6 +31,7 @@ class User(Base):
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(200), index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
+    username = Column(String(200), unique=True, index=True, nullable=False)
     city = Column(String(200), index=True, nullable=False)
     region = Column(String(200), index=True, nullable=False)
     # photo = Column(String(200), index=True, nullable=False) # TODO ADD PHOTO
