@@ -30,6 +30,7 @@ async def create_product(product: CreateProduct,
 
 @router.put("/product/{product_id}")
 async def update_product(product_id: str, edit_product: CreateProduct, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the owner can edit the product)
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
@@ -39,6 +40,7 @@ async def update_product(product_id: str, edit_product: CreateProduct, db: Sessi
 
 @router.delete("/product/{product_id}")
 async def delete_product(product_id: str, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the owner can delete the product)
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)

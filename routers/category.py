@@ -14,11 +14,13 @@ MESSAGE_NOT_FOUND = "Category not found"
 
 @router.post("/category")
 async def create_category(cat: CreateCategory, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the admin can create the category)
     return JSONResponse(status_code=201, content=jsonable_encoder(new_category(db=db, cat=cat).to_dict()))
 
 
 @router.put("/category/{category_id}")
 async def update_category(category_id: str, cat: CreateCategory, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the admin can edit the product)
     category = get_category_by_id(db=db, category_id=category_id)
     if not category:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
@@ -28,6 +30,7 @@ async def update_category(category_id: str, cat: CreateCategory, db: Session = D
 
 @router.delete("/category/{category_id}")
 async def delete_category(category_id: str, db: Session = Depends(get_db)):
+    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the admin can delete the category)
     category = get_category_by_id(db=db, category_id=category_id)
     if not category:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
