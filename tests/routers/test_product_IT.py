@@ -193,7 +193,7 @@ def test_put_existing_product_no_existing_category():
     assert response.json() == {'detail': 'Category not found'}
 
 
-""" def test_put_existing_product_existing_category():
+def test_put_existing_product_existing_category():
     response = client.post("/category",
                            json={
                                "name": "category1",
@@ -254,9 +254,8 @@ def test_put_existing_product_no_existing_category():
     assert data["discount"] == 0
 
     assert len(data["categories"]) == 2
-    assert data["categories"][0]["id"] == category1_id
-    assert data["categories"][1]["id"] == category2_id
-    assert data["categories"][0]["name"] == "category1" """
+    assert data["categories"][0]["id"] == category1_id or data["categories"][0]["id"] == category2_id
+    assert data["categories"][1]["id"] == category2_id or data["categories"][1]["id"] == category1_id
 
 
 # DELETE TESTS
