@@ -11,5 +11,5 @@ class CreateProduct(BaseModel):
     stockable: bool
     stock: int
     discount: float
-    # image: str
+    # image: str #TODO image
     categories: List[CategoryIdentifier] = []

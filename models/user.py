@@ -31,7 +31,9 @@ class User(Base):
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(200), index=True, nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
-    # photo = Column(String(200), index=True, nullable=False)
+    city = Column(String(200), index=True, nullable=False)
+    region = Column(String(200), index=True, nullable=False)
+    # photo = Column(String(200), index=True, nullable=False) # TODO ADD PHOTO
     hashed_password = Column(String(200), nullable=False)
     role = Column(Enum(Role))
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(),

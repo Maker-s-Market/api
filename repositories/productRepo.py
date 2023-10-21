@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -22,15 +22,37 @@ def get_all_products(db: Session = Depends(get_db)):
     return db.query(ProductModel).filter().all()
 
 
-# get products by this filters
-# query
-def get_products_by_filters(q: str = "", price_min: int = None, price_max: int = None,
+def get_products_by_filters(q: str = "",
                             limit: int = 10,
-                            db: Session = Depends(get_db)):
-    return (db.query(ProductModel)
-            .filter(ProductModel.name.contains(q))
-            .filter(ProductModel.price >= price_min)
-            .filter(ProductModel.price <= price_max)
-            .order_by(ProductModel.created_at.desc())
-            .limit(limit)
-            .all())
+                            price_min: int = 0,
+                            price_max: int = 100000000,
+                            sort: str = "newest",
+                            discount: bool = False,
+                            category_id: str = "",
+                            db: Session = Depends(get_db)) -> object:
+    if sort not in ["newest", "oldest", "price_asc", "price_desc", "relevance"]:
+        raise HTTPException(status_code=400, detail="Invalid sort parameter")
+
+    result = (db.query(ProductModel).filter(ProductModel.name.contains(q))
+                .filter(ProductModel.price >= price_min)
+                .filter(ProductModel.price <= price_max))
+    if discount:
+        result = result.filter(ProductModel.discount > 0)
+
+    if category_id:
+        result = result.filter(ProductModel.categories.any(id=category_id))
+
+    if sort == "newest":
+        return result.order_by(ProductModel.created_at.desc()).limit(limit).all()
+    elif sort == "oldest":
+        return result.order_by(ProductModel.created_at.asc()).limit(limit).all()
+    elif sort == "price_asc":
+        return result.order_by(ProductModel.price.asc()).limit(limit).all()
+    elif sort == "price_desc":
+        return result.order_by(ProductModel.price.desc()).limit(limit).all()
+    elif sort == "relevance":
+        return result.order_by(ProductModel.number_views.desc()).limit(limit).all()
+    else:
+        return result.limit(limit).all()
+
+

@@ -24,9 +24,9 @@ class Product(Base):
     price = Column(Float, index=True, nullable=False)
     stockable = Column(Boolean, index=True, nullable=False)
     stock = Column(Integer, index=True)
-    discount = Column(Float, index=True, default=0)
+    discount = Column(Integer, index=True, default=0)
     number_views = Column(Integer, index=True, default=0)
-    # photo = Column(String(255), index=True, nullable=True)
+    # photo = Column(String(255), index=True, nullable=True) # TODO ADD PHOTO
 
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
@@ -84,6 +84,7 @@ class Product(Base):
             'number_views': self.number_views,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
+            # im
             'categories': [category.to_dict() for category in self.categories]
         }
 

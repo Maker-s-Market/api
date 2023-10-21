@@ -15,10 +15,9 @@ router = APIRouter(tags=['Category'])
 MESSAGE_NOT_FOUND = "Category not found"
 
 
-@router.post("/insert_data")
+@router.post("/category/insert_data")
 async def insert_data(db: Session = Depends(get_db)):
-    category_id = str(uuid4())
-    db.add(Category(id=category_id, name="category1", icon="icon1", slug="category1"))
+    db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="category1", icon="icon1", slug="category1"))
     db.add(Category(id=str(uuid4()), name="category2", icon="icon2", slug="category2"))
     db.commit()
     return JSONResponse(status_code=201, content=jsonable_encoder({"message": "INSERT CATEGORY SUCCESS"}))
