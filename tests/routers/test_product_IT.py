@@ -8,6 +8,7 @@ from tests.test_sql_app import TestingSessionLocal
 
 client = TestClient(app)
 
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -16,16 +17,20 @@ def load_data():
     db.commit()
     db.close()
 
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
 
     db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="Category1x", icon="icon1", slug="category1x"))
-    db.add(Product(id="06e0da01-57fd-2227-95be-0d25c764ea57", name="random product 1", description = "some description 1", price=12.0, stockable = False))
-    db.add(Product(id="06e0da01-57fd-2228-95be-0d25c764ea57", name="random product 2", description = "some description 2", price=11.0, stockable = True))
-    
+    db.add(Product(id="06e0da01-57fd-2227-95be-0d25c764ea57", name="random product 1", description="some description 1",
+                   price=12.0, stockable=False))
+    db.add(Product(id="06e0da01-57fd-2228-95be-0d25c764ea57", name="random product 2", description="some description 2",
+                   price=11.0, stockable=True))
+
     db.commit()
     db.close()
+
 
 def test_normal_post_product():
     response = client.post("/product",
@@ -213,7 +218,7 @@ def test_put_existing_product_no_existing_category():
 def test_put_existing_product_existing_category():
     response = client.post("/category",
                            json={
-                               "name": "category1",
+                               "name": "category1edit",
                                "icon": "icon1"
                            })
 
@@ -221,7 +226,7 @@ def test_put_existing_product_existing_category():
 
     response = client.post("/category",
                            json={
-                               "name": "category2",
+                               "name": "category2edit",
                                "icon": "icon2"
                            })
 
@@ -235,7 +240,7 @@ def test_put_existing_product_existing_category():
                                "stockable": True,
                                "stock": 2,
                                "discount": 0,
-                               "categories": [], 
+                               "categories": [],
                                "image": "image1"
                            }
                            )
@@ -313,37 +318,36 @@ def test_delete_non_existing_product():
 
 def test_filter_product():
     client.post("/product",
-                           json={
-                               "name": "product1",
-                               "description": "product1's description",
-                               "price": 12.5,
-                               "stockable": True,
-                               "stock": 2,
-                               "discount": 0,
-                               "categories": [{
-                                "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
-                            }]
-                           })
+                json={
+                    "name": "product1",
+                    "description": "product1's description",
+                    "price": 12.5,
+                    "stockable": True,
+                    "stock": 2,
+                    "discount": 0,
+                    "categories": [{
+                        "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
+                    }]
+                })
 
     client.post("/product",
-                        json={
-                            "name": "product2",
-                            "description": "product2's description",
-                            "price": 15.5,
-                            "stockable": False,
-                            "stock": 0,
-                            "discount": 50,
-                            "categories": []
-                        })
+                json={
+                    "name": "product2",
+                    "description": "product2's description",
+                    "price": 15.5,
+                    "stockable": False,
+                    "stock": 0,
+                    "discount": 50,
+                    "categories": []
+                })
 
-
-    response = client.get("/products" + 
-                        "?q=" + str(1) + 
-                        "&limit=" + str(1) + 
-                        "&price_min=" + str(3) +
-                        "&price_max=" + str(20) +
-                        "&sort=" + "price_asc" + 
-                        "&discount=" + str(0))
+    response = client.get("/products" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(1) +
+                          "&price_min=" + str(3) +
+                          "&price_max=" + str(20) +
+                          "&sort=" + "price_asc" +
+                          "&discount=" + str(0))
 
     data = response.json()
 
@@ -353,54 +357,62 @@ def test_filter_product():
 
 
 def test_filter_product_category_not_found():
-
     client.post("/product",
-                           json={
-                               "name": "product1",
-                               "description": "product1's description",
-                               "price": 12.5,
-                               "stockable": True,
-                               "stock": 2,
-                               "discount": 0,
-                               "categories": [{
-                                "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
-                            }]
-                           })
+                json={
+                    "name": "product1",
+                    "description": "product1's description",
+                    "price": 12.5,
+                    "stockable": True,
+                    "stock": 2,
+                    "discount": 0,
+                    "categories": [{
+                        "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
+                    }]
+                })
 
-    response = client.get("/products" + 
-                        "?q=" + str(1) + 
-                        "&limit=" + str(1) + 
-                        "&price_min=" + str(3) +
-                        "&price_max=" + str(20) +
-                        "&sort=" + "price_asc" + 
-                        "&discount=" + str(0) +
-                        "&category_id=" + "some unknown category id")
+    response = client.get("/products" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(1) +
+                          "&price_min=" + str(3) +
+                          "&price_max=" + str(20) +
+                          "&sort=" + "price_asc" +
+                          "&discount=" + str(0) +
+                          "&category_id=" + "some unknown category id")
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Category not found"}
 
-def test_filter_product_invalid_price_range():
 
-    response = client.get("/products" + 
-                        "?q=" + str(1) + 
-                        "&limit=" + str(1) + 
-                        "&price_min=" + str(20) +
-                        "&price_max=" + str(3) +
-                        "&sort=" + "price_asc" + 
-                        "&discount=" + str(0))
+def test_filter_product_invalid_price_range():
+    response = client.get("/products" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(1) +
+                          "&price_min=" + str(20) +
+                          "&price_max=" + str(3) +
+                          "&sort=" + "price_asc" +
+                          "&discount=" + str(0))
 
     assert response.status_code == 400
     assert response.json() == {'detail': 'Invalid price range'}
 
-def test_filter_product_invalid_sort():
 
-    response = client.get("/products" + 
-                        "?q=" + str(1) + 
-                        "&limit=" + str(1) + 
-                        "&price_min=" + str(3) +
-                        "&price_max=" + str(20) +
-                        "&sort=" + "some unknown sorte" + 
-                        "&discount=" + str(0))
+def test_filter_product_invalid_sort():
+    response = client.get("/products" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(1) +
+                          "&price_min=" + str(3) +
+                          "&price_max=" + str(20) +
+                          "&sort=" + "some unknown sorte" +
+                          "&discount=" + str(0))
 
     assert response.status_code == 400
     assert response.json() == {'detail': 'Invalid sort parameter'}
+
+
+def test_get_top_products():
+    response = client.get("/top/product")
+
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+    assert len(data) == 4

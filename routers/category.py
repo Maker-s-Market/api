@@ -56,8 +56,8 @@ async def get_category(category_id: str, db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=json_compatible_item_data)
 
 
-@router.get("/category/relevant")
-async def get_top_categories(db: Session = Depends(get_db)):
+@router.get("/top/category")
+async def get_top_category(db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder([category.to_dict()
                                                                    for category in get_top_categories(db=db)]))
 

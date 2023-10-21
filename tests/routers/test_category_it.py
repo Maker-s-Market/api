@@ -97,7 +97,7 @@ def test_get_category_by_id_not_existing():
 
 def test_get_top_category():
     
-    response = client.get("/category/relevant")
+    response = client.get("/top/category")
 
     assert response.status_code == 200, response.text
 
