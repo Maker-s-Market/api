@@ -1,12 +1,9 @@
-from uuid import uuid4
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from db.database import get_db
-from models.category import Category
 from repositories.categoryRepo import new_category, get_all_categories, get_products_by_category, get_top_categories, \
     get_category_by_id
 from schemas.category import CreateCategory
@@ -52,7 +49,7 @@ async def get_category(category_id: str, db: Session = Depends(get_db)):
     products = get_products_by_category(db=db, category_id=category_id)
     category.increment_number_views(db=db)
     json_compatible_item_data = jsonable_encoder(category.to_dict())
-    json_compatible_item_data['products'] = jsonable_encoder([product.to_dict_not_categories() for product in products])
+    json_compatible_item_data['products'] = jsonable_encoder([product.to_dict() for product in products])
     return JSONResponse(status_code=200, content=json_compatible_item_data)
 
 

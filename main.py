@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
-from db.database import get_db
+from db.database import get_db, SessionLocal
 from models.category import Category
 from models.product import Product
 from routers import product, category
@@ -32,6 +32,13 @@ app.add_middleware(
 
 app.include_router(category.router)
 app.include_router(product.router)
+
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    request.state.db = SessionLocal()
+    response = await call_next(request)
+    request.state.db.close()
+    return response
 
 
 @app.get("/")

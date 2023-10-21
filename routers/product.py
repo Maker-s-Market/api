@@ -1,23 +1,27 @@
-from typing import Annotated
-from uuid import uuid4
+import os
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Body
+import boto3
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from models.category import Category
-from models.product import Product
-from repositories.categoryRepo import get_category_by_id
-from repositories.productRepo import get_product_by_id, new_product, get_all_products, get_top_products_db, \
-    get_products_by_filters
-
 from db.database import get_db
-from schemas.category import CategoryIdentifier
+from repositories.categoryRepo import get_category_by_id
+from repositories.productRepo import get_product_by_id, new_product, get_top_products_db, \
+    get_products_by_filters
 from schemas.product import CreateProduct
 
 router = APIRouter(tags=['Product'])
 MESSAGE_NOT_FOUND = "Product not found"
+
+# Configure AWS credentials
+s3 = boto3.client(
+    's3',
+    region_name=os.getenv("AWS_REGION"),
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
+)
 
 
 @router.get("/product/{product_id}")
@@ -30,7 +34,24 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/product")
-async def create_product(product: CreateProduct, db: Session = Depends(get_db)):
+async def create_product(product: CreateProduct,
+                         db: Session = Depends(get_db)):
+
+    print(product)
+    # Generate a unique filename for the uploaded file
+    # filename = file.filename
+    #
+    # # Upload the file to the S3 bucket
+    # s3.upload_fileobj(file.file, os.getenv("BUCKET_NAME"), filename)
+    #
+    # # Generate a pre-signed URL to access the image in S3
+    # presigned_url = s3.generate_presigned_url(
+    #     'get_object',
+    #     Params={'Bucket': os.getenv("BUCKET_NAME"), 'Key': filename.s3_key},
+    #     ExpiresIn=3600
+    # )
+    # print(presigned_url)
+
     return JSONResponse(status_code=201, content=jsonable_encoder(new_product(db=db, product=product).to_dict()))
 
 
