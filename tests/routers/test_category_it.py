@@ -128,3 +128,4 @@ def test_delete_existing_category():
     verify_response = client.get("/category/06e0da01-57fd-4441-95be-0d25c764ea57")
     assert verify_response.status_code == 404, verify_response.text
     assert verify_response.json() == {'detail': 'Category not found'}
+
