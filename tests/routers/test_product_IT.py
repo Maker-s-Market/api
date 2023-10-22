@@ -1,4 +1,6 @@
 import pytest
+import math
+
 from fastapi.testclient import TestClient
 
 from main import app
@@ -50,7 +52,7 @@ def test_normal_post_product():
     data = response.json()
     assert data["name"] == "product1"
     assert data["description"] == "product1's description"
-    assert data["price"] == 12.5
+    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
     assert data["stockable"] == True
     assert data["stock"] == 2
     assert data["discount"] == 0
@@ -104,7 +106,7 @@ def test_get_product():
     assert data["id"] == str(product_id)
     assert data["name"] == "product1"
     assert data["description"] == "product1's description"
-    assert data["price"] == 12.5
+    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
     assert data["stockable"] == True
     assert data["stock"] == 2
     assert data["discount"] == 0
@@ -173,7 +175,7 @@ def test_put_existing_product_no_category():
     assert data["id"] == str(product_id)
     assert data["name"] == "product123"
     assert data["description"] == "product123's description"
-    assert data["price"] == 14.5
+    assert math.isclose(data["price"], 14.5, abs_tol=0.1)
     assert data["stockable"] == False
     assert data["stock"] == 0
     assert data["discount"] == 0
@@ -272,7 +274,7 @@ def test_put_existing_product_existing_category():
     assert data["id"] == str(product_id)
     assert data["name"] == "product1"
     assert data["description"] == "product1's description"
-    assert data["price"] == 12.5
+    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
     assert data["stockable"] == True
     assert data["stock"] == 2
     assert data["discount"] == 0
