@@ -20,13 +20,13 @@ class Product(Base):
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(255), index=True, nullable=False)
-    description = Column(String(255), index=True, nullable=False)
+    description = Column(String(800), index=True, nullable=False)
     price = Column(Float, index=True, nullable=False)
     stockable = Column(Boolean, index=True, nullable=False)
     stock = Column(Integer, index=True)
     discount = Column(Integer, index=True, default=0)
     number_views = Column(Integer, index=True, default=0)
-    image = Column(String(255), index=True, nullable=True)# TODO ADD PHOTO
+    image = Column(String(255), index=True, nullable=True)
 
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
