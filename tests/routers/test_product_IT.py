@@ -341,13 +341,9 @@ def test_filter_product():
                     "categories": []
                 })
 
-    response = client.get("/products" +
-                          "?q=" + str(1) +
-                          "&limit=" + str(1) +
-                          "&price_min=" + str(3) +
-                          "&price_max=" + str(20) +
-                          "&sort=" + "price_asc" +
-                          "&discount=" + str(0))
+    response = client.get(
+        "/products?q=" + str(1) + "&limit=" + str(1) + "&price_min=" + str(3) + "&price_max=" + str(20) +
+        "&sort=price_asc&discount=" + str(0))
 
     data = response.json()
 
