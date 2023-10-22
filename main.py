@@ -7,6 +7,7 @@ from fastapi import FastAPI, Depends, Request, UploadFile, File
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(category.router)
 app.include_router(product.router)
 
+load_dotenv(".aws")
 # Configure AWS credentials
 s3 = boto3.client(
     's3',
