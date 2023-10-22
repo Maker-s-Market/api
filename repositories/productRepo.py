@@ -28,7 +28,7 @@ def get_products_by_filters(q: str = "",
                             price_max: int = 100000000,
                             sort: str = "newest",
                             discount: bool = False,
-                            category_id: str = None,
+                            category_id: str = "",
                             db: Session = Depends(get_db)) -> object:
     if sort not in ["newest", "oldest", "price_asc", "price_desc", "relevance"]:
         raise HTTPException(status_code=400, detail="Invalid sort parameter")
@@ -39,7 +39,7 @@ def get_products_by_filters(q: str = "",
     if discount:
         result = result.filter(ProductModel.discount > 0)
 
-    if category_id is not None:
+    if category_id != "" and category_id is not None:
         result = result.filter(ProductModel.categories.any(id=category_id))
 
     if sort == "newest":

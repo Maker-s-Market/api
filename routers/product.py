@@ -55,7 +55,7 @@ async def get_products(q: str = "", limit: int = 10,
                        category_id: str = None, db: Session = Depends(get_db)):
     # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
 
-    if category_id is not None and not get_category_by_id(category_id, db):
+    if category_id is not None and category_id == "" and not get_category_by_id(category_id, db):
         raise HTTPException(status_code=404, detail="Category not found")
 
     if price_max is not None and price_min is not None and price_max < price_min:
