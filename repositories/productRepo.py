@@ -18,10 +18,6 @@ def get_top_products_db(db: Session = Depends(get_db)):
     return db.query(ProductModel).order_by(ProductModel.number_views.desc()).limit(4).all()
 
 
-def get_all_products(db: Session = Depends(get_db)):
-    return db.query(ProductModel).filter().all()
-
-
 def get_products_by_filters(q: str = "",
                             limit: int = 10,
                             price_min: int = 0,

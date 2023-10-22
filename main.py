@@ -95,6 +95,5 @@ async def create_upload_file(file: UploadFile = File(...)):
         Params={'Bucket': os.getenv("BUCKET_NAME"), 'Key': filename},
         ExpiresIn=3600
     )
-    print(presigned_url)
 
     return JSONResponse(status_code=201, content=jsonable_encoder({"url": presigned_url}))
