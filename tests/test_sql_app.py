@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
-from starlette.testclient import TestClient
 
 from db.database import Base, get_db
 from main import app

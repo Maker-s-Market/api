@@ -19,6 +19,7 @@ ProductCategory = Table(
 def random_uuid():
     return str(uuid4())
 
+
 class Category(Base):
     __tablename__ = "category"
 

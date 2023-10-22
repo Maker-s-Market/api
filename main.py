@@ -21,9 +21,28 @@ from routers import product, category
 async def lifespan(app):
     create_tables()
     yield
-
-
-app = FastAPI(lifespan=lifespan)
+description = """
+Some useful links:
+<br> - [Makers Market Repository](https://github.com/Maker-s-Market/)
+<br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
+<br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
+"""
+app = FastAPI(lifespan=lifespan,
+              title="Makers Market API",
+              description=description,
+              version="0.0.1",
+              docs_url="/docs",
+              redoc_url="/redoc",
+              openapi_url="/openapi.json",
+              contact={
+                  "name": "Makers Market",
+              },
+              servers=[
+                    {
+                        "url": "http://localhost:8000",
+                        "description": "Local server"
+                    }]
+              )
 
 app.add_middleware(
     CORSMiddleware,
