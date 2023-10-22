@@ -258,7 +258,7 @@ async def insert_data(db: Session = Depends(get_db)):
     Corda_cao = Product(id=str(uuid4()), name="Corda para cão",
                         description="Corda para cão, feita à mão com diferentes cores e tamanhos",
                         price=4.05, stockable=False, stock=0, discount=0.0,
-                        image="http://www.peteshop.com.br/arquivos/produtos/26194/medio/foto_1442348580.jpg",
+                        image="https://static.zoomalia.com/prod_img/61824/lm_276db8e1af0cb3aca1ae2d00186242045291571142472.jpg",
                         number_views=2, categories=[animals_and_plants])
 
     Cacto = Product(id=str(uuid4()), name="Cacto Artificial Opuntia 72 cm",
