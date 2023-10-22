@@ -52,10 +52,10 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)):
 async def get_products(q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False,
-                       category_id: str = None, db: Session = Depends(get_db)):
+                       category_id: str = "", db: Session = Depends(get_db)):
     # location: str = None, # TODO: AFTER TO IMPLEMENT THE USER and auth
 
-    if category_id is not None and category_id == "" and not get_category_by_id(category_id, db):
+    if category_id != "" and not get_category_by_id(category_id, db):
         raise HTTPException(status_code=404, detail="Category not found")
 
     if price_max is not None and price_min is not None and price_max < price_min:
