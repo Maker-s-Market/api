@@ -38,10 +38,17 @@ async def delete_category(category_id: str, db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder({"message": "DELETE DATA SUCCESS"}))
 
 
-@router.get("/categories")
+@router.get("/category")
 async def get_categories(db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder([category.to_dict()
                                                                    for category in get_all_categories(db=db)]))
+
+
+@router.get("/category/top/{limit}")
+async def get_top_category(db: Session = Depends(get_db), limit: int = 4):
+    return JSONResponse(status_code=200, content=jsonable_encoder([category.to_dict()
+                                                                   for category in get_top_categories(limit=limit,
+                                                                                                      db=db)]))
 
 
 @router.get("/category/{category_id}")
@@ -54,10 +61,3 @@ async def get_category(category_id: str, db: Session = Depends(get_db)):
     json_compatible_item_data = jsonable_encoder(category.to_dict())
     json_compatible_item_data['products'] = jsonable_encoder([product.to_dict() for product in products])
     return JSONResponse(status_code=200, content=json_compatible_item_data)
-
-
-@router.get("/top/category")
-async def get_top_category(db: Session = Depends(get_db)):
-    return JSONResponse(status_code=200, content=jsonable_encoder([category.to_dict()
-                                                                   for category in get_top_categories(db=db)]))
-
