@@ -58,7 +58,7 @@ def test_put_existing_category():
 
 
 def test_get_all_categories():
-    response = client.get("/categories")
+    response = client.get("/category")
 
     assert response.status_code == 200, response.text
 
@@ -97,7 +97,7 @@ def test_get_category_by_id_not_existing():
 
 def test_get_top_category():
     
-    response = client.get("/top/category")
+    response = client.get("/category/top/4")
 
     assert response.status_code == 200, response.text
 
