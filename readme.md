@@ -7,10 +7,17 @@
     uvicorn main:app --reload
 ```
 
+
+## Run API + DB with docker
+
+```sh
+   docker-compose up --build -d
+```
+
 ## Run DB with docker
 
 ```sh
-   docker compose up db --build -d
+   docker-compose up db --build -d
 ```
 
 ## Run tests

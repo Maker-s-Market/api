@@ -1,14 +1,16 @@
 name: makers
 services:
   db:
-    image: mysql:5.7
+    image: mysql:5.7.16
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
+    #Import .env file 
+    env_file: .env
+    # ports:
+    #   - "3306:3306"
     volumes:
       - ../volumes/mysql:/var/lib/mysql
       
@@ -16,10 +18,13 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile 
-
+    #Import .env file 
+    env_file: .env
     ports:
       - "8000:8000"
+    # The environment variable name was wrong, didn't match the code
+    # Changed address to use the docker-compose dns network, tl;dr: Access db on the address 
     environment:
-      - DATABASE_URL=mysql+pymysql://mysql:${MYSQL_USER}@${MYSQL_PASSWORD}/${MYSQL_DATABASE}
+      - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db/${MYSQL_DATABASE}
     depends_on:
       - db
