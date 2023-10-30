@@ -97,9 +97,24 @@ def confirm_forgot_password(username: str, code: str, new_password: str):
     return status_code
 
 
-def sign_in():
-    response = client.initiate_auth(
-        ClientId=os.get
-    )
-    
+def sign_in(username: str, password: str):
+    """
+        sign in authentication -> returns user code in amazon user pool
+    """
     pass
+
+username = "brunams21.10@gmail.com"
+password = "Pass123!"
+
+response = client.initiate_auth(
+    AuthFlow = 'USER_PASSWORD_AUTH',
+    ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+    AuthParameters={
+        "USERNAME": username,
+        "PASSWORD": password
+    }
+)
+
+print(response['AuthenticationResult']['AccessToken'])
+
+

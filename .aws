@@ -3,4 +3,11 @@ AWS_ACCESS_KEY_ID = AKIATC5XSQKJQRIDBV5E
 AWS_SECRET_ACCESS_KEY = 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
 BUCKET_NAME = es-makers-market
 
-COGNITO_USER_CLIENT_ID= 57qma3f6oig75th5ov37qbfj7m
+USER_POOL_ID = us-east-1_IRQgO7Lpl
+COGNITO_USER_CLIENT_ID= 414qtus5nd7veam6tgeqtua9j6
+
+COGNITO_DOMAIN = makers-market.auth.us-east-1.amazoncognito.com
+
+AUTH_URL = f"https://{COGNITO_DOMAIN}/oauth2/authorize"
+TOKEN_URL = f"https://{COGNITO_DOMAIN}/oauth2/token"
+LOGOUT_URL = f"https://{COGNITO_DOMAIN}/logout"

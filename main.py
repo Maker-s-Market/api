@@ -3,12 +3,13 @@ from contextlib import asynccontextmanager
 from uuid import uuid4
 
 import boto3
-from fastapi import FastAPI, Depends, Request, UploadFile, File
+from fastapi import FastAPI, Depends, Request, UploadFile, File, APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from starlette.responses import JSONResponse
+from pydantic import BaseModel
 
 from db.create_database import create_tables
 from db.database import get_db, SessionLocal
@@ -16,6 +17,10 @@ from models.category import Category
 from models.product import Product
 from routers import product, category, insert_data
 
+from auth.JWTBearer import JWTBearer
+from auth.auth import jwks, get_current_user
+
+from fastapi_cloudauth import Cognito, CognitoCurrentUser, CognitoClaims
 
 @asynccontextmanager
 async def lifespan(app):
@@ -46,6 +51,8 @@ app = FastAPI(lifespan=lifespan,
                   }]
               )
 
+auth = JWTBearer(jwks)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -67,10 +74,15 @@ s3 = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 
-cognito = Cognito(
-    
-)
 
+@app.get("/secure", dependencies=[Depends(auth)])
+async def secure() -> bool:
+    return True
+
+
+@app.get("/not_secure")
+async def not_secure() -> bool:
+    return True
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
@@ -78,12 +90,6 @@ async def db_session_middleware(request: Request, call_next):
     response = await call_next(request)
     request.state.db.close()
     return response
-
-
-@app.get("/")
-async def root():
-    return {"message": "hello World!"}
-
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -101,3 +107,4 @@ async def create_upload_file(file: UploadFile = File(...)):
     )
 
     return JSONResponse(status_code=201, content=jsonable_encoder({"url": presigned_url}))
+
