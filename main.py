@@ -15,12 +15,9 @@ from db.create_database import create_tables
 from db.database import get_db, SessionLocal
 from models.category import Category
 from models.product import Product
-from routers import product, category, insert_data
+from routers import product, category, insert_data, user
 
 from auth.JWTBearer import JWTBearer
-from auth.auth import jwks, get_current_user
-
-from fastapi_cloudauth import Cognito, CognitoCurrentUser, CognitoClaims
 
 @asynccontextmanager
 async def lifespan(app):
@@ -51,8 +48,6 @@ app = FastAPI(lifespan=lifespan,
                   }]
               )
 
-auth = JWTBearer(jwks)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -64,6 +59,7 @@ app.add_middleware(
 app.include_router(insert_data.router)
 app.include_router(category.router)
 app.include_router(product.router)
+app.include_router(user.router)
 
 load_dotenv(".aws")
 # Configure AWS credentials
@@ -73,16 +69,6 @@ s3 = boto3.client(
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
-
-
-@app.get("/secure", dependencies=[Depends(auth)])
-async def secure() -> bool:
-    return True
-
-
-@app.get("/not_secure")
-async def not_secure() -> bool:
-    return True
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):

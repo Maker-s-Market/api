@@ -1,12 +1,14 @@
+
 import os 
 import boto3
 from dotenv import load_dotenv
+
 load_dotenv(".aws")
 
 
 client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
 
-def sign_up(username: str, email: str, password: str, name: str, picture: str, city: str, region: str, role: int):
+def sign_up(username: str, email: str, password: str):
     """
         function that puts a user in the AWS user pool and sends an email with a 1 time code 
     """
@@ -18,27 +20,7 @@ def sign_up(username: str, email: str, password: str, name: str, picture: str, c
             {
                 'Name': 'email',
                 'Value': email,
-            },
-            {
-                'Name': 'name',
-                'Value': name,
-            },
-            {
-                'Name': 'region',
-                'Value': region,
-            },            
-            {
-                'Name': 'city',
-                'Value': city,
-            },
-            {
-                'Name': 'picture',
-                'Value': picture,
-            },
-            {
-                'Name': 'role',
-                'Value': role,
-            },
+            }
 
         ]
     )
@@ -49,7 +31,7 @@ def sign_up(username: str, email: str, password: str, name: str, picture: str, c
     return status_code
 
 
-def check_email(username: str, code: str):
+def check_email_auth(username: str, code: str):
     """
         function that checks if the code provided by email is correct or not
     """
@@ -60,7 +42,6 @@ def check_email(username: str, code: str):
     )
 
     status_code = response['ResponseMetadata']['HTTPStatusCode']
-    print(str(status_code))
 
     return status_code
 
@@ -97,24 +78,29 @@ def confirm_forgot_password(username: str, code: str, new_password: str):
     return status_code
 
 
-def sign_in(username: str, password: str):
+def sign_in_auth(username: str, password: str):
     """
         sign in authentication -> returns user code in amazon user pool
     """
-    pass
 
-username = "brunams21.10@gmail.com"
-password = "Pass123!"
+    response = client.initiate_auth(
+        AuthFlow = 'USER_PASSWORD_AUTH',
+        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+        AuthParameters={
+            "USERNAME": username,
+            "PASSWORD": password
+        }
+    )
 
-response = client.initiate_auth(
-    AuthFlow = 'USER_PASSWORD_AUTH',
-    ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
-    AuthParameters={
-        "USERNAME": username,
-        "PASSWORD": password
-    }
-)
+    token = response['AuthenticationResult']['AccessToken']
 
-print(response['AuthenticationResult']['AccessToken'])
+    print(token)
+
+    if not token:
+        return None
+
+    return token
+
+
 
 
