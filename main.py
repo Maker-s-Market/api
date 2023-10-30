@@ -67,6 +67,10 @@ s3 = boto3.client(
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
 )
 
+cognito = Cognito(
+    
+)
+
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
