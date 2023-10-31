@@ -2,10 +2,12 @@ import datetime
 import enum
 from uuid import uuid4
 
+from fastapi import Depends
 from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 
-from db.database import Base
+from db.database import Base, get_db
+from schemas.user import CreateUser
 
 followers = Table(
     'followers',
@@ -27,18 +29,19 @@ class Role(enum.Enum):
 
 class User(Base):
     __tablename__ = "user"
-    #email and password are AWS cognito matters, not ours!
+    # email and password are AWS cognito matters, not ours!
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     name = Column(String(200), index=True, nullable=False)
     username = Column(String(200), unique=True, index=True, nullable=False)
+    email = Column(String(200), unique=True, index=True, nullable=False)
     city = Column(String(200), index=True, nullable=False)
     region = Column(String(200), index=True, nullable=False)
     photo = Column(String(200), index=True, nullable=False)
     role = Column(Enum(Role))
-    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(),
+    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
-    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now().timestamp(),
+    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
     # POR CAUSA DO RGPD
@@ -64,3 +67,42 @@ class User(Base):
 
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "email": self.email,
+            "city": self.city,
+            "region": self.region,
+            "photo": self.photo,
+            "role": self.role,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "deleted_at": self.deleted_at,
+            "is_active": self.is_active,
+            "wishlist_id": self.wishlist_id,
+            "followed": self.followed
+        }
+
+    def delete(self, db: Session = Depends(get_db)):
+        db.delete(self)
+        db.commit()
+        return self
+
+
+def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
+    db_user = User(name=new_user.name,
+                   username=new_user.username,
+                   email=new_user.email,
+                   city=new_user.city,
+                   region=new_user.region,
+                   photo=new_user.photo,
+                   role=Role.Client,
+                   is_active=False)
+    db_user.is_active = False
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user

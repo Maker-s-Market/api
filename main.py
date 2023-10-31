@@ -50,6 +50,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add routers
 app.include_router(insert_data.router)
 app.include_router(category.router)
 app.include_router(product.router)
