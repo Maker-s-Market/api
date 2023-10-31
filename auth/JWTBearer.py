@@ -56,7 +56,7 @@ class JWTBearer(HTTPBearer):
             message, signature = jwt_token.rsplit(".", 1)
 
             try:
-                claims = jwt.get_unverified_claims(jwt_token)   
+                claims = jwt.get_unverified_claims(jwt_token)
                 claims["auth_time"] = str(claims["auth_time"])
                 claims["iat"] = str(claims["iat"])
                 claims["exp"] = str(claims["exp"])

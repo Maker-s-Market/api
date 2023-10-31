@@ -1,18 +1,17 @@
-
-import os 
+import os
 import boto3
 from dotenv import load_dotenv
 
 load_dotenv(".aws")
 
-
 client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
+
 
 def sign_up(username: str, email: str, password: str):
     """
         function that puts a user in the AWS user pool and sends an email with a 1 time code 
     """
-    response =client.sign_up(
+    response = client.sign_up(
         ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
         Username=username,
         Password=password,
@@ -84,7 +83,7 @@ def sign_in_auth(username: str, password: str):
     """
 
     response = client.initiate_auth(
-        AuthFlow = 'USER_PASSWORD_AUTH',
+        AuthFlow='USER_PASSWORD_AUTH',
         ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
         AuthParameters={
             "USERNAME": username,
@@ -100,7 +99,3 @@ def sign_in_auth(username: str, password: str):
         return None
 
     return token
-
-
-
-
