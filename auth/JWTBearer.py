@@ -46,7 +46,7 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
         if credentials:
-            if credentials.scheme != "Bearer":
+            if not credentials.scheme == "Bearer":
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
                 )
