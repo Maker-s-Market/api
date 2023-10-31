@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from auth.JWTBearer import JWTBearer
-from auth.user_auth import sign_up, check_email_auth, forgot_password, confirm_forgot_password, sign_in_auth
+from auth.user_auth import sign_up, check_email_auth, resend_email_code as rc ,forgot_password, confirm_forgot_password, sign_in_auth
 from db.database import get_db
 from models.user import User
 from repositories.userRepo import new_user, delete_user, get_user
@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
 
-from schemas.user import CreateUser, UserLogin, ActivateUser
+from schemas.user import CreateUser, UserIdentifier, UserLogin, ActivateUser
 from auth.auth import jwks, get_current_user
 
 
@@ -69,13 +69,19 @@ async def check_email(user: ActivateUser, db: Session = Depends(get_db)):
         user.active(db=db)
         return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Email confirmed"}))
 
-
 @router.post("/user/login")
 async def login(user: UserLogin):
     token = sign_in_auth(user.username, user.password)
     print(user.password)
     if token is None:
         raise HTTPException(status_code=500, detail="Something is not right")
-
     else:
         return token
+
+@router.post("/user/resend_email_code")
+async def resend_email_code(user: UserIdentifier):
+    try:
+        status = rc(user.identifier)
+        return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Code resent successfully"}))
+    except:
+        raise HTTPException(status_code=500, detail="Resend code was not sucessfull")

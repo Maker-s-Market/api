@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import os
 import boto3
 from dotenv import load_dotenv
@@ -43,6 +44,26 @@ def check_email_auth(username: str, code: str):
     status_code = response['ResponseMetadata']['HTTPStatusCode']
 
     return status_code
+
+def resend_email_code(username: str):
+    """
+        resends the confirmation code to the specified email
+        have yet to check if can user username or email as well as the username parameter (is it even important?)
+    """
+
+    response = client.resend_confirmation_code(
+        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+        Username=username
+    )
+
+    try:
+        status = response['ResponseMetadata']['HTTPStatusCode']
+        if status != 200:
+            raise HTTPException(status_code=500, detail="Unable to resend code")
+    except:
+        raise HTTPException(status_code=500, detail="Unable to resend code")
+
+    return status
 
 
 def forgot_password(username: str):
