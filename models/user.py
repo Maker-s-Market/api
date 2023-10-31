@@ -91,6 +91,13 @@ class User(Base):
         db.commit()
         return self
 
+    def active(self, db: Session = Depends(get_db)):
+        self.is_active = True
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
+
 
 def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
     db_user = User(name=new_user.name,

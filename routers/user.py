@@ -5,12 +5,12 @@ from auth.JWTBearer import JWTBearer
 from auth.user_auth import sign_up, check_email_auth, forgot_password, confirm_forgot_password, sign_in_auth
 from db.database import get_db
 from models.user import User
-from repositories.userRepo import new_user, delete_user
+from repositories.userRepo import new_user, delete_user, get_user
 from starlette.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
 
-from schemas.user import CreateUser, UserLogin
+from schemas.user import CreateUser, UserLogin, ActivateUser
 from auth.auth import jwks, get_current_user
 
 
@@ -50,6 +50,7 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
 
     new_user(user, db)
     status = sign_up(user.username, user.email, user.password)
+    # TODO : CHENGE TO A BETTER ERROR HANDLING
     if status != 200:
         delete_user(user.username, db)
         raise HTTPException(status_code=500, detail="Couldn't sign up")
@@ -57,16 +58,16 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
         return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
 
 
-@router.get("/user/check_email")
-async def check_email(username: str, code: str):
-    status = check_email_auth(username, code)
+@router.post("/user/check_email")
+async def check_email(user: ActivateUser, db: Session = Depends(get_db)):
+    status = check_email_auth(user.username, user.code)
+    # TODO : CHENGE TO A BETTER ERROR HANDLING
     if status != 200:
-        raise HTTPException(status_code=500, detail="Code is not correct")
-
+        raise HTTPException(status_code=500, detail="Something is not right")
     else:
-        # colocar na db
-        pass
-    pass
+        user = get_user(user.username, db)
+        user.active(db=db)
+        return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Email confirmed"}))
 
 
 @router.post("/user/login")

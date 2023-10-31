@@ -15,3 +15,8 @@ class CreateUser(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class ActivateUser(BaseModel):
+    username: str
+    code: str

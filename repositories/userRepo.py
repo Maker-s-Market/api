@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -12,3 +14,10 @@ def new_user(user: CreateUser, db: Session = Depends(get_db)):
 
 def delete_user(username: str, db: Session = Depends(get_db)):
     return db.query(UserModel).filter(UserModel.username == username).first().delete(db=db)
+
+
+def get_user(username: str, db: Session = Depends(get_db)):
+    db_user = db.query(UserModel).filter(UserModel.username == username).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
