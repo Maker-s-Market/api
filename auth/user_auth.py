@@ -32,7 +32,6 @@ def sign_up(username: str, email: str, password: str):
 
     return status_code
 
-
 def check_email_auth(username: str, code: str):
     """
         function that checks if the code provided by email is correct or not
@@ -63,39 +62,6 @@ def resend_email_code(username: str):
 
     return status
 
-
-def forgot_password(username: str):
-    """ 
-        function that deals with a user's forgotten password, and sends an email prompt
-    """
-    response = client.forgot_password(
-        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
-        Username=username
-    )
-
-    status_code = response['ResponseMetadata']['HTTPStatusCode']
-    print(str(status_code))
-
-    return status_code
-
-
-def confirm_forgot_password(username: str, code: str, new_password: str):
-    """ 
-        function that deals with a user's forgotten password, after receiving an email prompt and confirming the code, chooses a new password
-    """
-    response = client.confirm_forgot_password(
-        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
-        Username=username,
-        Confirmation_Code=code,
-        Password=new_password
-    )
-
-    status_code = response['ResponseMetadata']['HTTPStatusCode']
-    print(str(status_code))
-
-    return status_code
-
-
 def sign_in_auth(username: str, password: str):
     """
         sign in authentication -> returns user code in amazon user pool
@@ -118,3 +84,34 @@ def sign_in_auth(username: str, password: str):
         return None
 
     return token
+
+def forgot_password(username: str):
+    """ 
+        function that deals with a user's forgotten password, and sends an email prompt
+    """
+    response = client.forgot_password(
+        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+        Username=username
+    )
+
+    status_code = response['ResponseMetadata']['HTTPStatusCode']
+    print(str(status_code))
+
+    return status_code
+
+def confirm_forgot_password(username: str, code: str, new_password: str):
+    """ 
+        function that deals with a user's forgotten password, after receiving an email prompt and confirming the code, chooses a new password
+    """
+    response = client.confirm_forgot_password(
+        ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+        Username=username,
+        ConfirmationCode=code,
+        Password=new_password
+    )
+
+    status_code = response['ResponseMetadata']['HTTPStatusCode']
+
+    return status_code
+
+

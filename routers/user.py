@@ -6,7 +6,7 @@ import boto3
 from botocore.client import ClientError
 
 from auth.JWTBearer import JWTBearer
-from auth.user_auth import sign_up, check_email_auth, resend_email_code as rc ,forgot_password, confirm_forgot_password, sign_in_auth
+from auth.user_auth import sign_up, check_email_auth, resend_email_code as rc ,forgot_password as fp, confirm_forgot_password as cfp, sign_in_auth
 from db.database import get_db
 from models.user import User
 from repositories.userRepo import new_user, delete_user, get_user
@@ -14,7 +14,7 @@ from starlette.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
 
-from schemas.user import CreateUser, UserIdentifier, UserLogin, ActivateUser
+from schemas.user import CreateUser, UserIdentifier, UserLogin, ActivateUser, ChangePassword
 from auth.auth import jwks
 from dotenv import load_dotenv
 
@@ -74,8 +74,6 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Password is invalid!")
     except:
         raise HTTPException(status_code=500, detail="Internal Server Error, try again later")
- 
-
 
 @router.post("/user/check_email")
 async def check_email(user: ActivateUser, db: Session = Depends(get_db)):
@@ -89,7 +87,6 @@ async def check_email(user: ActivateUser, db: Session = Depends(get_db)):
             user.active(db=db)
             return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Email confirmed"}))
     except client.exceptions.TooManyFailedAttemptsException as e:
-        delete_user(user.username)
         raise HTTPException(status_code=406, detail='Too many failed attemps at a code')
     except client.exceptions.ExpiredCodeException as e:
         raise HTTPException(status_code=406, detail='Code expired, please resend a new code or check credentials')
@@ -120,10 +117,59 @@ async def resend_email_code(user: UserIdentifier):
     try:
         status = rc(user.identifier)
         if status!=200:
-            raise HTTPException(status_code=406, detail="Couldn't sednd the code, try again later")
+            raise HTTPException(status_code=406, detail="Couldn't send the code, try again later")
         else:
             return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Code resent successfully"}))
     except client.exceptions.CodeDeliveryFailureException:
         raise HTTPException(status_code=400, detail="Couldn't send the code")
     except client.exceptions.UserNotFoundException:
         raise HTTPException(status_code=400, detail="Username was not found in the pool")
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
+
+@router.post("/user/forgot_password")
+async def change_password(user: UserIdentifier):
+    try:
+        status = fp(user.identifier)
+        if status!=200:
+            raise HTTPException(status_code=406, detail="Couldn't send the code, try again later")
+        else:
+            return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Sent code to email"}))
+    except client.exceptions.UserNotFoundException:
+        raise HTTPException(status_code=400, detail="Username was not found in the pool")
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
+
+@router.post("/user/confirm_forgot_password")
+async def confirm_forgot_password(user: ChangePassword):
+    if len(user.password) < 8:
+        raise HTTPException(status_code=500, detail="Password must have at least 8 characters")
+    elif not any(char.isdigit() for char in user.password):
+        raise HTTPException(status_code=500, detail="Password must have at least one digit")
+    elif not any(char.isupper() for char in user.password):
+        raise HTTPException(status_code=500, detail="Password must have at least one uppercase letter")
+    elif not any(char.islower() for char in user.password):
+        raise HTTPException(status_code=500, detail="Password must have at least one lowercase letter")
+    elif not any(char in ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '='] for char in user.password):
+        raise HTTPException(status_code=500, detail="Password must have at least one special character")
+
+    try: 
+        status = cfp(username=user.identifier, code=user.code, new_password=user.password)
+        if status!=200:
+            raise HTTPException(status_code=406, detail="Couldn't confirm code")
+        else:
+            return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Password changed successfully"}))
+    
+    except client.exceptions.UserNotConfirmedException:
+        raise HTTPException(status_code=400, detail="User was not confirmed")
+    except client.exceptions.UserNotFoundException:
+        raise HTTPException(status_code=400, detail="User was not found in the user pool")
+    except client.exceptions.CodeMismatchException:
+        raise HTTPException(status_code=400, detail="Wrong code provided")
+    except client.exceptions.ExpiredCodeException:
+        raise HTTPException(status_code=400, detail="Code is expired or credentials are wrong")
+    except client.exceptions.InvalidPasswordException:
+        raise HTTPException(status_code=400, detail="Password is not acceptable")
+    except ClientError as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Server error")

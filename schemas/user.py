@@ -22,3 +22,8 @@ class ActivateUser(BaseModel):
 
 class UserIdentifier(BaseModel):
     identifier: str
+
+class ChangePassword(BaseModel):
+    identifier: str
+    password: str
+    code: str
