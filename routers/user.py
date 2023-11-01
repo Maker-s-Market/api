@@ -1,5 +1,9 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+import boto3
+
+from botocore.client import ClientError
 
 from auth.JWTBearer import JWTBearer
 from auth.user_auth import sign_up, check_email_auth, resend_email_code as rc ,forgot_password, confirm_forgot_password, sign_in_auth
@@ -11,12 +15,17 @@ from fastapi.encoders import jsonable_encoder
 
 
 from schemas.user import CreateUser, UserIdentifier, UserLogin, ActivateUser
-from auth.auth import jwks, get_current_user
+from auth.auth import jwks
+from dotenv import load_dotenv
+
+load_dotenv(".aws")
 
 
 auth = JWTBearer(jwks)
 
 router = APIRouter(tags=['User'])
+
+client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
 
 
 @router.get("/user/secure", dependencies=[Depends(auth)])
@@ -34,7 +43,7 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
 
     if (db.query(User).filter(User.username == user.username).first() or
             db.query(User).filter(User.email == user.email).first()):
-        raise HTTPException(status_code=500, detail="User already exists")
+        raise HTTPException(status_code=500, detail="User already exists in database")
 
     # TODO : CHANGE THIS TO A BETTER PASSWORD VALIDATION
     if len(user.password) < 8:
@@ -49,39 +58,72 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Password must have at least one special character")
 
     new_user(user, db)
-    status = sign_up(user.username, user.email, user.password)
-    # TODO : CHENGE TO A BETTER ERROR HANDLING
-    if status != 200:
+    try:
+        status = sign_up(user.username, user.email, user.password)
+        # TODO : CHENGE TO A BETTER ERROR HANDLING
+        if status != 200:
+            delete_user(user.username, db)
+            raise HTTPException(status_code=500, detail="Couldn't sign up")
+        else:
+            return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
+    except client.exceptions.UsernameExistsException as e:
         delete_user(user.username, db)
-        raise HTTPException(status_code=500, detail="Couldn't sign up")
-    else:
-        return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
+        raise HTTPException(status_code=500, detail="User exists in cognito pool")
+    except client.exceptions.InvalidPasswordException as e:
+        delete_user(user.username, db)
+        raise HTTPException(status_code=500, detail="Password is invalid!")
+    except:
+        raise HTTPException(status_code=500, detail="Internal Server Error, try again later")
+ 
 
 
 @router.post("/user/check_email")
 async def check_email(user: ActivateUser, db: Session = Depends(get_db)):
-    status = check_email_auth(user.username, user.code)
-    # TODO : CHENGE TO A BETTER ERROR HANDLING
-    if status != 200:
-        raise HTTPException(status_code=500, detail="Something is not right")
-    else:
-        user = get_user(user.username, db)
-        user.active(db=db)
-        return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Email confirmed"}))
+    try:
+        status = check_email_auth(user.username, user.code)
+        # TODO : CHENGE TO A BETTER ERROR HANDLING
+        if status != 200:
+            raise HTTPException(status_code=406, detail="Unable to confirm access, resend a code")
+        else:
+            user = get_user(user.username, db)
+            user.active(db=db)
+            return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Email confirmed"}))
+    except client.exceptions.TooManyFailedAttemptsException as e:
+        delete_user(user.username)
+        raise HTTPException(status_code=406, detail='Too many failed attemps at a code')
+    except client.exceptions.ExpiredCodeException as e:
+        raise HTTPException(status_code=406, detail='Code expired, please resend a new code or check credentials')
+    except client.exceptions.CodeMismatchException as e:
+        raise HTTPException(status_code=406, detail='Inserted code is not correct, please resend a new code or insert the correct one')
+    except client.exceptions.UserNotFoundException as e:
+        raise HTTPException(status_code=406, detail='User was not found')
+    except ClientError as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error, try again later")
 
 @router.post("/user/login")
 async def login(user: UserLogin):
-    token = sign_in_auth(user.username, user.password)
-    print(user.password)
-    if token is None:
-        raise HTTPException(status_code=500, detail="Something is not right")
-    else:
-        return token
+    try:
+        token = sign_in_auth(user.username, user.password)
+        if token is None:
+            raise HTTPException(status_code=404, detail="Error loging in...")
+        else:
+            return JSONResponse(status_code=200, content=jsonable_encoder({"token": token}))
+    except client.exceptions.NotAuthorizedException:
+        raise HTTPException(status_code=406, detail="Wrong credentials, username/email or password incorrect.")
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
 
 @router.post("/user/resend_email_code")
 async def resend_email_code(user: UserIdentifier):
+    #accepts either email or username, but has 200 even if the email or username is incorrect, no exception to catch this
     try:
         status = rc(user.identifier)
-        return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Code resent successfully"}))
-    except:
-        raise HTTPException(status_code=500, detail="Resend code was not sucessfull")
+        if status!=200:
+            raise HTTPException(status_code=406, detail="Couldn't sednd the code, try again later")
+        else:
+            return JSONResponse(status_code=status, content=jsonable_encoder({"message":"Code resent successfully"}))
+    except client.exceptions.CodeDeliveryFailureException:
+        raise HTTPException(status_code=400, detail="Couldn't send the code")
+    except client.exceptions.UserNotFoundException:
+        raise HTTPException(status_code=400, detail="Username was not found in the pool")

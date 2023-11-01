@@ -1,7 +1,9 @@
 from http.client import HTTPException
 import os
+import botocore
 import boto3
 from dotenv import load_dotenv
+
 
 load_dotenv(".aws")
 
@@ -12,6 +14,7 @@ def sign_up(username: str, email: str, password: str):
     """
         function that puts a user in the AWS user pool and sends an email with a 1 time code 
     """
+
     response = client.sign_up(
         ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
         Username=username,
@@ -26,7 +29,6 @@ def sign_up(username: str, email: str, password: str):
     )
 
     status_code = response['ResponseMetadata']['HTTPStatusCode']
-    print(str(status_code))
 
     return status_code
 
@@ -35,6 +37,7 @@ def check_email_auth(username: str, code: str):
     """
         function that checks if the code provided by email is correct or not
     """
+
     response = client.confirm_sign_up(
         ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
         Username=username,
@@ -42,13 +45,13 @@ def check_email_auth(username: str, code: str):
     )
 
     status_code = response['ResponseMetadata']['HTTPStatusCode']
-
+    
     return status_code
 
 def resend_email_code(username: str):
     """
         resends the confirmation code to the specified email
-        have yet to check if can user username or email as well as the username parameter (is it even important?)
+        only username
     """
 
     response = client.resend_confirmation_code(
@@ -56,12 +59,7 @@ def resend_email_code(username: str):
         Username=username
     )
 
-    try:
-        status = response['ResponseMetadata']['HTTPStatusCode']
-        if status != 200:
-            raise HTTPException(status_code=500, detail="Unable to resend code")
-    except:
-        raise HTTPException(status_code=500, detail="Unable to resend code")
+    status = response['ResponseMetadata']['HTTPStatusCode']
 
     return status
 
