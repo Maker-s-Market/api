@@ -4,13 +4,12 @@ import botocore
 import boto3
 from dotenv import load_dotenv
 
-
 load_dotenv(".aws")
 
 client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
 
 
-def sign_up(username: str, email: str, password: str):
+def sign_up_auth(username: str, email: str, password: str):
     """
         function that puts a user in the AWS user pool and sends an email with a 1 time code 
     """
@@ -32,6 +31,7 @@ def sign_up(username: str, email: str, password: str):
 
     return status_code
 
+
 def check_email_auth(username: str, code: str):
     """
         function that checks if the code provided by email is correct or not
@@ -47,7 +47,8 @@ def check_email_auth(username: str, code: str):
     
     return status_code
 
-def resend_email_code(username: str):
+
+def resend_email_code_auth(username: str):
     """
         resends the confirmation code to the specified email
         only username
@@ -61,6 +62,7 @@ def resend_email_code(username: str):
     status = response['ResponseMetadata']['HTTPStatusCode']
 
     return status
+
 
 def sign_in_auth(username: str, password: str):
     """
@@ -77,15 +79,13 @@ def sign_in_auth(username: str, password: str):
     )
 
     token = response['AuthenticationResult']['AccessToken']
-
-    print(token)
-
     if not token:
         return None
 
     return token
 
-def forgot_password(username: str):
+
+def forgot_password_auth(username: str):
     """ 
         function that deals with a user's forgotten password, and sends an email prompt
     """
@@ -95,11 +95,11 @@ def forgot_password(username: str):
     )
 
     status_code = response['ResponseMetadata']['HTTPStatusCode']
-    print(str(status_code))
 
     return status_code
 
-def confirm_forgot_password(username: str, code: str, new_password: str):
+
+def confirm_forgot_password_auth(username: str, code: str, new_password: str):
     """ 
         function that deals with a user's forgotten password, after receiving an email prompt and confirming the code, chooses a new password
     """
@@ -114,4 +114,14 @@ def confirm_forgot_password(username: str, code: str, new_password: str):
 
     return status_code
 
+
+def list_users():
+    """
+        function that lists all users in the user pool
+    """
+    response = client.list_users(
+        UserPoolId=os.getenv('USER_POOL_ID'),
+    )
+
+    return response['Users']
 

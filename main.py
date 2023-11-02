@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
 from db.database import SessionLocal
-from routers import product, category, insert_data, user
+from routers import product, category, insert_data, auth
 
 
 @asynccontextmanager
@@ -54,7 +54,7 @@ app.add_middleware(
 app.include_router(insert_data.router)
 app.include_router(category.router)
 app.include_router(product.router)
-app.include_router(user.router)
+app.include_router(auth.router)
 
 load_dotenv(".aws")
 # Configure AWS credentials
