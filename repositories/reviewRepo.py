@@ -35,5 +35,6 @@ def update_review(review: UpdateReview, db: Session = Depends(get_db), username:
     return review_.update_review(db=db, review=review)
     
 
-def get_reviews():
-    pass
+def get_reviews(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    user = get_user(username=username, db=db)
+    return db.query(ReviewModel).filter(ReviewModel.user_id==user.id)

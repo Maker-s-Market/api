@@ -3,8 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 from auth.JWTBearer import JWTBearer
-from repositories.reviewRepo import create_review as cr, delete_review as dr, update_review as ur
-from repositories.reviewRepo import get_review_by_id
+from repositories.reviewRepo import create_review as cr, delete_review as dr, update_review as ur, get_reviews as gr
 from auth.auth import get_current_user, jwks
 
 from db.database import get_db
@@ -14,6 +13,12 @@ from schemas.review import CreateReview, UpdateReview
 router = APIRouter(tags=['Review'])
 
 auth = JWTBearer(jwks)
+
+@router.get("/review", dependencies=[Depends(auth)])
+async def get_my_reviews(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    result = gr(db=db, username=username)
+    return JSONResponse(status_code=200,
+                        content=jsonable_encoder([review.to_dict() for review in result]))
 
 @router.post("/review", dependencies=[Depends(auth)])
 async def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
