@@ -30,7 +30,6 @@ async def update_product(product_id: str, edit_product: CreateProduct, db: Sessi
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
-    
     user = get_user(username, db)
     if user.id != product.user_id:
         raise HTTPException(status_code=404, detail="Only the user can change its products")
@@ -40,10 +39,12 @@ async def update_product(product_id: str, edit_product: CreateProduct, db: Sessi
 
 @router.delete("/product/{product_id}", dependencies=[Depends(auth)])
 async def delete_product(product_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    # TODO : AFTER TO IMPLEMENT THE USER and auth (only the owner can delete the product)
+    user = get_user(username, db)
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
+    if user.id != product.user_id:
+        raise HTTPException(status_code=404, detail="Only the user can change its products")
     product.delete(db=db)
     return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Product deleted"}))
 

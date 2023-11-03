@@ -5,7 +5,7 @@ class CreateReview(BaseModel):
     text: str
     product_id: str
 
-class CreateReviewId(BaseModel):
+class UpdateReview(BaseModel):
+    id: str
     text: str
-    user_id: str
     product_id: str

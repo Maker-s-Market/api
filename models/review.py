@@ -10,7 +10,7 @@ from repositories.userRepo import get_user
 from repositories.productRepo import get_product_by_id
 
 from db.database import get_db, Base
-from schemas.review import CreateReview, CreateReviewId
+from schemas.review import CreateReview, UpdateReview
 from auth.auth import get_current_user
 
 
@@ -39,6 +39,18 @@ class Review(Base):
             "user_id": self.user_id,
             "product_id": self.product_id
         }
+
+    def delete(self, db: Session = Depends(get_db)):
+        db.delete(self)
+        db.commit()
+        return self
+
+    def update_review(self, db: Session, review: UpdateReview):
+        self.text = review.text
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
 
 def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)

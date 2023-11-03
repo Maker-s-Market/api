@@ -39,9 +39,10 @@ async def insert_data(db: Session = Depends(get_db)):
     db.commit()
 
     #USER
-    user1 = User(id=str(uuid4), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal", region="nao existe", photo="", role="Client")
+    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal", region="nao existe", photo="", role="Client")
+    user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro", region="nao sei", photo="", role="Client")
 
-    db.add_all([user1])
+    db.add_all([user1, user2])
     db.commit()
 
     bau_monocastas_adegamae = Product(id=str(uuid4()), name="Bau Monocastas AdegaMãe",
@@ -71,7 +72,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                             "Sovina Helles, Sovina Pilsner, Sovina IPA e Sovina Stout.",
                                 price=12.90, stockable=True, stock=10, discount=10.0,
                                 image="https://www.creative-gourmet.com/cdn/shop/products/Pack4CervejasSovinacopy_5000x.jpg?v=1601935894",
-                                number_views=20, categories=[drinks], user_id = user1.id)
+                                number_views=20, categories=[drinks], user_id = user2.id)
 
     db.add_all([bau_monocastas_adegamae, ginjinjinha, cerveja_artesanal])
 
@@ -86,7 +87,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                 description="Sweet pumpkin jam produced from old homemade recipes from S.Miguel with locally produced fruit.",
                                 price=4.50, stockable=True, stock=10, discount=0.0,
                                 image="https://www.creative-gourmet.com/cdn/shop/files/CompotadeAbobora_5000x.jpg?v=1689261980",
-                                number_views=15, categories=[food], user_id = user1.id)
+                                number_views=15, categories=[food], user_id = user2.id)
     azeite = Product(id=str(uuid4()), name="Azeite Virgem Extra Ouro Líquido",
                      description="É o primeiro azeite transmontano com ouro adicionado, que confere um toque único e requintado a qualquer prato, "
                                  "para além das propriedades benéficas do ouro. No interior são visíveis os flocos reluzentes de ouro comestível de 23 quilates, "
@@ -100,7 +101,7 @@ async def insert_data(db: Session = Depends(get_db)):
                   description="Mel caseiro multifloral, produzido em Portugal, com um sabor doce e suave.",
                   price=15.00, stockable=True, stock=10, discount=0.0,
                   image="Mel Caseiro Multifloral (1Kg)",
-                  number_views=2, categories=[food], user_id = user1.id)
+                  number_views=2, categories=[food], user_id = user2.id)
 
     rissois = Product(id=str(uuid4()), name="Rissóis de Camarão",
                       description="Rissóis de camarão, produzidos em Portugal, com um sabor doce e suave.",
@@ -115,13 +116,13 @@ async def insert_data(db: Session = Depends(get_db)):
                                                 "de forma segura e autónoma.",
                                     price=150.00, stockable=True, stock=10, discount=0.0,
                                     image="https://www.creative-gourmet.com/cdn/shop/products/Pack4CervejasSovinacopy_5000x.jpg?v=1601935894",
-                                    number_views=5, categories=[home, for_kids_and_babies, toys_and_games], user_id = user1.id)
+                                    number_views=5, categories=[home, for_kids_and_babies, toys_and_games], user_id = user2.id)
 
     velas = Product(id=str(uuid4()), name="Velas de Natal",
                     description="Velas aromatizadas com decorações de Natal, para acentuar o espírito natalício.",
                     price=10.00, stockable=True, stock=20, discount=0.0,
                     image="https://hoosierhomemade.com/wp-content/uploads/DIY-Christmas-Candles-FEATURE.jpg",
-                    number_views=15, categories=[home, candles_and_air_fresheners], user_id = user1.id)
+                    number_views=15, categories=[home, candles_and_air_fresheners], user_id = user2.id)
 
     mesa = Product(id=str(uuid4()), name="Mesa ao Ar Livre",
                    description="Mesa construida utilizando paletes, e topo de vidro. Não inclui cadeiras.",
@@ -133,7 +134,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                 description="Espanta-Espíritos, feitos com madeira de bambu resinada com 6 canas, para criar um ambiente relaxador em dias ventosos.",
                                 price=20.00, stockable=True, stock=30, discount=0.0,
                                 image="https://cdn.shopk.it/usercontent/valentina-body-care/media/images/e4081fd-115939-20220131_160707.jpg",
-                                number_views=6, categories=[home], user_id = user1.id)
+                                number_views=6, categories=[home], user_id = user2.id)
 
     db.add_all([torre_de_aprendizagem, velas, mesa, espanta_espiritos])
 
@@ -151,7 +152,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                         "de as arranjar.",
                             price=10.00, stockable=True, stock=40, discount=10.0,
                             image="https://ae01.alicdn.com/kf/H9c89f7aa3fde495d8671485db37e9640Q/Madeira-Blocos-Forma-Sorter-Walking-Pull-Along-Car-Model-Handmade-modelo-brinquedo-Educacional-Kids-Toy-Shape.jpg",
-                            number_views=5, categories=[for_kids_and_babies], user_id = user1.id)
+                            number_views=5, categories=[for_kids_and_babies], user_id = user2.id)
 
     pantufas = Product(id=str(uuid4()), name="Pantufas de lã",
                        description="Pantufas quentinhas feitas à mão, de lã macia e confortáveis para uso interior, em fio de malha. Deve disponibilizar o tamanho para fazer.",
@@ -167,7 +168,7 @@ async def insert_data(db: Session = Depends(get_db)):
                         Bastante enternecedor, o jogo Jenga é excelente para entreter não só crianças, como adultos também.",
                     price=5.00, stockable=True, stock=20, discount=0.0,
                     image="https://www.globalcraftsb2b.com/cdn/shop/products/2959b4cf-a696-43b3-a6e3-339a65417a78_2000x.jpg?v=1656437009",
-                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id = user1.id)
+                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id = user2.id)
 
     ludo = Product(id=str(uuid4()), name="Jogo Ludo Madeira",
                    description="Ludo é um jogo de estratégia para dois a quatro jogadores, no qual os jogadores competem com suas quatro fichas do início ao fim de acordo com os lançamentos de um único dado." \
@@ -180,7 +181,7 @@ async def insert_data(db: Session = Depends(get_db)):
                      description="Clássico jogo de Xadrez feito em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
                      price=40.00, stockable=False, stock=0, discount=0.0,
                      image="https://ae01.alicdn.com/kf/Heb5ba19c76b94b2089ee20b09940ce7dT.jpg_640x640Q90.jpg_.webp",
-                     number_views=22, categories=[toys_and_games], user_id = user1.id)
+                     number_views=22, categories=[toys_and_games], user_id = user2.id)
 
     damas = Product(id=str(uuid4()), name="Jogo Damas",
                     description="Jogo de damas em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
@@ -194,7 +195,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                 description="Pulseiras de diferentes tipo, com missangas, nome em fio ou outras decorações",
                                 price=3.00, stockable=False, stock=0, discount=0.0,
                                 image="https://img.fruugo.com/product/1/87/421566871_max.jpg",
-                                number_views=6, categories=[diy_crafts, jewelry_and_accessories], user_id = user1.id)
+                                number_views=6, categories=[diy_crafts, jewelry_and_accessories], user_id = user2.id)
 
     caixa_lencos = Product(id=str(uuid4()), name="Caixa de Lenços",
                            description="Caixinha de lenços pintada manualmente, de madeira. Mensagem nas caixas é personalizável.",
@@ -206,7 +207,7 @@ async def insert_data(db: Session = Depends(get_db)):
                          description="Saco simples de malha crochê colorido",
                          price=15.00, stockable=False, stock=0, discount=0.0,
                          image="https://4.bp.blogspot.com/-2PkVkDZqPo4/WJS7OysQgWI/AAAAAAAABDI/YqALSVruZKwGJr6ZgN53gl_IMw9MFYYtQCLcB/s1600/sac%2Bqud1.jpg",
-                         number_views=15, categories=[diy_crafts], user_id = user1.id)
+                         number_views=15, categories=[diy_crafts], user_id = user2.id)
 
     toalhas_mesa = Product(id=str(uuid4()), name="Toalha de mesa",
                            description="Toalha de mesa com bordas e figuras em renda",
@@ -218,7 +219,7 @@ async def insert_data(db: Session = Depends(get_db)):
                        description="Hand-Woven Almofada De Lã Grossa Cheio de Fio De Tecido De Algodão, Sofá Cadeira Almofada, Cintura Travesseiro, Novo Estilo",
                        price=27.45, stockable=True, stock=50, discount=3,
                        image="https://ae01.alicdn.com/kf/Hd920f7510cef4bbbb4824418874ddc41G/Hand-Woven-Almofada-De-L-Grossa-Cheio-de-Fio-De-Tecido-De-Algod-o-Sof-Cadeira.jpg",
-                       number_views=2, categories=[diy_crafts, home], user_id = user1.id)
+                       number_views=2, categories=[diy_crafts, home], user_id = user2.id)
 
     db.add_all([pulseiras_amizade, caixa_lencos, saco_malha, toalhas_mesa, almofada])
 
@@ -232,7 +233,7 @@ async def insert_data(db: Session = Depends(get_db)):
                            description="Estes chaveiros são totalmente feitos à mão, com lindos motivos bordados. Embelezado com borlas e miçangas ou só com tecido.",
                            price=4.00, stockable=True, stock=50, discount=0.0,
                            image="https://ghabakala.com/wp-content/uploads/2022/12/Ghabakala_SKUKEYCHAIN04_Handcrafted-Keychain01.jpg",
-                           number_views=16, categories=[stationery_and_party_supplies, diy_crafts], user_id = user1.id)
+                           number_views=16, categories=[stationery_and_party_supplies, diy_crafts], user_id = user2.id)
 
     cartoes_aniversario = Product(id=str(uuid4()), name="Cartões para Festa",
                                   description="Cartões para festas de aniversário, casamentos, batizados e outras ocasiões.",
@@ -244,7 +245,7 @@ async def insert_data(db: Session = Depends(get_db)):
                             description="Nomes de madeira personalizados, com diferentes tipos de letra e cores",
                             price=12.95, stockable=False, stock=0, discount=0.0,
                             image="https://m.media-amazon.com/images/I/619E86zfqqL._SL1000_.jpg",
-                            number_views=2, categories=[diy_crafts, home], user_id = user1.id)
+                            number_views=2, categories=[diy_crafts, home], user_id = user2.id)
 
     db.add_all([bolo_aniversario, porta_chaves, nomes_madeira, cartoes_aniversario])
 
@@ -258,7 +259,7 @@ async def insert_data(db: Session = Depends(get_db)):
                       description="Colares personalizados, decorados com missangas ou outro motivo, com fio de aço inoxidável ou linha.",
                       price=7.50, stockable=False, stock=0, discount=0.0,
                       image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkP_Zl8l6N-sgNzxOHc3g1MzH-lhGiAXLKM-js3W2AAznUKj7LhK63oVs71smYaabsF70&usqp=CAU",
-                      number_views=0, categories=[jewelry_and_accessories], user_id = user1.id)
+                      number_views=0, categories=[jewelry_and_accessories], user_id = user2.id)
 
     db.add_all([brincos, colares])
 
@@ -272,7 +273,7 @@ async def insert_data(db: Session = Depends(get_db)):
                     description="Cacto artificial com 72 cm de altura, com vaso de cerâmica",
                     price=32.95, stockable=True, stock=50, discount=3,
                     image="https://cdn.sklum.com/pt/wk/2426848/cacto-artificial-opuntia-72-cm.jpg?cf-resize=gallery",
-                    number_views=2, categories=[animals_and_plants, home], user_id = user1.id)
+                    number_views=2, categories=[animals_and_plants, home], user_id = user2.id)
 
     db.add_all([Corda_cao, Cacto])
     caneca = Product(id=str(uuid4()), name="Caneca de Cerâmica",
@@ -285,7 +286,7 @@ async def insert_data(db: Session = Depends(get_db)):
                     description="Todas as jarras são feitas e pintadas à mão em cerâmica. Podem apresentar variações no seu formato, tamanho e detalhe entre eles. Jarra artesanal feita à mão ideal para  que desfrute de um bom café ou chá.",
                     price=45, stockable=True, stock=150, discount=0.0,
                     image="https://cdn.sklum.com/pt/wk/2386935/vaso-de-ceramica-dalita.jpg?cf-resize=gallery",
-                    number_views=2, categories=[piece_of_crockery, home], user_id = user1.id)
+                    number_views=2, categories=[piece_of_crockery, home], user_id = user2.id)
 
     db.add_all([caneca, jarra])
     cabaca = Product(id=str(uuid4()), name="Cabaça Pintada",
@@ -298,7 +299,7 @@ async def insert_data(db: Session = Depends(get_db)):
                        description="Azuleijo pintado com tinta acrílica e envolvida por uma camada de resina, para decoração de exteriores em ambientes mais rústicos",
                        price=20.00, stockable=False, stock=0, discount=0.0,
                        image="https://www.casadart.pt/wp-content/uploads/2016/07/Azulejo-Tradicional-Espanhol-Parede.jpg",
-                       number_views=2, categories=[art, diy_crafts, home], user_id = user1.id)
+                       number_views=2, categories=[art, diy_crafts, home], user_id = user2.id)
 
     ceramica = Product(id=str(uuid4()), name="Peça de Cerâmica",
                        description="Peça de cerâmica pintada com tinta acrílica e envolvida por uma camada de resina, para decoração de exteriores em ambientes mais rústicos",
@@ -313,7 +314,7 @@ async def insert_data(db: Session = Depends(get_db)):
                                                "<br> The MEDITERRANEAN scented candle is the perfect complement for a relaxing moment. Its refreshing and marine notes will remind you of nature in your own home. Composed of vegan soy and coconut wax, put together in a glass container in which the adhesives have been reduced to ensure the possibility of reuse once the product runs out. ",
                                    price=23.99, stockable=True, stock=200, discount=0.0,
                                    image="https://dareels.com/26292-large_default/candle-mediterranean.jpg",
-                                   number_views=10, categories=[candles_and_air_fresheners, home], user_id = user1.id)
+                                   number_views=10, categories=[candles_and_air_fresheners, home], user_id = user2.id)
     incensos = Product(id=str(uuid4()), name="Incensos Mandalas Maracujá",
                        description="Incenso com aroma 12 unidades.",
                        price=2.00, stockable=True, stock=200, discount=0.0,
@@ -324,7 +325,7 @@ async def insert_data(db: Session = Depends(get_db)):
                         description="Este sabonete tem um aroma suave e cítrico, com notas a madeira.",
                         price=4.99, stockable=True, stock=200, discount=0.0,
                         image="https://www.atelierdosabao.com/cdn/shop/products/Sabonete100_Azeite-AtelierdoSabao_800x.jpg?v=1643738526",
-                        number_views=3, categories=[candles_and_air_fresheners, home], user_id = user1.id)
+                        number_views=3, categories=[candles_and_air_fresheners, home], user_id = user2.id)
 
     db.add_all([candle_mediterranean, incensos, sabonetes])
     db.commit()
