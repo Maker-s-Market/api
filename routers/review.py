@@ -15,5 +15,5 @@ router = APIRouter(tags=['Review'])
 auth = JWTBearer(jwks)
 
 @router.post("/review", dependencies=[Depends(auth)])
-async def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user),):
+async def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     return JSONResponse(status_code=201, content=jsonable_encoder(cr(review=review, db=db, username=username).to_dict()))
