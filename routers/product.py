@@ -7,7 +7,7 @@ from db.database import get_db
 from repositories.categoryRepo import get_category_by_id
 from repositories.productRepo import get_product_by_id, new_product, get_top_products_db, \
     get_products_by_filters
-from repositories.userRepo import get_user
+from repositories.userRepo import get_user, get_user_by_id
 from schemas.product import CreateProduct
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
@@ -71,10 +71,11 @@ async def get_products(q: str = "", limit: int = 10,
 @router.get("/product/{product_id}")
 async def get_product(product_id: str, db: Session = Depends(get_db)):
     product = get_product_by_id(product_id, db)
+    user = get_user_by_id(product.user_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     product.increment_number_views(db=db)
-    return JSONResponse(status_code=200, content=jsonable_encoder(product.to_dict()))
+    return JSONResponse(status_code=200, content=jsonable_encoder(product.to_dict(), user.to_dict()))
 
 
 @router.get("/product/top/{limit}")
