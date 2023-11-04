@@ -24,7 +24,7 @@ auth = JWTBearer(jwks)
 
 router = APIRouter(tags=['Authentication and Authorization'])
 
-client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
+client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-east-1'))
 
 
 @router.post("/auth/sign-up")

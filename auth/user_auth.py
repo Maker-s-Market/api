@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv(".aws")
 
-client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
+client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-east-1'))
 
 
 def sign_up_auth(username: str, email: str, password: str):
