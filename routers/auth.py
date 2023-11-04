@@ -29,6 +29,9 @@ client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-eas
 
 @router.post("/auth/sign-up")
 async def sign_up(user: CreateUser, db: Session = Depends(get_db)):
+    """
+        Function that puts a user in the AWS user pool and sends an email with a 1 time code
+    """
     if (db.query(User).filter(User.username == user.username).first() or
             db.query(User).filter(User.email == user.email).first()):
         raise HTTPException(status_code=500, detail="User already exists in database")
@@ -58,6 +61,10 @@ async def sign_up(user: CreateUser, db: Session = Depends(get_db)):
 # TODO :simplificar erros
 @router.post("/auth/verify-email")
 async def verify_email(user: ActivateUser, db: Session = Depends(get_db)):
+    """
+        Function that checks if the code provided by email is correct or not
+        If it is, the user is activated and can now sign in
+    """
     try:
         status = check_email_auth(user.username, user.code)
         if status != 200:
@@ -86,8 +93,11 @@ async def verify_email(user: ActivateUser, db: Session = Depends(get_db)):
 # TODO : NOT DONE and simplificar erros
 @router.post("/auth/resend-email-code")
 async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db)):
-    # caso o utilizador nao exista na base de dados, nao faz sentido enviar o codigo
-    print(list_users())
+    """
+        Resends the confirmation code to the specified email
+    """
+    if user.identifier not in list_users():
+        raise HTTPException(status_code=406, detail="User not found in cognito pool")
 
     try:
         status = resend_email_code_auth(user.identifier)
@@ -97,8 +107,6 @@ async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db))
             return JSONResponse(status_code=status, content=jsonable_encoder({"message": "Code resent successfully"}))
     except client.exceptions.CodeDeliveryFailureException:
         raise HTTPException(status_code=400, detail="Couldn't send the code")
-    except client.exceptions.UserNotFoundException:
-        raise HTTPException(status_code=400, detail="Username was not found in the pool")
     except ClientError as e:
         print(e)
         raise HTTPException(status_code=500, detail="Server error")
@@ -106,6 +114,9 @@ async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db))
 
 @router.post("/auth/sign-in")
 async def login(user: UserLogin):
+    """
+    Function that signs in a user and returns a token
+    """
     try:
         token = sign_in_auth(user.identifier, user.password)
         if token is None:
@@ -121,6 +132,9 @@ async def login(user: UserLogin):
 # forgot password
 @router.post("/auth/forgot-password")
 async def forgot_password(user: UserIdentifier):
+    """
+        Function that sends a code to the user's email to change the password
+    """
     try:
         status = forgot_password_auth(user.identifier)
         if status != 200:
@@ -135,6 +149,9 @@ async def forgot_password(user: UserIdentifier):
 
 @router.post("/auth/confirm-forgot-password")
 async def confirm_forgot_password(user: ChangePassword):
+    """
+    Function that changes the password of a user
+    """
     if verify_password(user.password) is False:
         raise HTTPException(status_code=500, detail="Password does not meet requirements")
 
@@ -162,4 +179,10 @@ async def confirm_forgot_password(user: ChangePassword):
 
 @router.get("/auth/current-user", dependencies=[Depends(auth)])
 async def current_user(username: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    return JSONResponse(status_code=200, content=jsonable_encoder(get_user(username=username, db=db).to_dict()))
+    """
+    Function that returns the current user
+    """
+    user = get_user(username=username, db=db)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return JSONResponse(status_code=200, content=jsonable_encoder(user.to_dict()))

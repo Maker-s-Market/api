@@ -1,15 +1,15 @@
-from http.client import HTTPException
 import os
-import botocore
+
 import boto3
+import botocore
 from dotenv import load_dotenv
 
 load_dotenv(".aws")
 
-client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-east-1'))
+cognito_client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-east-1'))
 
 
-def sign_up_auth(username: str, email: str, password: str):
+def sign_up_auth(username: str, email: str, password: str, client: botocore.client.BaseClient = cognito_client):
     """
         function that puts a user in the AWS user pool and sends an email with a 1 time code 
     """
@@ -32,7 +32,7 @@ def sign_up_auth(username: str, email: str, password: str):
     return status_code
 
 
-def check_email_auth(username: str, code: str):
+def check_email_auth(username: str, code: str, client: botocore.client.BaseClient = cognito_client):
     """
         function that checks if the code provided by email is correct or not
     """
@@ -48,7 +48,7 @@ def check_email_auth(username: str, code: str):
     return status_code
 
 
-def resend_email_code_auth(username: str):
+def resend_email_code_auth(username: str, client: botocore.client.BaseClient = cognito_client):
     """
         resends the confirmation code to the specified email
         only username
@@ -64,7 +64,7 @@ def resend_email_code_auth(username: str):
     return status
 
 
-def sign_in_auth(username: str, password: str):
+def sign_in_auth(username: str, password: str, client: botocore.client.BaseClient = cognito_client):
     """
         sign in authentication -> returns user code in amazon user pool
     """
@@ -85,8 +85,8 @@ def sign_in_auth(username: str, password: str):
     return token
 
 
-def forgot_password_auth(username: str):
-    """ 
+def forgot_password_auth(username: str, client: botocore.client.BaseClient = cognito_client):
+    """
         function that deals with a user's forgotten password, and sends an email prompt
     """
     response = client.forgot_password(
@@ -99,7 +99,7 @@ def forgot_password_auth(username: str):
     return status_code
 
 
-def confirm_forgot_password_auth(username: str, code: str, new_password: str):
+def confirm_forgot_password_auth(username: str, code: str, new_password: str, client: botocore.client.BaseClient = cognito_client):
     """ 
         function that deals with a user's forgotten password, after receiving an email prompt and confirming the code, chooses a new password
     """
@@ -115,13 +115,20 @@ def confirm_forgot_password_auth(username: str, code: str, new_password: str):
     return status_code
 
 
-def list_users():
+def list_users(client: botocore.client.BaseClient = cognito_client):
     """
         function that lists all users in the user pool
     """
     response = client.list_users(
         UserPoolId=os.getenv('USER_POOL_ID'),
+        AttributesToGet=[
+            'email',
+        ],
     )
 
-    return response['Users']
+    response = response['Users']
 
+    # extract emails from response
+    emails = [user['Attributes'][0]['Value'] for user in response]
+
+    return emails
