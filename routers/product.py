@@ -75,7 +75,11 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     product.increment_number_views(db=db)
-    return JSONResponse(status_code=200, content=jsonable_encoder(product.to_dict(), user.to_dict()))
+    response = {
+        "product": product.to_dict(),
+        "user": user.to_dict()
+    }
+    return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
 
 @router.get("/product/top/{limit}")
