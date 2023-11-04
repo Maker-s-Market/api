@@ -29,7 +29,7 @@ async def get_product_reviews(product_id: str, db: Session = Depends(get_db)):
 async def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     return JSONResponse(status_code=201, content=jsonable_encoder(cr(review=review, db=db, username=username).to_dict()))
 
-@router.delete("/review", dependencies=[Depends(auth)])
+@router.delete("/review/{review_id}", dependencies=[Depends(auth)])
 async def delete_review(review_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     dr(review_id=review_id, db=db, username = username)
     return JSONResponse(status_code=200, content=jsonable_encoder({"message": "Review deleted succesfully"}))
