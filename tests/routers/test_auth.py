@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 from main import app
 from models.user import User
-from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword
+from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin
 from tests.test_sql_app import TestingSessionLocal
 
 
@@ -179,3 +179,52 @@ class TestAuthRoutes(unittest.TestCase):
 
             self.assertEqual(response.status_code, 500)
             self.assertEqual(response.json(), {"detail": "Password does not meet requirements"})
+
+    def test_sign_in_success(self):
+        mock_cognito = Mock()
+        mock_cognito.return_value.sign_in = "token Success"
+        mock_cognito.exceptions.UsernameExistsException = Exception
+        mock_cognito.exceptions.InvalidPasswordException = Exception
+        mock_cognito.exceptions.ClientError = Exception
+
+        with patch('routers.auth.sign_in_auth', return_value="token Success"):
+            user_login = UserLogin(
+                identifier="usertest1",
+                password="Pass123!"
+            )
+
+            response = self.client.post("/auth/sign-in", json={
+                "identifier": user_login.identifier,
+                "password": user_login.password
+            })
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), {"token": "token Success"})
+
+    def test_forgot_password_success(self):
+        mock_cognito = Mock()
+        mock_cognito.return_value.forgot_password = 200
+        mock_cognito.exceptions.UsernameExistsException = Exception
+        mock_cognito.exceptions.InvalidPasswordException = Exception
+        mock_cognito.exceptions.ClientError = Exception
+
+        with patch('routers.auth.forgot_password_auth', return_value=200):
+            user_identifier = UserIdentifier(
+                identifier="usertest1",
+            )
+
+            response = self.client.post("/auth/forgot-password", json={
+                "identifier": user_identifier.identifier,
+            })
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), {"message": "Sent code to email"})
+
+    def test_current_user_not_autohorized(self):
+        response = self.client.get("/auth/current-user")
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json(), {"detail": "Not authenticated"})
+
+    # TODO: CONTINUE TESTING AUTH ROUTES
+    # TODO : NAO FAÇO IDEIA COMO COLOCAR O TOKEN NO HEADER
+

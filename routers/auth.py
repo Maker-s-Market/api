@@ -182,7 +182,4 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     """
     Function that returns the current user
     """
-    user = get_user(username=username, db=db)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return JSONResponse(status_code=200, content=jsonable_encoder(user.to_dict()))
+    return JSONResponse(status_code=200, content=jsonable_encoder(get_user(username=username, db=db).to_dict()))
