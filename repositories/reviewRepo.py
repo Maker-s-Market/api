@@ -33,8 +33,10 @@ def update_review(review: UpdateReview, db: Session = Depends(get_db), username:
     if user.id != review_.user_id:
         raise HTTPException(status_code=403, detail="Only the user can update its reviews")
     return review_.update_review(db=db, review=review)
-    
 
 def get_reviews(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username=username, db=db)
     return db.query(ReviewModel).filter(ReviewModel.user_id==user.id)
+
+def get_product_reviews(product_id, db: Session = Depends(get_db)):
+    return db.query(ReviewModel).filter(ReviewModel.product_id==product_id)
