@@ -1,3 +1,6 @@
+import os
+from uuid import uuid4
+
 import pytest
 import math
 
@@ -6,6 +9,7 @@ from fastapi.testclient import TestClient
 from main import app
 from models.category import Category
 from models.product import Product
+from models.user import User
 from tests.test_sql_app import TestingSessionLocal
 
 client = TestClient(app)
@@ -16,25 +20,62 @@ def load_data():
     db = TestingSessionLocal()
     db.query(Category).delete()
     db.query(Product).delete()
-    db.commit()
-    db.close()
-
-
-@pytest.fixture(scope="module", autouse=True)
-def load_data():
-    db = TestingSessionLocal()
-
+    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
+                 region="nao existe", photo="", role="Client")
+    user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
+                 region="nao sei", photo="", role="Client")
+    db.add(user1)
+    db.add(user2)
     db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="Category1x", icon="icon1", slug="category1x"))
-    db.add(Product(id="06e0da01-57fd-2227-95be-0d25c764ea57", name="random product 1", description="some description 1",
-                   price=12.0, stockable=False))
+    db.add(Product(id="06e0da01-57fd-2227-95be-0d25c764ea56", name="random product 1", description="some description 1",
+                   price=12.0, stockable=False, user_id=user1.id))
     db.add(Product(id="06e0da01-57fd-2228-95be-0d25c764ea57", name="random product 2", description="some description 2",
-                   price=11.0, stockable=True))
+                   price=11.0, stockable=True, user_id=user2.id))
+    db.add(Product(id="06e0da01-57fd-2229-95be-123455555566", name="random product 3", description="some description 3",
+                   price=10.0, stockable=True, user_id="123456789023456789"))
 
     db.commit()
     db.close()
 
 
-def test_normal_post_product():
+def test_normal_post_product_success():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.post("/product",
+                           json={
+                               "name": "product1",
+                               "description": "product1's description",
+                               "price": 12.5,
+                               "stockable": True,
+                               "stock": 2,
+                               "discount": 0,
+                               "categories": [],
+                               "image": "image1"
+                           },
+                           headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 201, response.text
+
+    data = response.json()
+    assert data["user_id"] == response.json()["user_id"]
+    assert data["name"] == "product1"
+    assert data["description"] == "product1's description"
+    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
+    assert data["stockable"] == True
+    assert data["stock"] == 2
+    assert data["discount"] == 0
+    assert data["categories"] == []
+    assert data["image"] == "image1"
+
+
+def test_post_product_no_token():
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -47,20 +88,20 @@ def test_normal_post_product():
                                "image": "image1"
                            })
 
-    assert response.status_code == 201, response.text
-
-    data = response.json()
-    assert data["name"] == "product1"
-    assert data["description"] == "product1's description"
-    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
-    assert data["stockable"] == True
-    assert data["stock"] == 2
-    assert data["discount"] == 0
-    assert data["categories"] == []
-    assert data["image"] == "image1"
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
 
 
-def test_post_wrong_category():
+def test_post_product_but_wrong_category():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -73,14 +114,22 @@ def test_post_wrong_category():
                                    "id": "non existent id"
                                }],
                                "image": "image1"
-                           }
-                           )
+                           },
+                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
 
 
-# GET  TESTS
 def test_get_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -91,8 +140,8 @@ def test_get_product():
                                "discount": 0,
                                "categories": [],
                                "image": "image1"
-                           }
-                           )
+                           },
+                           headers={"Authorization": "Bearer " + token})
 
     data = response.json()
     product_id = data["id"]
@@ -101,29 +150,46 @@ def test_get_product():
 
     assert response.status_code == 200
 
-    data = response.json()
+    data_product = response.json()["product"]
+    data_user = response.json()["user"]
 
-    assert data["id"] == str(product_id)
-    assert data["name"] == "product1"
-    assert data["description"] == "product1's description"
-    assert math.isclose(data["price"], 12.5, abs_tol=0.1)
-    assert data["stockable"] == True
-    assert data["stock"] == 2
-    assert data["discount"] == 0
-    assert data["categories"] == []
-    assert data["image"] == "image1"
+    assert data_product["id"] == str(product_id)
+    assert data_product["name"] == "product1"
+    assert data_product["description"] == "product1's description"
+    assert math.isclose(data_product["price"], 12.5, abs_tol=0.1)
+    assert data_product["stockable"] == True
+    assert data_product["stock"] == 2
+    assert data_product["discount"] == 0
+    assert data_product["categories"] == []
+    assert data_product["image"] == "image1"
+
+    assert data_user["id"] == data["user_id"]
+    assert data_user["name"] == "Bruna"
+    assert data_user["username"] == "brums21"
 
 
-def test_no_correct_id_product():
+def test_get_product_not_existing_id_the_product():
     mock_id = "some random id string"
-
     response = client.get("/product/" + mock_id)
-
     assert response.status_code == 404, response.text == "Product not found"
+
+
+def test_get_product_not_existing_id_the_user():
+    response = client.get("/product/06e0da01-57fd-2229-95be-123455555566")
+    assert response.status_code == 404, response.text == "User not found"
 
 
 # PUT TESTS
 def test_put_not_existing_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.put("/product/1",
                           json={
                               "name": "product1",
@@ -134,13 +200,24 @@ def test_put_not_existing_product():
                               "discount": 0,
                               "categories": [],
                               "image": "image1"
-                          })
+                          },
+                          headers={"Authorization": "Bearer " + token}
+                          )
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Product not found'}
 
 
 def test_put_existing_product_no_category():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -151,7 +228,8 @@ def test_put_existing_product_no_category():
                                "discount": 0,
                                "categories": [],
                                "image": "image1"
-                           }
+                           },
+                           headers={"Authorization": "Bearer " + token}
                            )
 
     product_id = response.json()["id"]
@@ -166,7 +244,9 @@ def test_put_existing_product_no_category():
                               "discount": 0,
                               "categories": [],
                               "image": "image1"
-                          })
+                          },
+                          headers={"Authorization": "Bearer " + token}
+                          )
 
     assert response.status_code == 200, response.text
 
@@ -184,6 +264,15 @@ def test_put_existing_product_no_category():
 
 
 def test_put_existing_product_no_existing_category():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -194,7 +283,8 @@ def test_put_existing_product_no_existing_category():
                                "discount": 0,
                                "categories": [],
                                "image": "image1"
-                           }
+                           },
+                           headers={"Authorization": "Bearer " + token}
                            )
 
     product_id = response.json()["id"]
@@ -211,13 +301,24 @@ def test_put_existing_product_no_existing_category():
                                   "id": "some non existing id"
                               }],
                               "image": "image1"
-                          })
+                          },
+                          headers={"Authorization": "Bearer " + token}
+                          )
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Category not found'}
 
 
 def test_put_existing_product_existing_category():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/category",
                            json={
                                "name": "category1edit",
@@ -244,7 +345,8 @@ def test_put_existing_product_existing_category():
                                "discount": 0,
                                "categories": [],
                                "image": "image1"
-                           }
+                           },
+                           headers={"Authorization": "Bearer " + token}
                            )
 
     product_id = response.json()["id"]
@@ -266,7 +368,8 @@ def test_put_existing_product_existing_category():
                                   }
                               ],
                               "image": "image1"
-                          })
+                          },
+                          headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200, response.text
     data = response.json()
@@ -285,9 +388,16 @@ def test_put_existing_product_existing_category():
     assert data["categories"][1]["id"] == category2_id or data["categories"][1]["id"] == category1_id
 
 
-# DELETE TESTS
+def test_put_not_authenticated():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-def test_delete_existing_product():
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     response = client.post("/product",
                            json={
                                "name": "product1",
@@ -298,27 +408,206 @@ def test_delete_existing_product():
                                "discount": 0,
                                "categories": [],
                                "image": "image1"
-                           }
+                           },
+                           headers={"Authorization": "Bearer " + token}
                            )
 
     product_id = response.json()["id"]
 
-    response = client.delete("/product/" + product_id)
+    response = client.put("/product/" + str(product_id),
+                          json={
+                              "name": "product1",
+                              "description": "product1's description",
+                              "price": 12.5,
+                              "stockable": True,
+                              "stock": 2,
+                              "discount": 0,
+                              "categories": [],
+                              "image": "image1"
+                          })
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_put_not_allowed():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.post("/product",
+                           json={
+                               "name": "product1",
+                               "description": "product1's description",
+                               "price": 12.5,
+                               "stockable": True,
+                               "stock": 2,
+                               "discount": 0,
+                               "categories": [],
+                               "image": "image1"
+                           },
+                           headers={"Authorization": "Bearer " + token}
+                           )
+
+    product_id = response.json()["id"]
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.put("/product/" + str(product_id),
+                          json={
+                              "name": "product1",
+                              "description": "product1's description",
+                              "price": 12.5,
+                              "stockable": True,
+                              "stock": 2,
+                              "discount": 0,
+                              "categories": [],
+                              "image": "image1"
+                          },
+                          headers={"Authorization": "Bearer " + token}
+                          )
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Only the user can change its products'}
+
+
+def test_delete_existing_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = client.post("/product",
+                           json={
+                               "name": "product1",
+                               "description": "product1's description",
+                               "price": 12.5,
+                               "stockable": True,
+                               "stock": 2,
+                               "discount": 0,
+                               "categories": [],
+                               "image": "image1"
+                           },
+                           headers={"Authorization": "Bearer " + token}
+                           )
+
+    product_id = response.json()["id"]
+
+    response = client.delete("/product/" + product_id, headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200
     assert response.json() == {"message": "Product deleted"}
 
 
 def test_delete_non_existing_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     id = "some non-existing id"
 
-    response = client.delete("/product/" + id)
+    response = client.delete("/product/" + id, headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Product not found"}
 
 
+def test_delete_not_authenticated():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = client.post("/product",
+                           json={
+                               "name": "product1",
+                               "description": "product1's description",
+                               "price": 12.5,
+                               "stockable": True,
+                               "stock": 2,
+                               "discount": 0,
+                               "categories": [],
+                               "image": "image1"
+                           },
+                           headers={"Authorization": "Bearer " + token}
+                           )
+
+    product_id = response.json()["id"]
+
+    response = client.delete("/product/" + product_id)
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_delete_not_owner():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = client.post("/product",
+                           json={
+                               "name": "product1",
+                               "description": "product1's description",
+                               "price": 12.5,
+                               "stockable": True,
+                               "stock": 2,
+                               "discount": 0,
+                               "categories": [],
+                               "image": "image1"
+                           },
+                           headers={"Authorization": "Bearer " + token}
+                           )
+
+    product_id = response.json()["id"]
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.delete("/product/" + str(product_id), headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Only the user can change its products'}
+
+
 def test_filter_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     client.post("/product",
                 json={
                     "name": "product1",
@@ -330,7 +619,9 @@ def test_filter_product():
                     "categories": [{
                         "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
                     }]
-                })
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
 
     client.post("/product",
                 json={
@@ -341,20 +632,30 @@ def test_filter_product():
                     "stock": 0,
                     "discount": 50,
                     "categories": []
-                })
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
 
     response = client.get(
-        "/product?q=" + str(1) + "&limit=" + str(1) + "&price_min=" + str(3) + "&price_max=" + str(20) +
-        "&sort=price_asc&discount=" + str(0))
+        "/product?q=" + str(1) + "&limit=" + str(4) + "&price_min=" + str(3) + "&price_max=" + str(20) +
+        "&location=" + str("") + "&sort=price_asc&discount=" + str(0))
 
     data = response.json()
 
     assert response.status_code == 200, response.text
-    assert len(data) == 1
-    assert data[0]["id"] == "06e0da01-57fd-2227-95be-0d25c764ea57"
+    assert len(data) == 4
 
 
 def test_filter_product_category_not_found():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
     client.post("/product",
                 json={
                     "name": "product1",
@@ -366,13 +667,16 @@ def test_filter_product_category_not_found():
                     "categories": [{
                         "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
                     }]
-                })
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
 
     response = client.get("/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(3) +
                           "&price_max=" + str(20) +
+                          "&location=" + str("") +
                           "&sort=" + "price_asc" +
                           "&discount=" + str(0) +
                           "&category_id=" + "some unknown category id")
@@ -387,11 +691,117 @@ def test_filter_product_invalid_price_range():
                           "&limit=" + str(1) +
                           "&price_min=" + str(20) +
                           "&price_max=" + str(3) +
+                          "&location=" + str("") +
                           "&sort=" + "price_asc" +
                           "&discount=" + str(0))
 
     assert response.status_code == 400
     assert response.json() == {'detail': 'Invalid price range'}
+
+
+# this
+def test_product_location():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    client.post("/product",
+                json={
+                    "name": "product1",
+                    "description": "product1's description",
+                    "price": 12.5,
+                    "stockable": True,
+                    "stock": 2,
+                    "discount": 0,
+                    "categories": [{
+                        "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
+                    }]
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
+
+    client.post("/product",
+                json={
+                    "name": "product2",
+                    "description": "product2's description",
+                    "price": 15.5,
+                    "stockable": False,
+                    "stock": 0,
+                    "discount": 50,
+                    "categories": []
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
+
+    response = client.get("/product" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(2) +
+                          "&price_min=" + str(3) +
+                          "&price_max=" + str(20) +
+                          "&location=" + str("pombal") +
+                          "&sort=" + "price_asc" +
+                          "&discount=" + str(0))
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) >= 2
+
+
+def test_product_no_location():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    client.post("/product",
+                json={
+                    "name": "product1",
+                    "description": "product1's description",
+                    "price": 12.5,
+                    "stockable": True,
+                    "stock": 2,
+                    "discount": 0,
+                    "categories": [{
+                        "id": "06e0da01-57fd-4441-95be-0d25c764ea57"
+                    }]
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
+
+    client.post("/product",
+                json={
+                    "name": "product2",
+                    "description": "product2's description",
+                    "price": 15.5,
+                    "stockable": False,
+                    "stock": 0,
+                    "discount": 50,
+                    "categories": []
+                },
+                headers={"Authorization": "Bearer " + token}
+                )
+
+    response = client.get("/product" +
+                          "?q=" + str(1) +
+                          "&limit=" + str(2) +
+                          "&price_min=" + str(3) +
+                          "&price_max=" + str(20) +
+                          "&location=" + str("some random location") +
+                          "&sort=" + "price_asc" +
+                          "&discount=" + str(0))
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 0
 
 
 def test_filter_product_invalid_sort():

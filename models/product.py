@@ -87,7 +87,9 @@ class Product(Base):
             'number_views': self.number_views,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'categories': [category.to_dict() for category in self.categories]
+            'categories': [category.to_dict() for category in self.categories],
+            'user_id': self.user_id
+
         }
 
 
