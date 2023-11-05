@@ -47,9 +47,9 @@ class TestAuthRoutes(unittest.TestCase):
                 username="usertest1",
                 email="randomemail@email.com",
                 password=os.getenv("PASSWORD_CORRECT"),
-                city="random city",
-                region="random region",
-                photo="random photo",
+                city="city",
+                region="region",
+                photo="photo",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -72,9 +72,9 @@ class TestAuthRoutes(unittest.TestCase):
                 username="usertest1",
                 email="randomemail@email.com",
                 password=os.getenv("PASSWORD_CORRECT"),
-                city="random city",
-                region="random region",
-                photo="random photo",
+                city="city",
+                region="region",
+                photo="photo",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -96,11 +96,11 @@ class TestAuthRoutes(unittest.TestCase):
             create_user = CreateUser(
                 name="user name test",
                 username="usertest1",
-                email="randomemail@.com",
+                email="randomemail@someemail.com",
                 password=os.getenv("PASSWORD_INCORRECT"),
-                city="random city",
-                region="random region",
-                photo="random photo",
+                city="city",
+                region="region",
+                photo="photo",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -123,9 +123,9 @@ class TestAuthRoutes(unittest.TestCase):
                 username="usertest1",
                 email="randomemail@email.com",
                 password=os.getenv("PASSWORD_CORRECT"),
-                city="random city",
-                region="random region",
-                photo="random photo",
+                city="city",
+                region="region",
+                photo="photo",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
