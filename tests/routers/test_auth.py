@@ -13,6 +13,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+LINK_SIGN_UP = 'routers.auth.sign_up_auth'
+LINK_SIGN_IN = 'routers.auth.sign_in_auth'
+SIGN_UP_DIR = "/auth/sign-up"
+SIGN_IN_DIR = "/auth/sign-in"
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -22,9 +27,9 @@ def load_data():
         username="maria123",
         email="maria@email.com",
         password=os.getenv("PASSWORD_CORRECT"),
-        city="random city",
-        region="random region",
-        photo="random photo",
+        city="city",
+        region="region",
+        photo="photo",
     )
     new_user(user, db)
     db.commit()
@@ -36,7 +41,7 @@ class TestAuthRoutes(unittest.TestCase):
         self.client = TestClient(app)
 
     def test_sign_up_success(self):
-        with patch('routers.auth.sign_up_auth', return_value=200):
+        with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
                 name="user name test",
                 username="usertest1",
@@ -47,7 +52,7 @@ class TestAuthRoutes(unittest.TestCase):
                 photo="random photo",
             )
 
-            response = self.client.post("/auth/sign-up", json={
+            response = self.client.post(SIGN_UP_DIR, json={
                 "name": create_user.name,
                 "username": create_user.username,
                 "email": create_user.email,
@@ -61,7 +66,7 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "User created"})
 
     def test_sign_up_user_already_exists(self):
-        with patch('routers.auth.sign_up_auth', return_value=200):
+        with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
                 name="user name test",
                 username="usertest1",
@@ -72,7 +77,7 @@ class TestAuthRoutes(unittest.TestCase):
                 photo="random photo",
             )
 
-            response = self.client.post("/auth/sign-up", json={
+            response = self.client.post(SIGN_UP_DIR, json={
                 "name": create_user.name,
                 "username": create_user.username,
                 "email": create_user.email,
@@ -87,7 +92,7 @@ class TestAuthRoutes(unittest.TestCase):
 
     def test_sign_up_invalid_password(self):
 
-        with patch('routers.auth.sign_up_auth', return_value=200):
+        with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
                 name="user name test",
                 username="usertest1",
@@ -98,7 +103,7 @@ class TestAuthRoutes(unittest.TestCase):
                 photo="random photo",
             )
 
-            response = self.client.post("/auth/sign-up", json={
+            response = self.client.post(SIGN_UP_DIR, json={
                 "name": create_user.name,
                 "username": create_user.username,
                 "email": create_user.email,
@@ -112,7 +117,7 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Password does not meet requirements"})
 
     def test_sign_up_fail(self):
-        with patch('routers.auth.sign_up_auth', return_value=406):
+        with patch(LINK_SIGN_UP, return_value=406):
             create_user = CreateUser(
                 name="user name test",
                 username="usertest1",
@@ -123,7 +128,7 @@ class TestAuthRoutes(unittest.TestCase):
                 photo="random photo",
             )
 
-            response = self.client.post("/auth/sign-up", json={
+            response = self.client.post(SIGN_UP_DIR, json={
                 "name": create_user.name,
                 "username": create_user.username,
                 "email": create_user.email,
@@ -220,13 +225,13 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Couldn't change the password, try again later"})
 
     def test_sign_in_success(self):
-        with patch('routers.auth.sign_in_auth', return_value="token Success"):
+        with patch(LINK_SIGN_IN, return_value="token Success"):
             user_login = UserLogin(
                 identifier="usertest1",
                 password=os.getenv("PASSWORD_CORRECT")
             )
 
-            response = self.client.post("/auth/sign-in", json={
+            response = self.client.post(SIGN_IN_DIR, json={
                 "identifier": user_login.identifier,
                 "password": user_login.password
             })
@@ -235,13 +240,13 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"token": "token Success"})
 
     def test_sign_in_fail(self):
-        with patch('routers.auth.sign_in_auth', return_value=None):
+        with patch(LINK_SIGN_IN, return_value=None):
             user_login = UserLogin(
                 identifier="usertest1",
                 password=os.getenv("PASSWORD_CORRECT")
             )
 
-            response = self.client.post("/auth/sign-in", json={
+            response = self.client.post(SIGN_IN_DIR, json={
                 "identifier": user_login.identifier,
                 "password": user_login.password
             })
