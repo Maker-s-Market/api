@@ -309,7 +309,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch(LINK_RESEND_EMAIL_CODE, return_value=200):
 
             user_identifier = UserIdentifier(
-                identifier="maria@email.com",
+                identifier="MARIA_EMAIL",
             )
 
             response = self.client.post(RESEND_EMAIL_CODE, json={
@@ -323,7 +323,7 @@ class TestAuthRoutes(unittest.TestCase):
 
         with patch(LINK_RESEND_EMAIL_CODE, return_value=406):
             user_identifier = UserIdentifier(
-                identifier="maria@email.com",
+                identifier="MARIA_EMAIL",
             )
 
             response = self.client.post(RESEND_EMAIL_CODE, json={
