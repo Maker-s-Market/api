@@ -46,7 +46,7 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
         if credentials:
-            if not credentials.scheme == "Bearer":
+            if credentials.scheme != "Bearer":
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
                 )
@@ -57,9 +57,13 @@ class JWTBearer(HTTPBearer):
 
             try:
                 claims = jwt.get_unverified_claims(jwt_token)
-                claims["auth_time"] = str(claims["auth_time"])
-                claims["iat"] = str(claims["iat"])
-                claims["exp"] = str(claims["exp"])
+
+                if "auth_time" in claims:
+                    claims["auth_time"] = str(claims["auth_time"])
+                if "iat" in claims:
+                    claims["iat"] = str(claims["iat"])
+                if "exp" in claims:
+                    claims["exp"] = str(claims["exp"])
 
                 jwt_credentials = JWTAuthorizationCredentials(
                     jwt_token=jwt_token,

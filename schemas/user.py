@@ -11,6 +11,12 @@ class CreateUser(BaseModel):
     photo: str
     # role: str
 
+class UserUpdate(BaseModel):
+    id: str
+    name: str
+    city: str
+    region: str
+    photo: str
 
 class UserLogin(BaseModel):
     identifier: str

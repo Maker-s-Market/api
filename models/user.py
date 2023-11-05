@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Tabl
 from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
-from schemas.user import CreateUser
+from schemas.user import CreateUser, UserUpdate
 
 followers = Table(
     'followers',
@@ -93,6 +93,16 @@ class User(Base):
 
     def active(self, db: Session = Depends(get_db)):
         self.is_active = True
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
+
+    def update(self, user: UserUpdate, db: Session = Depends(get_db)):
+        self.name = user.name
+        self.city = user.city
+        self.region = user.region
+        self.photo = user.photo
         self.updated_at = datetime.datetime.now()
         db.commit()
         db.refresh(self)

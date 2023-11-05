@@ -28,3 +28,8 @@ def get_user_by_id(id_user: str, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    return db.query(UserModel).filter(UserModel.email == email).first()
+
