@@ -5,6 +5,7 @@ import pytest
 from starlette.testclient import TestClient
 from main import app
 from models.user import User
+from schemas.user import UserUpdate
 from repositories.userRepo import new_user
 from tests.test_sql_app import TestingSessionLocal
 from uuid import uuid4
@@ -53,5 +54,74 @@ def test_get_current_user_logged():
     assert data["region"] == "nao existe"
     assert data["photo"] == ""
 
+
+def test_update_user_not_logged():
+    update = UserUpdate(id="1234567", name="Bruna", city="pombal", region="Leiria", photo="")
+    response = client.put("/user", json={
+        "id": update.id,
+        "name": update.name,
+        "city": update.city,
+        "region": update.region,
+        "photo": update.photo
+    })
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_update_user_sucess():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/auth/current-user", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200
+
+    update = UserUpdate(id=response.json()["id"], name="Bruna update", city="pombal", region="Leiria", photo="")
+    response = client.put("/user", json={
+        "id": update.id,
+        "name": update.name,
+        "city": update.city,
+        "region": update.region,
+        "photo": update.photo
+    }, headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "brums21"
+    assert data["name"] == "Bruna update"
+    assert data["city"] == "pombal"
+    assert data["region"] == "Leiria"
+    assert data["photo"] == ""
+
+def test_update_user_not_the_owner():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": "Pass123!"
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/auth/current-user", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200
+
+    update = UserUpdate(id="1234567", name="Bruna update", city="pombal", region="Leiria", photo="")
+    response = client.put("/user", json={
+        "id": update.id,
+        "name": update.name,
+        "city": update.city,
+        "region": update.region,
+        "photo": update.photo
+    }, headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'You can only update your own user'}
 
 
