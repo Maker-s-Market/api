@@ -52,6 +52,7 @@ class Review(Base):
         db.refresh(self)
         return self
 
+
 def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
     if not get_product_by_id(review.product_id, db=db):
