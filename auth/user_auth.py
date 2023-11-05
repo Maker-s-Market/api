@@ -113,22 +113,3 @@ def confirm_forgot_password_auth(username: str, code: str, new_password: str, cl
     status_code = response['ResponseMetadata']['HTTPStatusCode']
 
     return status_code
-
-
-def list_users(client: botocore.client.BaseClient = cognito_client):
-    """
-        function that lists all users in the user pool
-    """
-    response = client.list_users(
-        UserPoolId=os.getenv('USER_POOL_ID'),
-        AttributesToGet=[
-            'email',
-        ],
-    )
-
-    response = response['Users']
-
-    # extract emails from response
-    emails = [user['Attributes'][0]['Value'] for user in response]
-
-    return emails
