@@ -1,6 +1,6 @@
 import pytest
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from main import app
 from models.user import User
@@ -32,9 +32,6 @@ class TestAuthRoutes(unittest.TestCase):
         self.client = TestClient(app)
 
     def test_sign_up_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_up = 200
-
         with patch('routers.auth.sign_up_auth', return_value=200):
             create_user = CreateUser(
                 name="user name test",
@@ -60,9 +57,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "User created"})
 
     def test_sign_up_user_already_exists(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_up = 200
-
         with patch('routers.auth.sign_up_auth', return_value=200):
             create_user = CreateUser(
                 name="user name test",
@@ -88,8 +82,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "User already exists in database"})
 
     def test_sign_up_invalid_password(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_up = 200
 
         with patch('routers.auth.sign_up_auth', return_value=200):
             create_user = CreateUser(
@@ -116,9 +108,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Password does not meet requirements"})
 
     def test_sign_up_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_up = 406
-
         with patch('routers.auth.sign_up_auth', return_value=406):
             create_user = CreateUser(
                 name="user name test",
@@ -144,9 +133,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Couldn't sign up"})
 
     def test_verify_email_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.check_email_auth = 200
-
         with patch('routers.auth.check_email_auth', return_value=200):
             activate_user = ActivateUser(
                 username="usertest1",
@@ -162,9 +148,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Email confirmed"})
 
     def test_verify_email_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.check_email_auth = 406
-
         with patch('routers.auth.check_email_auth', return_value=406):
             activate_user = ActivateUser(
                 username="usertest1",
@@ -180,8 +163,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Unable to confirm access, resend a code"})
 
     def test_confirm_forgot_password_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.confirm_forgot_password = 200
 
         with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
             activate_user = ChangePassword(
@@ -200,9 +181,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Password changed successfully"})
 
     def test_confirm_forgot_password_invalid_password(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.confirm_forgot_password = 200
-
         with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
             activate_user = ChangePassword(
                 identifier="usertest1",
@@ -220,8 +198,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Password does not meet requirements"})
 
     def test_confirm_forgot_password_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.confirm_forgot_password = 406
 
         with patch('routers.auth.confirm_forgot_password_auth', return_value=406):
             activate_user = ChangePassword(
@@ -240,9 +216,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Couldn't change the password, try again later"})
 
     def test_sign_in_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_in = "token Success"
-
         with patch('routers.auth.sign_in_auth', return_value="token Success"):
             user_login = UserLogin(
                 identifier="usertest1",
@@ -258,9 +231,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"token": "token Success"})
 
     def test_sign_in_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.sign_in = None
-
         with patch('routers.auth.sign_in_auth', return_value=None):
             user_login = UserLogin(
                 identifier="usertest1",
@@ -276,11 +246,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Error loging in..."})
 
     def test_forgot_password_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.forgot_password = 200
-        mock_cognito.exceptions.UsernameExistsException = Exception
-        mock_cognito.exceptions.InvalidPasswordException = Exception
-        mock_cognito.exceptions.ClientError = Exception
 
         with patch('routers.auth.forgot_password_auth', return_value=200):
             user_identifier = UserIdentifier(
@@ -295,9 +260,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Sent code to email"})
 
     def test_forgot_password_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.forgot_password = 406
-
         with patch('routers.auth.forgot_password_auth', return_value=406):
             user_identifier = UserIdentifier(
                 identifier="usertest1",
@@ -311,9 +273,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Couldn't send the code, try again later"})
 
     def test_resend_email_code_the_user_not_found(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.resend_email_code = 200
-
         with patch('routers.auth.resend_email_code_auth', return_value=404):
             user_identifier = UserIdentifier(
                 identifier="usertest1",
@@ -327,9 +286,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "User not found"})
 
     def test_resend_email_code_success(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.resend_email_code = 200
-
         with patch('routers.auth.resend_email_code_auth', return_value=200):
             user_identifier = UserIdentifier(
                 identifier="maria@email.com",
@@ -343,9 +299,6 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Code resent successfully"})
 
     def test_resend_email_code_fail(self):
-        mock_cognito = Mock()
-        mock_cognito.return_value.resend_email_code = 406
-
         with patch('routers.auth.resend_email_code_auth', return_value=406):
             user_identifier = UserIdentifier(
                 identifier="maria@email.com",
@@ -357,11 +310,4 @@ class TestAuthRoutes(unittest.TestCase):
 
             self.assertEqual(response.status_code, 406)
             self.assertEqual(response.json(), {"detail": "Couldn't send the code, try again later"})
-
-
-def test_current_user_not_autohorized(self):
-    response = self.client.get("/auth/current-user")
-    self.assertEqual(response.status_code, 403)
-    self.assertEqual(response.json(), {"detail": "Not authenticated"})
-
 

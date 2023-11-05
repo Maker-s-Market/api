@@ -78,6 +78,8 @@ async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db))
         return JSONResponse(status_code=status, content=jsonable_encoder({"message": "Code resent successfully"}))
 
 
+
+
 @router.post("/auth/sign-in")
 async def login(user: UserLogin):
     """
@@ -88,8 +90,6 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=404, detail="Error loging in...")
     else:
         return JSONResponse(status_code=200, content=jsonable_encoder({"token": token}))
-
-
 # forgot password
 @router.post("/auth/forgot-password")
 async def forgot_password(user: UserIdentifier):
