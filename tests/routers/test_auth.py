@@ -1,5 +1,7 @@
 import pytest
 import unittest
+import os
+
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from main import app
@@ -7,7 +9,9 @@ from models.user import User
 from repositories.userRepo import new_user
 from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin
 from tests.test_sql_app import TestingSessionLocal
+from dotenv import load_dotenv
 
+load_dotenv()
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -17,7 +21,7 @@ def load_data():
         name="maria",
         username="maria123",
         email="maria@email.com",
-        password="Pass123!",
+        password=os.getenv("PASSWORD_CORRECT"),
         city="random city",
         region="random region",
         photo="random photo",
@@ -37,7 +41,7 @@ class TestAuthRoutes(unittest.TestCase):
                 name="user name test",
                 username="usertest1",
                 email="randomemail@email.com",
-                password="Pass123!",
+                password=os.getenv("PASSWORD_CORRECT"),
                 city="random city",
                 region="random region",
                 photo="random photo",
@@ -62,7 +66,7 @@ class TestAuthRoutes(unittest.TestCase):
                 name="user name test",
                 username="usertest1",
                 email="randomemail@email.com",
-                password="Pass123!",
+                password=os.getenv("PASSWORD_CORRECT"),
                 city="random city",
                 region="random region",
                 photo="random photo",
@@ -88,7 +92,7 @@ class TestAuthRoutes(unittest.TestCase):
                 name="user name test",
                 username="usertest1",
                 email="randomemail@.com",
-                password="pass",
+                password=os.getenv("PASSWORD_INCORRECT"),
                 city="random city",
                 region="random region",
                 photo="random photo",
@@ -113,7 +117,7 @@ class TestAuthRoutes(unittest.TestCase):
                 name="user name test",
                 username="usertest1",
                 email="randomemail@email.com",
-                password="Pass123!",
+                password=os.getenv("PASSWORD_CORRECT"),
                 city="random city",
                 region="random region",
                 photo="random photo",
@@ -167,7 +171,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
             activate_user = ChangePassword(
                 identifier="usertest1",
-                password="Pass123!",
+                password=os.getenv("PASSWORD_CORRECT"),
                 code="123456"
             )
 
@@ -184,7 +188,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
             activate_user = ChangePassword(
                 identifier="usertest1",
-                password="pass",
+                password=os.getenv("PASSWORD_INCORRECT"),
                 code="123456"
             )
 
@@ -202,7 +206,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch('routers.auth.confirm_forgot_password_auth', return_value=406):
             activate_user = ChangePassword(
                 identifier="usertest1",
-                password="Pass123!",
+                password=os.getenv("PASSWORD_CORRECT"),
                 code="123456"
             )
 
@@ -219,7 +223,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch('routers.auth.sign_in_auth', return_value="token Success"):
             user_login = UserLogin(
                 identifier="usertest1",
-                password="Pass123!"
+                password=os.getenv("PASSWORD_CORRECT")
             )
 
             response = self.client.post("/auth/sign-in", json={
@@ -234,7 +238,7 @@ class TestAuthRoutes(unittest.TestCase):
         with patch('routers.auth.sign_in_auth', return_value=None):
             user_login = UserLogin(
                 identifier="usertest1",
-                password="Pass123!"
+                password=os.getenv("PASSWORD_CORRECT")
             )
 
             response = self.client.post("/auth/sign-in", json={

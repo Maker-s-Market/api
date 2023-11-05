@@ -56,3 +56,4 @@ setuptools~=65.5.1
 coverage~=7.3.2
 moto ~=2.2.0
 mock
+pytest-env

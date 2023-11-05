@@ -9,9 +9,10 @@ from schemas.user import UserUpdate
 from repositories.userRepo import new_user
 from tests.test_sql_app import TestingSessionLocal
 from uuid import uuid4
+from dotenv import load_dotenv
 
 client = TestClient(app)
-
+load_dotenv()
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -38,7 +39,7 @@ def test_get_current_user_logged():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": str(os.getenv("PASSWORD_CORRECT"))
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -74,7 +75,7 @@ def test_update_user_sucess():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -104,7 +105,7 @@ def test_update_user_not_the_owner():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
