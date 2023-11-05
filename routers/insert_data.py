@@ -16,22 +16,22 @@ router = APIRouter(tags=['Insert Data'])
 @router.get("/insert_data")
 async def insert_data(db: Session = Depends(get_db)):
     # CATEGORY
-    drinks = Category(id=str(uuid4()), name="Drinks", icon="FaWineBottle", slug="drinks")
-    food = Category(id=str(uuid4()), name="Food", icon="RiCake3Fill", slug="food")
-    home = Category(id=str(uuid4()), name="Home", icon="FaHome", slug="home")
-    for_kids_and_babies = Category(id=str(uuid4()), name="For kids and babies", icon="TbHorseToy",
+    drinks = Category(id=str(uuid4()), name="Drinks", icon="wine-bottle", slug="drinks")
+    food = Category(id=str(uuid4()), name="Food", icon="bowl-food", slug="food")
+    home = Category(id=str(uuid4()), name="Home", icon="house", slug="home")
+    for_kids_and_babies = Category(id=str(uuid4()), name="For kids and babies", icon="baby-carriage",
                                    slug="forkidsandbabies")
-    toys_and_games = Category(id=str(uuid4()), name="Toys and games", icon="FaDiceD20", slug="toysandgames")
-    diy_crafts = Category(id=str(uuid4()), name="DIY crafts", icon="BsTools", slug="diycrafts")
-    stationery_and_party_supplies = Category(id=str(uuid4()), name="Stationery and Party Supplies", icon="GiPartyHat",
+    toys_and_games = Category(id=str(uuid4()), name="Toys and games", icon="dice", slug="toysandgames")
+    diy_crafts = Category(id=str(uuid4()), name="DIY crafts", icon="hammer", slug="diycrafts")
+    stationery_and_party_supplies = Category(id=str(uuid4()), name="Stationery and Party Supplies", icon="cake-candles",
                                              slug="stationeryandpartysupplies")
-    jewelry_and_accessories = Category(id=str(uuid4()), name="Jewelry and Accessories", icon="GiEmeraldNecklace",
+    jewelry_and_accessories = Category(id=str(uuid4()), name="Jewelry and Accessories", icon="gem",
                                        slug="jewelryandaccessories")
-    animals_and_plants = Category(id=str(uuid4()), name="Animals and Plants", icon="GiPottedPlant",
+    animals_and_plants = Category(id=str(uuid4()), name="Animals and Plants", icon="seedling",
                                   slug="animalsandplants")
-    piece_of_crockery = Category(id=str(uuid4()), name="Piece of crockery", icon="FaKitchenSet", slug="pieceofcrockery")
-    art = Category(id=str(uuid4()), name="Art", icon="FaPaintBrush", slug="art")
-    candles_and_air_fresheners = Category(id=str(uuid4()), name="Candles and Air Fresheners", icon="GiCandleLight",
+    piece_of_crockery = Category(id=str(uuid4()), name="Piece of crockery", icon="kitchen-set", slug="pieceofcrockery")
+    art = Category(id=str(uuid4()), name="Art", icon="paintbrush", slug="art")
+    candles_and_air_fresheners = Category(id=str(uuid4()), name="Candles and Air Fresheners", icon="spray-can-sparkles",
                                           slug="candlesandairfresheners")
 
     db.add_all([drinks, food, home, for_kids_and_babies, toys_and_games, diy_crafts, stationery_and_party_supplies,
