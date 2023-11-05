@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
+CATEGORY = "/category"
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -18,7 +19,7 @@ def load_data():
 
 
 def test_create_category():
-    response = client.post("/category", json={"name": "Category1", "icon": "icon1"})
+    response = client.post(CATEGORY, json={"name": "Category1", "icon": "icon1"})
 
     assert response.status_code == 201, response.text
 
@@ -30,7 +31,7 @@ def test_create_category():
 
 
 def test_create_category_with_same_name():
-    response = client.post("/category", json={"name": "Category1", "icon": "icon1"})
+    response = client.post(CATEGORY, json={"name": "Category1", "icon": "icon1"})
 
     assert response.status_code == 400, response.text
     assert response.json() == {'detail': 'Category already exists'}
@@ -58,7 +59,7 @@ def test_put_existing_category():
 
 
 def test_get_all_categories():
-    response = client.get("/category")
+    response = client.get(CATEGORY)
 
     assert response.status_code == 200, response.text
 

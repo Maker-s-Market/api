@@ -15,8 +15,18 @@ load_dotenv()
 
 LINK_SIGN_UP = 'routers.auth.sign_up_auth'
 LINK_SIGN_IN = 'routers.auth.sign_in_auth'
+LINK_CONFIRM_PASSWORD = 'routers.auth.confirm_forgot_password_auth'
+LINK_RESEND_EMAIL_CODE = 'routers.auth.resend_email_code_auth'
+
 SIGN_UP_DIR = "/auth/sign-up"
 SIGN_IN_DIR = "/auth/sign-in"
+CONFIRM_PASSWORD_DIR = "/auth/confirm-forgot-password"
+RESEND_EMAIL_CODE = "/auth/resend-email-code"
+
+
+USERNAME_TEST = "user name test"
+RANDOM_EMAIL = "randomemail@email.com"
+MARIA_EMAIL = "maria@email.com"
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -25,7 +35,7 @@ def load_data():
     user = CreateUser(
         name="maria",
         username="maria123",
-        email="maria@email.com",
+        email=MARIA_EMAIL,
         password=os.getenv("PASSWORD_CORRECT"),
         city="city",
         region="region",
@@ -43,9 +53,9 @@ class TestAuthRoutes(unittest.TestCase):
     def test_sign_up_success(self):
         with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
-                name="user name test",
+                name="USERNAME_TEST",
                 username="usertest1",
-                email="randomemail@email.com",
+                email=RANDOM_EMAIL,
                 password=os.getenv("PASSWORD_CORRECT"),
                 city="city",
                 region="region",
@@ -68,9 +78,9 @@ class TestAuthRoutes(unittest.TestCase):
     def test_sign_up_user_already_exists(self):
         with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
-                name="user name test",
+                name="USERNAME_TEST",
                 username="usertest1",
-                email="randomemail@email.com",
+                email=RANDOM_EMAIL,
                 password=os.getenv("PASSWORD_CORRECT"),
                 city="city",
                 region="region",
@@ -94,9 +104,9 @@ class TestAuthRoutes(unittest.TestCase):
 
         with patch(LINK_SIGN_UP, return_value=200):
             create_user = CreateUser(
-                name="user name test",
+                name="USERNAME_TEST",
                 username="usertest1",
-                email="randomemail@someemail.com",
+                email=RANDOM_EMAIL,
                 password=os.getenv("PASSWORD_INCORRECT"),
                 city="city",
                 region="region",
@@ -119,9 +129,9 @@ class TestAuthRoutes(unittest.TestCase):
     def test_sign_up_fail(self):
         with patch(LINK_SIGN_UP, return_value=406):
             create_user = CreateUser(
-                name="user name test",
+                name="USERNAME_TEST",
                 username="usertest1",
-                email="randomemail@email.com",
+                email=RANDOM_EMAIL,
                 password=os.getenv("PASSWORD_CORRECT"),
                 city="city",
                 region="region",
@@ -173,14 +183,14 @@ class TestAuthRoutes(unittest.TestCase):
 
     def test_confirm_forgot_password_success(self):
 
-        with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
+        with patch(LINK_CONFIRM_PASSWORD, return_value=200):
             activate_user = ChangePassword(
                 identifier="usertest1",
                 password=os.getenv("PASSWORD_CORRECT"),
                 code="123456"
             )
 
-            response = self.client.post("/auth/confirm-forgot-password", json={
+            response = self.client.post(CONFIRM_PASSWORD_DIR, json={
                 "identifier": activate_user.identifier,
                 "password": activate_user.password,
                 "code": activate_user.code
@@ -190,14 +200,14 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Password changed successfully"})
 
     def test_confirm_forgot_password_invalid_password(self):
-        with patch('routers.auth.confirm_forgot_password_auth', return_value=200):
+        with patch(LINK_CONFIRM_PASSWORD, return_value=200):
             activate_user = ChangePassword(
                 identifier="usertest1",
                 password=os.getenv("PASSWORD_INCORRECT"),
                 code="123456"
             )
 
-            response = self.client.post("/auth/confirm-forgot-password", json={
+            response = self.client.post(CONFIRM_PASSWORD_DIR, json={
                 "identifier": activate_user.identifier,
                 "password": activate_user.password,
                 "code": activate_user.code
@@ -208,14 +218,14 @@ class TestAuthRoutes(unittest.TestCase):
 
     def test_confirm_forgot_password_fail(self):
 
-        with patch('routers.auth.confirm_forgot_password_auth', return_value=406):
+        with patch(LINK_CONFIRM_PASSWORD, return_value=406):
             activate_user = ChangePassword(
                 identifier="usertest1",
                 password=os.getenv("PASSWORD_CORRECT"),
                 code="123456"
             )
 
-            response = self.client.post("/auth/confirm-forgot-password", json={
+            response = self.client.post(CONFIRM_PASSWORD_DIR, json={
                 "identifier": activate_user.identifier,
                 "password": activate_user.password,
                 "code": activate_user.code
@@ -282,12 +292,13 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "Couldn't send the code, try again later"})
 
     def test_resend_email_code_the_user_not_found(self):
-        with patch('routers.auth.resend_email_code_auth', return_value=404):
+
+        with patch(LINK_RESEND_EMAIL_CODE, return_value=404):
             user_identifier = UserIdentifier(
                 identifier="usertest1",
             )
 
-            response = self.client.post("/auth/resend-email-code", json={
+            response = self.client.post(RESEND_EMAIL_CODE, json={
                 "identifier": user_identifier.identifier,
             })
 
@@ -295,12 +306,13 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"detail": "User not found"})
 
     def test_resend_email_code_success(self):
-        with patch('routers.auth.resend_email_code_auth', return_value=200):
+        with patch(LINK_RESEND_EMAIL_CODE, return_value=200):
+
             user_identifier = UserIdentifier(
                 identifier="maria@email.com",
             )
 
-            response = self.client.post("/auth/resend-email-code", json={
+            response = self.client.post(RESEND_EMAIL_CODE, json={
                 "identifier": user_identifier.identifier,
             })
 
@@ -308,12 +320,13 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.json(), {"message": "Code resent successfully"})
 
     def test_resend_email_code_fail(self):
-        with patch('routers.auth.resend_email_code_auth', return_value=406):
+
+        with patch(LINK_RESEND_EMAIL_CODE, return_value=406):
             user_identifier = UserIdentifier(
                 identifier="maria@email.com",
             )
 
-            response = self.client.post("/auth/resend-email-code", json={
+            response = self.client.post(RESEND_EMAIL_CODE, json={
                 "identifier": user_identifier.identifier,
             })
 

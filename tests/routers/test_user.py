@@ -14,6 +14,12 @@ from dotenv import load_dotenv
 client = TestClient(app)
 load_dotenv()
 
+AUTH_CURRENT_USER = "/auth/current-user"
+AUTH_SIGN_IN = "/auth/sign-in"
+BEARER = "Bearer "
+USER = "/user"
+UPDATE_BRUNA = "Bruna update"
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -29,7 +35,7 @@ def load_data():
 
 
 def test_get_current_user_not_logged():
-    response = client.get("/auth/current-user")
+    response = client.get(AUTH_CURRENT_USER)
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
 
@@ -37,14 +43,14 @@ def test_get_current_user_not_logged():
 def test_get_current_user_logged():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
         "password": str(os.getenv("PASSWORD_CORRECT"))
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.get("/auth/current-user", headers={"Authorization": "Bearer " + token})
+    response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + token})
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
@@ -58,7 +64,7 @@ def test_get_current_user_logged():
 
 def test_update_user_not_logged():
     update = UserUpdate(id="1234567", name="Bruna", city="pombal", region="Leiria", photo="")
-    response = client.put("/user", json={
+    response = client.put(USER, json={
         "id": update.id,
         "name": update.name,
         "city": update.city,
@@ -73,29 +79,29 @@ def test_update_user_not_logged():
 def test_update_user_sucess():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.get("/auth/current-user", headers={"Authorization": "Bearer " + token})
+    response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + token})
     assert response.status_code == 200
 
-    update = UserUpdate(id=response.json()["id"], name="Bruna update", city="pombal", region="Leiria", photo="")
-    response = client.put("/user", json={
+    update = UserUpdate(id=response.json()["id"], name="UPDATE_BRUNA", city="pombal", region="Leiria", photo="")
+    response = client.put(USER, json={
         "id": update.id,
         "name": update.name,
         "city": update.city,
         "region": update.region,
         "photo": update.photo
-    }, headers={"Authorization": "Bearer " + token})
+    }, headers={"Authorization": BEARER + token})
 
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert data["name"] == "Bruna update"
+    assert data["name"] == "UPDATE_BRUNA"
     assert data["city"] == "pombal"
     assert data["region"] == "Leiria"
     assert data["photo"] == ""
@@ -103,24 +109,24 @@ def test_update_user_sucess():
 def test_update_user_not_the_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.get("/auth/current-user", headers={"Authorization": "Bearer " + token})
+    response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + token})
     assert response.status_code == 200
 
-    update = UserUpdate(id="1234567", name="Bruna update", city="pombal", region="Leiria", photo="")
-    response = client.put("/user", json={
+    update = UserUpdate(id="1234567", name="UPDATE_BRUNA", city="pombal", region="Leiria", photo="")
+    response = client.put(USER, json={
         "id": update.id,
         "name": update.name,
         "city": update.city,
         "region": update.region,
         "photo": update.photo
-    }, headers={"Authorization": "Bearer " + token})
+    }, headers={"Authorization": BEARER + token})
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'You can only update your own user'}
