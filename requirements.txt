@@ -45,5 +45,15 @@ watchfiles==0.20.0
 websocket-client==1.6.4
 websockets==11.0.3
 wrapt==1.15.0
-boto3
-python-multipart
+boto3~=1.28.68
+python-multipart~=0.0.6
+jwt
+python-jose
+pip~=22.3.1
+wheel~=0.38.4
+cryptography~=41.0.5
+setuptools~=65.5.1
+coverage~=7.3.2
+moto ~=2.2.0
+mock
+pytest-env

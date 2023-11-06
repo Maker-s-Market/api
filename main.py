@@ -1,20 +1,16 @@
 import os
 from contextlib import asynccontextmanager
-from uuid import uuid4
 
 import boto3
-from fastapi import FastAPI, Depends, Request, UploadFile, File
+from dotenv import load_dotenv
+from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from dotenv import load_dotenv
 from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
-from db.database import get_db, SessionLocal
-from models.category import Category
-from models.product import Product
-from routers import product, category, insert_data
+from db.database import SessionLocal
+from routers import product, category, insert_data, auth, user
 
 
 @asynccontextmanager
@@ -54,9 +50,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add routers
 app.include_router(insert_data.router)
+app.include_router(auth.router)
+app.include_router(user.router)
 app.include_router(category.router)
 app.include_router(product.router)
+
+
 
 load_dotenv(".aws")
 # Configure AWS credentials
@@ -74,11 +75,6 @@ async def db_session_middleware(request: Request, call_next):
     response = await call_next(request)
     request.state.db.close()
     return response
-
-
-@app.get("/")
-async def root():
-    return {"message": "hello World!"}
 
 
 @app.post("/uploadfile")

@@ -344,7 +344,7 @@ def test_filter_product():
                 })
 
     response = client.get(
-        "/products?q=" + str(1) + "&limit=" + str(1) + "&price_min=" + str(3) + "&price_max=" + str(20) +
+        "/product?q=" + str(1) + "&limit=" + str(1) + "&price_min=" + str(3) + "&price_max=" + str(20) +
         "&sort=price_asc&discount=" + str(0))
 
     data = response.json()
@@ -368,7 +368,7 @@ def test_filter_product_category_not_found():
                     }]
                 })
 
-    response = client.get("/products" +
+    response = client.get("/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(3) +
@@ -382,7 +382,7 @@ def test_filter_product_category_not_found():
 
 
 def test_filter_product_invalid_price_range():
-    response = client.get("/products" +
+    response = client.get("/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(20) +
@@ -395,7 +395,7 @@ def test_filter_product_invalid_price_range():
 
 
 def test_filter_product_invalid_sort():
-    response = client.get("/products" +
+    response = client.get("/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(3) +
@@ -408,7 +408,7 @@ def test_filter_product_invalid_sort():
 
 
 def test_get_top_products():
-    response = client.get("/top/product")
+    response = client.get("product/top/4")
 
     assert response.status_code == 200, response.text
 

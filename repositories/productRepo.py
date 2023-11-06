@@ -14,8 +14,8 @@ def new_product(product: CreateProduct, db: Session = Depends(get_db)):
     return create_product(db=db, product=product)
 
 
-def get_top_products_db(db: Session = Depends(get_db)):
-    return db.query(ProductModel).order_by(ProductModel.number_views.desc()).limit(4).all()
+def get_top_products_db(limit: int = 4, db: Session = Depends(get_db)):
+    return db.query(ProductModel).order_by(ProductModel.number_views.desc()).limit(limit).all()
 
 
 def get_products_by_filters(q: str = "",

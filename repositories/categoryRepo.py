@@ -22,5 +22,5 @@ def get_products_by_category(category_id: str, db: Session = Depends(get_db)):
     return db.query(CategoryModel).filter(CategoryModel.id == category_id).first().products
 
 
-def get_top_categories(db: Session = Depends(get_db)):
-    return db.query(CategoryModel).order_by(CategoryModel.number_views.desc()).limit(4).all()
+def get_top_categories(limit: int = 4, db: Session = Depends(get_db)):
+    return db.query(CategoryModel).order_by(CategoryModel.number_views.desc()).limit(limit).all()
