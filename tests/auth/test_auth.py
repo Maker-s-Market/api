@@ -1,10 +1,12 @@
 import os
-from unittest.mock import patch
-
 import boto3
+
+from unittest.mock import patch
 from auth.user_auth import sign_up_auth, check_email_auth, resend_email_code_auth, sign_in_auth, forgot_password_auth, \
     confirm_forgot_password_auth
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def mock_sign_up(ClientId, Username, Password, UserAttributes):
     return {
@@ -23,7 +25,7 @@ def test_sign_up_auth(mock_boto3_client):
 
     username = 'test_username'
     email = 'testuser@example.com'
-    password = 'Test123*'
+    password = os.getenv("PASSWORD_CORRECT")
 
     status_code = sign_up_auth(username, email, password, client)
     assert status_code == 200
@@ -88,7 +90,7 @@ def test_sign_in_auth_return_token(mock_boto3_client):
     os.environ['COGNITO_USER_CLIENT_ID'] = 'dummy_cognito_user_client_id'
 
     username = 'test_username'
-    password = 'Test123*'
+    password = os.getenv("PASSWORD_CORRECT")
 
     token = sign_in_auth(username, password, client)
     assert token == 'mock_access_token'
@@ -110,7 +112,7 @@ def test_sign_in_auth_token_none(mock_boto3_client):
     os.environ['COGNITO_USER_CLIENT_ID'] = 'dummy_cognito_user_client_id'
 
     username = 'test_username'
-    password = 'Test123*'
+    password = os.getenv("PASSWORD_CORRECT")
 
     token = sign_in_auth(username, password, client)
     assert token is None
@@ -153,7 +155,7 @@ def test_confirm_forgot_password_auth(mock_boto3_client):
 
     username = 'test_username'
     code = '123456'
-    password = 'Test123*'
+    password = os.getenv("PASSWORD_CORRECT")
 
     status_code = confirm_forgot_password_auth(username, code, password, client)
     assert status_code == 200
