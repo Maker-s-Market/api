@@ -64,7 +64,11 @@ class JWTBearer(HTTPBearer):
                     claims["iat"] = str(claims["iat"])
                 if "exp" in claims:
                     claims["exp"] = str(claims["exp"])
-
+                if "version" in claims:
+                    claims["version"] = str(claims["version"])
+                if "cognito:groups" in claims:
+                    claims["cognito:groups"] = str(claims["cognito:groups"])
+                    
                 jwt_credentials = JWTAuthorizationCredentials(
                     jwt_token=jwt_token,
                     header=jwt.get_unverified_header(jwt_token),

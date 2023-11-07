@@ -126,3 +126,39 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     Function that returns the current user
     """
     return JSONResponse(status_code=200, content=jsonable_encoder(get_user(username=username, db=db).to_dict()))
+
+@router.get("/auth/token_code")
+async def get_token_from_code(code: str):
+    """
+    Function that takes the call back IDP response code and returns the token
+    TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    """
+
+    client_id = os.getenv("COGNITO_USER_CLIENT_ID")
+    domain = "https://" + os.getenv("COGNITO_DOMAIN")
+    redirect_url = "http://localhost:8000/auth/token_code"
+
+    body = (
+        'grant_type=authorization_code' +
+        f'&client_id={client_id}' + f'&code={code}' +
+        f'&redirect_uri={redirect_url}'
+    )
+
+    response = requests.post(
+        f'{domain}/oauth2/token',
+        body,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+    )
+
+    response_body = json.loads(response.text)
+
+    access_token = response_body['access_token']
+
+    #access token is the one we use for authorization 
+    print("access_token: " + access_token)
+
+    #passar o token com o redirect?
+    return RedirectResponse(url="http://localhost:8000/docs", status_code=302)
+
+
+    pass
