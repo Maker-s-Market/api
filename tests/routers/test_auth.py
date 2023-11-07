@@ -28,6 +28,7 @@ USERNAME_TEST = "user name test"
 RANDOM_EMAIL = "randomemail@email.com"
 MARIA_EMAIL = "maria@email.com"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
