@@ -11,6 +11,9 @@ from models.category import Category
 from models.product import Product
 from models.user import User
 from tests.test_sql_app import TestingSessionLocal
+from dotenv import load_dotenv
+
+load_dotenv() #import pytest.ini env variables
 
 client = TestClient(app)
 
@@ -43,7 +46,7 @@ def test_normal_post_product_success():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -97,7 +100,7 @@ def test_post_product_but_wrong_category():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -125,7 +128,7 @@ def test_get_product():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -185,7 +188,7 @@ def test_put_not_existing_product():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -213,7 +216,7 @@ def test_put_existing_product_no_category():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -268,7 +271,7 @@ def test_put_existing_product_no_existing_category():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -314,7 +317,7 @@ def test_put_existing_product_existing_category():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -393,7 +396,7 @@ def test_put_not_authenticated():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -434,7 +437,7 @@ def test_put_not_allowed():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -457,7 +460,7 @@ def test_put_not_allowed():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -485,7 +488,7 @@ def test_delete_existing_product():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -516,7 +519,7 @@ def test_delete_non_existing_product():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -534,7 +537,7 @@ def test_delete_not_authenticated():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -565,7 +568,7 @@ def test_delete_not_owner():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -587,7 +590,7 @@ def test_delete_not_owner():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -603,7 +606,7 @@ def test_filter_product():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -651,7 +654,7 @@ def test_filter_product_category_not_found():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -705,7 +708,7 @@ def test_product_location():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -757,7 +760,7 @@ def test_product_no_location():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]

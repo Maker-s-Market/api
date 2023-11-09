@@ -11,6 +11,9 @@ from models.product import Product
 from models.review import Review
 from models.user import User
 from tests.test_sql_app import TestingSessionLocal
+from dotenv import load_dotenv
+
+load_dotenv() #import pytest.ini env variables
 
 client = TestClient(app)
 
@@ -70,7 +73,7 @@ def test_create_review_success():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -99,7 +102,7 @@ def test_delete_review_success():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -115,7 +118,7 @@ def test_delete_review_not_found():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -132,7 +135,7 @@ def test_delete_review_not_owner():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -149,7 +152,7 @@ def test_put_review_update_invalid_review_id():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -183,7 +186,7 @@ def test_put_review_user_not_review_owner():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -205,7 +208,7 @@ def test_put_review_success():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
@@ -235,7 +238,7 @@ def test_get_my_reviews_success():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
-        "password": "Pass123!"
+        "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
