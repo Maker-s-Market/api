@@ -9,7 +9,7 @@ from fastapi import Depends, HTTPException
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user
 
-from schemas.rating import CreateRating
+from schemas.rating import CreateRating, UpdateRating
 
 
 def random_uuid():
@@ -30,6 +30,13 @@ class Rating(Base):
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
         db.commit()
+        return self
+    
+    def update(self, db: Session, rating_up: UpdateRating):
+        self.rating = rating_up.rating
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
         return self
     
     def to_dict(self):
