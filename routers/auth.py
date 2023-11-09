@@ -119,8 +119,7 @@ async def confirm_forgot_password(user: ChangePassword):
                             content=jsonable_encoder({"message": "Password changed successfully"}))
 
 
-# TODO : CHANGE TO USER USER/ME
-@router.get("/auth/current-user", dependencies=[Depends(auth)])
+@router.get("/auth/me", dependencies=[Depends(auth)])
 async def current_user(username: str = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Function that returns the current user

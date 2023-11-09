@@ -35,7 +35,7 @@ class Product(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)  # TODO CHANGE TO FALSE
+    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
