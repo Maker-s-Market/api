@@ -4,10 +4,12 @@ from uuid import uuid4
 from fastapi import HTTPException, Depends
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Session
+from auth.auth import get_current_user
 
 from db.database import get_db, Base
 from models.category import Category, ProductCategory
 from models.wishList import ProductWishlist
+from repositories.userRepo import get_user
 from schemas.product import CreateProduct
 
 
@@ -33,7 +35,7 @@ class Product(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=True)  # TODO CHANGE TO FALSE
+    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)  # TODO CHANGE TO FALSE
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
@@ -85,11 +87,13 @@ class Product(Base):
             'number_views': self.number_views,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'categories': [category.to_dict() for category in self.categories]
+            'categories': [category.to_dict() for category in self.categories],
+            'user_id': self.user_id
+
         }
 
 
-def create_product(product: CreateProduct, db: Session = Depends(get_db)):
+def create_product(product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     categories = set()
     for category in product.categories:
         db_category = db.query(Category).filter(Category.id == category.id).first()
@@ -99,7 +103,9 @@ def create_product(product: CreateProduct, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="Category not found")
     product.categories = []
     try:
+        user = get_user(username, db)
         db_product = Product(**product.model_dump())
+        db_product.user_id = user.id
         db.add(db_product)
         db.commit()
         db.refresh(db_product)

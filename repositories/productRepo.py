@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from auth.auth import get_current_user
+from models.user import User as UserModel
 from db.database import get_db
 from schemas.product import CreateProduct
 from models.product import create_product, Product as ProductModel
@@ -10,8 +11,8 @@ def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
     return db.query(ProductModel).filter(ProductModel.id == product_id).first()
 
 
-def new_product(product: CreateProduct, db: Session = Depends(get_db)):
-    return create_product(db=db, product=product)
+def new_product(product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    return create_product(db=db, product=product, username=username)
 
 
 def get_top_products_db(limit: int = 4, db: Session = Depends(get_db)):
@@ -24,6 +25,7 @@ def get_products_by_filters(q: str = "",
                             price_max: int = 100000000,
                             sort: str = "newest",
                             discount: bool = False,
+                            location: str = "",
                             category_id: str = "",
                             db: Session = Depends(get_db)) -> object:
     if sort not in ["newest", "oldest", "price_asc", "price_desc", "relevance"]:
@@ -38,6 +40,13 @@ def get_products_by_filters(q: str = "",
     if category_id != "" and category_id is not None:
         result = result.filter(ProductModel.categories.any(id=category_id))
 
+    if location != "" and location is not None:
+        result = result.join(UserModel, UserModel.id == ProductModel.user_id)
+
+        result = result.filter(
+            (UserModel.city.contains(location)) | (UserModel.region.contains(location))
+        )
+        
     if sort == "newest":
         return result.order_by(ProductModel.created_at.desc()).limit(limit).all()
     elif sort == "oldest":
