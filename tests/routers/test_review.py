@@ -1,7 +1,6 @@
 import os
 
 import pytest
-from uuid import uuid4
 
 from starlette.testclient import TestClient
 
@@ -13,7 +12,7 @@ from models.user import User
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
-load_dotenv() #import pytest.ini env variables
+load_dotenv()
 
 client = TestClient(app)
 
