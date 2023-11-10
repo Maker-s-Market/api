@@ -9,7 +9,8 @@ from schemas.rating import CreateRating, UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
 from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as update,
-                                            get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id)
+                                            get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id,
+                                            get_rating_by_product_and_user)
 
 auth = JWTBearer(jwks)
 
@@ -34,15 +35,6 @@ async def create_rating(rating: CreateRating, db: Session = Depends(get_db), use
                         content=jsonable_encoder(cr(rating=rating, db=db, username=username).to_dict()))
 
 
-# TODO: check if functional
-@router.delete("/rating-product/{rating_id}", dependencies=[Depends(auth)])
-async def delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    """
-    Delete an existing rating
-    """
-    return JSONResponse(status_code=200,
-                        content=jsonable_encoder(dr(rating_id=rating_id, db=db, username=username).to_dict()))
-
 
 @router.put("/rating-product", dependencies=[Depends(auth)])
 async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
@@ -63,6 +55,20 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
                         content=jsonable_encoder(update(update_rating=upd_rating, db=db).to_dict()))
 
 
+@router.get("/rating-product/{product_id}", dependencies=[Depends(auth)])
+async def get_rating(product_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """
+    Get review the user made for a certain product
+    """
+
+    if get_product_by_id(product_id, db=db) is None:
+        return JSONResponse(status_code=404, content={"detail": "Product not found"})
+    rating = get_rating_by_product_and_user(product_id=product_id, username=username, db=db)
+    if rating is None:
+        return JSONResponse(status_code=404, content={"detail": "Rating not found"})
+    return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
+
+
 # TODO: check if functional
 @router.get("/rating-product/{product_id}")
 async def get_ratings_product(product_id: str, db: Session = Depends(get_db)):
@@ -72,4 +78,15 @@ async def get_ratings_product(product_id: str, db: Session = Depends(get_db)):
     if get_product_by_id(product_id, db=db) is None:
         return JSONResponse(status_code=404, content={"detail": "Product not found"})
     return JSONResponse(status_code=200, content=jsonable_encoder([rating.to_dict()
-                                                                   for rating in get_ratings(product_id=product_id, db=db)]))
+                                                                   for rating in
+                                                                   get_ratings(product_id=product_id, db=db)]))
+
+# TODO: check if functional
+@router.delete("/rating-product/{rating_id}", dependencies=[Depends(auth)])
+async def delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """
+    Delete an existing rating
+    """
+    return JSONResponse(status_code=200,
+                        content=jsonable_encoder(dr(rating_id=rating_id, db=db, username=username).to_dict()))
+
