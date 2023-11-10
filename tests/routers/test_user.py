@@ -20,6 +20,7 @@ BEARER = "Bearer "
 USER = "/user"
 UPDATE_BRUNA = "Bruna update"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -106,6 +107,7 @@ def test_update_user_sucess():
     assert data["region"] == "Leiria"
     assert data["photo"] == ""
 
+
 def test_update_user_not_the_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
@@ -130,5 +132,3 @@ def test_update_user_not_the_owner():
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'You can only update your own user'}
-
-

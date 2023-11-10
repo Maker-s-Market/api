@@ -1,5 +1,3 @@
-from fastapi import HTTPException
-
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from auth.auth import get_current_user

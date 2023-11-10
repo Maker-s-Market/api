@@ -65,7 +65,7 @@ def test_create_rating_success():
     rating = CreateRating(rating=4,
                           product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
                           user_id="06e0da01-57fd-4441-95be-1111111111111")
-    response = client.post("/rating",
+    response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
 
@@ -80,7 +80,7 @@ def test_create_rating_not_auth():
     rating = CreateRating(rating=4,
                           product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
                           user_id="06e0da01-57fd-4441-95be-1111111111111")
-    response = client.post("/rating",
+    response = client.post("/rating-product",
                            json=rating.model_dump())
 
     assert response.status_code == 403
@@ -92,7 +92,7 @@ def test_create_rating_product_not_found():
     rating = CreateRating(rating=4,
                           product_id="id_not_exists",
                           user_id="06e0da01-57fd-4441-95be-1111111111111")
-    response = client.post("/rating",
+    response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
 
@@ -105,7 +105,7 @@ def test_create_rating_not_in_range():
     rating = CreateRating(rating=6,
                           product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
                           user_id="06e0da01-57fd-4441-95be-1111111111111")
-    response = client.post("/rating",
+    response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
 
@@ -118,7 +118,7 @@ def test_create_rating_already_exists():
     rating = CreateRating(rating=4,
                           product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
                           user_id="06e0da01-57fd-4441-95be-1111111111112")
-    response = client.post("/rating",
+    response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
 

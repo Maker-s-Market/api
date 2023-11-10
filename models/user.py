@@ -22,8 +22,8 @@ def random_uuid():
 
 
 class Role(enum.Enum):
-    Admin = "Admin"
     Client = "Client"
+    Seller = "Seller"
     Premium = "Premium"
 
 
