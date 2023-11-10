@@ -8,7 +8,7 @@ from repositories.userRepo import get_user
 from schemas.rating import CreateRating, UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
-from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as ur,
+from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as update,
                                             get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id)
 
 auth = JWTBearer(jwks)
@@ -44,7 +44,6 @@ async def delete_rating(rating_id: str, db: Session = Depends(get_db), username:
                         content=jsonable_encoder(dr(rating_id=rating_id, db=db, username=username).to_dict()))
 
 
-# TODO: check if functional
 @router.put("/rating-product", dependencies=[Depends(auth)])
 async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
                         username: str = Depends(get_current_user)):
@@ -61,7 +60,7 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
                             content={"detail": "You are not the user who made this review. "
                                                "Only the owner of the review can delete it."})
     return JSONResponse(status_code=200,
-                        content=jsonable_encoder(ur(rating=upd_rating, db=db).to_dict()))
+                        content=jsonable_encoder(update(update_rating=upd_rating, db=db).to_dict()))
 
 
 # TODO: check if functional

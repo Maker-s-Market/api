@@ -16,7 +16,7 @@ def random_uuid():
     return str(uuid4())
 
 
-class Rating(Base):
+class RatingProduct(Base):
     __tablename__ = "rating product"
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
@@ -56,7 +56,7 @@ def create_rating(rating: CreateRating, db: Session = Depends(get_db), username:
         raise HTTPException(status_code=404, detail="Product not found")
     if rating.rating < 1 or rating.rating > 5:
         raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
-    db_rating = Rating(**rating.model_dump())
+    db_rating = RatingProduct(**rating.model_dump())
     db_rating.user_id = user.id
     db.add(db_rating)
     db.commit()

@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException
 from auth.auth import get_current_user
 from db.database import get_db
 from schemas.rating import CreateRating, UpdateRating
-from models.ratingProduct import create_rating as cr, Rating as RatingModel
+from models.ratingProduct import create_rating as cr, RatingProduct as RatingModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from repositories.userRepo import get_user
@@ -32,9 +32,9 @@ def delete_rating(rating_id: str, db: Session = Depends(get_db), username: str =
     return rating
 
 
-def update_rating(rating: UpdateRating, db: Session = Depends(get_db)):
-    rating_ = db.query(RatingModel).filter(RatingModel.id == rating.id).first()
-    return rating_.update(db=db, rating_up=rating_)
+def update_rating(update_rating: UpdateRating, db: Session = Depends(get_db)):
+    rating = db.query(RatingModel).filter(RatingModel.id == update_rating.id).first()
+    return rating.update(db=db, rating_up=update_rating)
 
 
 def get_ratings(product_id: str, db: Session = Depends(get_db)):

@@ -7,9 +7,9 @@ from starlette.testclient import TestClient
 from main import app
 from models.category import Category
 from models.product import Product
-from models.rating import Rating
+from models.ratingProduct import RatingProduct
 from models.user import User
-from schemas.rating import CreateRating
+from schemas.rating import CreateRating, UpdateRating
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -20,11 +20,10 @@ client = TestClient(app)
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
-    global user1, user2
     db = TestingSessionLocal()
     db.query(Category).delete()
     db.query(Product).delete()
-    db.query(Rating).delete()
+    db.query(RatingProduct).delete()
     db.query(User).delete()
     user1 = User(id="06e0da01-57fd-4441-95be-1111111111111", name="Bruna", username="brums21",
                  email="brums21.10@gmail.com", city="pombal",
@@ -42,8 +41,10 @@ def load_data():
     db.add(Product(id="06e0da01-57fd-2229-95be-123455555566", name="random product 3", description="some description 3",
                    price=10.0, stockable=True, user_id="123456789023456789"))
 
-    db.add(Rating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=4, product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                    user_id="06e0da01-57fd-4441-95be-1111111111112"))
+    db.add(
+        RatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=4,
+                      product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
+                      user_id="06e0da01-57fd-4441-95be-1111111111112"))
     db.commit()
     db.close()
 
@@ -53,6 +54,18 @@ def login_user1():
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    return token
+
+
+def login_user2():
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+
+    response = client.post("/auth/sign-in", json={
+        "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
@@ -124,3 +137,57 @@ def test_create_rating_already_exists():
 
     assert response.status_code == 403
     assert response.json() == {"detail": "A rating for this product was already created, please edit it instead"}
+
+
+def test_update_rating_success():
+    login_user2()
+    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump(),
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["rating"] == 5
+    assert data["product_id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
+    assert data["user_id"] == "06e0da01-57fd-4441-95be-1111111111112"
+
+
+def test_update_rating_not_auth():
+    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump())
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+def test_update_rating_not_found():
+    upd_rating = UpdateRating(id="id_not_exists", rating=5)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump(),
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Rating not found"}
+
+
+def test_update_rating_not_owner():
+    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump(),
+                          headers={"Authorization": f"Bearer {login_user1()}"})
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "You are not the user who made this review. "
+                                         "Only the owner of the review can delete it."}
+
+
+def test_update_rating_not_in_range():
+    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=0)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump(),
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Rating should be between 1 and 5"}
