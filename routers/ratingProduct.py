@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from db.database import get_db
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user
-from schemas.ratingProduct import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
 from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as update,

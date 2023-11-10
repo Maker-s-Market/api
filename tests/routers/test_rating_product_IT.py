@@ -9,7 +9,7 @@ from models.category import Category
 from models.product import Product
 from models.ratingProduct import RatingProduct
 from models.user import User
-from schemas.ratingProduct import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -50,7 +50,7 @@ def load_data():
 
 
 def login_user1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -62,7 +62,7 @@ def login_user1():
 
 
 def login_user2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",

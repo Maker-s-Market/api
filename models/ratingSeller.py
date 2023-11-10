@@ -15,7 +15,7 @@ def random_uuid():
 
 
 class RatingSeller(Base):
-    __tablename__ = "rating product"
+    __tablename__ = "rating seller"
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     rating = Column(Float, index=True, nullable=False)

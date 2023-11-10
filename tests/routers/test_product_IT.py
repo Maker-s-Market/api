@@ -17,6 +17,9 @@ load_dotenv() #import pytest.ini env variables
 
 client = TestClient(app)
 
+def get_client_id():
+    return '3v77d66vrtucrhjqlvc5g2f5mm'
+
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -42,7 +45,7 @@ def load_data():
 
 
 def test_normal_post_product_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -96,7 +99,7 @@ def test_post_product_no_token():
 
 
 def test_post_product_but_wrong_category():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -124,7 +127,7 @@ def test_post_product_but_wrong_category():
 
 
 def test_get_product():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -184,7 +187,7 @@ def test_get_product_not_existing_id_the_user():
 
 # PUT TESTS
 def test_put_not_existing_product():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -212,7 +215,7 @@ def test_put_not_existing_product():
 
 
 def test_put_existing_product_no_category():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -267,7 +270,7 @@ def test_put_existing_product_no_category():
 
 
 def test_put_existing_product_no_existing_category():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -313,7 +316,7 @@ def test_put_existing_product_no_existing_category():
 
 
 def test_put_existing_product_existing_category():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -392,7 +395,7 @@ def test_put_existing_product_existing_category():
 
 
 def test_put_not_authenticated():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -433,7 +436,7 @@ def test_put_not_authenticated():
 
 
 def test_put_not_allowed():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -484,7 +487,7 @@ def test_put_not_allowed():
 
 
 def test_delete_existing_product():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -515,7 +518,7 @@ def test_delete_existing_product():
 
 
 def test_delete_non_existing_product():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -533,7 +536,7 @@ def test_delete_non_existing_product():
 
 
 def test_delete_not_authenticated():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -564,7 +567,7 @@ def test_delete_not_authenticated():
 
 
 def test_delete_not_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -602,7 +605,7 @@ def test_delete_not_owner():
 
 
 def test_filter_product():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -650,7 +653,7 @@ def test_filter_product():
 
 
 def test_filter_product_category_not_found():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -704,7 +707,7 @@ def test_filter_product_invalid_price_range():
 
 # this
 def test_product_location():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -756,7 +759,7 @@ def test_product_location():
 
 
 def test_product_no_location():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
