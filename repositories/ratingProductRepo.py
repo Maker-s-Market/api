@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException
 from auth.auth import get_current_user
 from db.database import get_db
-from schemas.rating import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from models.ratingProduct import create_rating as cr, RatingProduct as RatingModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func

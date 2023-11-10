@@ -9,7 +9,7 @@ from models.category import Category
 from models.product import Product
 from models.ratingProduct import RatingProduct
 from models.user import User
-from schemas.rating import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRating, UpdateRating
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
