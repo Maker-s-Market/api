@@ -9,7 +9,7 @@ from schemas.rating import CreateRating, UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
 from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as ur,
-                                            get_ratings as gr, get_average as avg, in_db as rating_in_db)
+                                            get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id)
 
 auth = JWTBearer(jwks)
 
@@ -51,8 +51,17 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
     """
     Update an existing rating
     """
+    if upd_rating.rating < 1 or upd_rating.rating > 5:
+        return JSONResponse(status_code=403, content={"detail": "Rating should be between 1 and 5"})
+    rating = get_rating_by_id(upd_rating.id, db=db)
+    if rating is None:
+        return JSONResponse(status_code=404, content={"detail": "Rating not found"})
+    if rating.user_id != get_user(username, db).id:
+        return JSONResponse(status_code=403,
+                            content={"detail": "You are not the user who made this review. "
+                                               "Only the owner of the review can delete it."})
     return JSONResponse(status_code=200,
-                        content=jsonable_encoder(ur(rating=upd_rating, db=db, username=username).to_dict()))
+                        content=jsonable_encoder(ur(rating=upd_rating, db=db).to_dict()))
 
 
 # TODO: check if functional
@@ -61,5 +70,7 @@ async def get_ratings_product(product_id: str, db: Session = Depends(get_db)):
     """
     Get all product's rating
     """
+    if get_product_by_id(product_id, db=db) is None:
+        return JSONResponse(status_code=404, content={"detail": "Product not found"})
     return JSONResponse(status_code=200, content=jsonable_encoder([rating.to_dict()
-                                                                   for rating in gr(product_id=product_id, db=db)]))
+                                                                   for rating in get_ratings(product_id=product_id, db=db)]))
