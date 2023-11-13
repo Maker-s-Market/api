@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from auth.auth import get_current_user, jwks
 from repositories.userRepo import get_user_by_id
 from schemas.ratingSeller import CreateRatingSeller, UpdateRatingSeller
-from repositories.ratingSellerRepo import rating_in_db, create_rating as cr
+from repositories.ratingSellerRepo import rating_in_db, create_rating as cr, get_rating
 
 auth = JWTBearer(jwks)
 
@@ -31,5 +31,19 @@ async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends
                         content=jsonable_encoder(cr(rating=rating, db=db, username=username).to_dict()))
 
 @router.put("/rating-seller", dependencies=[Depends(auth)])
-async def put_seller_rating():
-    pass
+async def put_seller_rating(rating: UpdateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """
+    endpoint that updates a seller rating
+    #TODO - test if functional
+    """
+    rating_ = get_rating(rating=rating, db=db)
+    user = get_current_user(username)
+    if rating_.user_id!=user.id:
+        raise HTTPException(status_code=403, detail="Only the user can alter their seller rating")
+    
+    rating_updated = rating_.update(db=db, rating_up=rating)
+    return JSONResponse(status_code=200, content=jsonable_encoder(rating_updated))
+
+#TODO: ver q endpoints é q faltam
+# endpoint get rating de um seller 
+#endpoints get all ratings made to sellers

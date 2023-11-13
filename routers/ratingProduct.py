@@ -16,7 +16,6 @@ auth = JWTBearer(jwks)
 
 router = APIRouter(tags=['Rating The Product'])
 
-
 @router.post("/rating-product", dependencies=[Depends(auth)])
 async def create_rating(rating: CreateRating, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
@@ -32,7 +31,7 @@ async def create_rating(rating: CreateRating, db: Session = Depends(get_db), use
                             content={"detail": "A rating for this product was already created, please edit it instead"})
     product.avg_rating = avg(product_id=rating.product_id, db=db)
     return JSONResponse(status_code=201,
-                        content=jsonable_encoder(cr(rating=rating, db=db, username=username).to_dict()))
+                        content=jsonable_encoder(cr(rating=rating, db=db, username=username)).to_dict())
 
 
 @router.put("/rating-product", dependencies=[Depends(auth)])
