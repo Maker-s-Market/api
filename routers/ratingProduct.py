@@ -42,10 +42,10 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
     Update an existing rating
     """
     if upd_rating.rating < 1 or upd_rating.rating > 5:
-        return JSONResponse(status_code=406, content={"detail": "Rating should be between 1 and 5"})
+        return JSONResponse(status_code=403, content={"detail": "Rating should be between 1 and 5"})
     rating = get_rating_by_id(upd_rating.id, db=db)
     if rating is None:
-        return JSONResponse(status_code=204, content={"detail": "Rating not found"})
+        return JSONResponse(status_code=404, content={"detail": "Rating not found"})
     if rating.user_id != get_user(username, db).id:
         return JSONResponse(status_code=403,
                             content={"detail": "You are not the user who made this review. "
@@ -63,7 +63,7 @@ async def get_rating(product_id: str, db: Session = Depends(get_db), username: s
         return JSONResponse(status_code=404, content={"detail": "Product not found"})
     rating = get_rating_by_product_and_user(product_id=product_id, username=username, db=db)
     if rating is None:
-        return JSONResponse(status_code=404, content={"detail": "Rating not found"})
+        return JSONResponse(status_code=204, content={"detail": "Rating not found"})
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 
