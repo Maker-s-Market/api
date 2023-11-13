@@ -28,8 +28,6 @@ async def get_my_reviews(db: Session = Depends(get_db), username: str = Depends(
 async def get_product_reviews(product_id: str, db: Session = Depends(get_db)):
     result = gpr(product_id=product_id, db=db)
     response = [{"review": review.to_dict(), "user": get_user_by_id(review.user_id, db).to_dict()} for review in result]
-    if result.first()==None:
-        return JSONResponse(status_code=200, content={"review": "-1"})
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
 
