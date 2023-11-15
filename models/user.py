@@ -64,6 +64,9 @@ class User(Base):
     def unfollow(self, user):
         if self.is_following(user):
             self.followed.remove(user)
+            return True
+        else:
+            return False
 
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0

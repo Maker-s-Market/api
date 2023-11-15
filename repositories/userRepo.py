@@ -28,6 +28,11 @@ def get_seller(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Seller not found")
     return db_seller
 
+def get_followers(username:str, db:Session = Depends(get_db)):
+    db_user = get_seller(username, db)
+    followers = db_user.followers
+    return followers
+
 def get_user_by_id(id_user: str, db: Session = Depends(get_db)):
     db_user = db.query(UserModel).filter(UserModel.id == id_user).first()
     if db_user is None:

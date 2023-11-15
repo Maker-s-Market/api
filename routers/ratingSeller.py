@@ -17,6 +17,7 @@ router = APIRouter(tags=['Rating The Seller'])
 async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
     function that creates a rating for a certain seller
+    rate (seller) in catalog
     TODO: test if functional
     """
     seller = get_user_by_id(rating.seller_id, db=db)
@@ -34,6 +35,7 @@ async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends
 async def put_seller_rating(rating: UpdateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
     endpoint that updates a seller rating
+    edit seller rating
     #TODO - test if functional
     """
     rating_ = get_rating(rating=rating, db=db)

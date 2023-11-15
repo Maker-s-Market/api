@@ -14,7 +14,6 @@ def rating_in_db(rating: CreateRatingSeller, db: Session = Depends(get_db), user
         return True
     return False
 
-
 def create_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     return cr(rating=rating, db=db, username=username)
 
