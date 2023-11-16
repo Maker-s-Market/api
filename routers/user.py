@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
-from auth.auth import get_current_use
+from auth.auth import get_current_user
 from db.database import get_db
 from repositories.userRepo import get_user, get_seller_by_id, get_followers, get_user_by_id as user_by_id
 from schemas.user import UserUpdate
