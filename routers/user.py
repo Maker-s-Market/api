@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
-from auth.auth import get_current_user
+from auth.auth import get_current_use
 from db.database import get_db
-from repositories.userRepo import get_user, get_seller_by_id, get_followers
+from repositories.userRepo import get_user, get_seller_by_id, get_followers, get_user_by_id as user_by_id
 from schemas.user import UserUpdate
 from auth.auth import get_current_user, jwks
 from auth.JWTBearer import JWTBearer
@@ -67,3 +67,8 @@ async def order_followerd_by(db: Session = Depends(get_db), username: str = Depe
     """ filter followers page """
     
     pass
+
+@router.get("/user/{user_id}")      #no need to be authenticated
+async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
+    user = user_by_id(user_id)
+    return JSONResponse(status_code=200, content=jsonable_encoder(user.information()))

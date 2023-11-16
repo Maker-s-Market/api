@@ -88,6 +88,19 @@ class User(Base):
             "wishlist_id": self.wishlist_id,
             "followed": self.followed
         }
+    
+    def information(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "email": self.email,
+            "city": self.city,
+            "region": self.region,
+            "photo": self.photo,
+            "created_at": self.created_at,
+            "followed": self.followed
+        }
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
