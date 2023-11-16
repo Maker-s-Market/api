@@ -69,7 +69,7 @@ class User(Base):
             return False
 
     def is_following(self, user):
-        return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+        return any(follower.id == user.id for follower in self.followed)
 
     def to_dict(self):
         return {
