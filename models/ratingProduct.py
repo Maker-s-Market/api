@@ -9,7 +9,7 @@ from fastapi import Depends, HTTPException
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user
 
-from schemas.rating import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
 
 
 def random_uuid():
@@ -32,7 +32,7 @@ class RatingProduct(Base):
         db.commit()
         return self
 
-    def update(self, db: Session, rating_up: UpdateRating):
+    def update(self, db: Session, rating_up: UpdateRatingProduct):
         self.rating = rating_up.rating
         self.updated_at = datetime.datetime.now()
         db.commit()
@@ -50,11 +50,11 @@ class RatingProduct(Base):
         }
 
 
-def create_rating(rating: CreateRating, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+def create_rating(rating: CreateRatingProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
     if not get_product_by_id(rating.product_id, db=db):
         raise HTTPException(status_code=404, detail="Product not found")
-    if rating.rating < 1 or rating.rating > 5:
+    if rating.rating < 0 or rating.rating > 5:
         raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
     db_rating = RatingProduct(**rating.model_dump())
     db_rating.user_id = user.id

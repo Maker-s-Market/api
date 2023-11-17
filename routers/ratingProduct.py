@@ -1,14 +1,14 @@
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from db.database import get_db
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user
-from schemas.rating import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
-from repositories.ratingProductRepo import (create_rating as cr, delete_rating as dr, update_rating as update,
+from repositories.ratingProductRepo import (create_rating as cr, check_delete_rating as cdr, update_rating as update,
                                             get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id,
                                             get_rating_by_product_and_user)
 
@@ -30,9 +30,10 @@ async def create_rating(rating: CreateRating, db: Session = Depends(get_db), use
     if rating_in_db(rating, db, username):
         return JSONResponse(status_code=403,
                             content={"detail": "A rating for this product was already created, please edit it instead"})
-    product.avg_rating = avg(product_id=rating.product_id, db=db)
+    rating = cr(rating=rating, db=db, username=username)
+    product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
     return JSONResponse(status_code=201,
-                        content=jsonable_encoder(cr(rating=rating, db=db, username=username).to_dict()))
+                        content=jsonable_encoder(rating.to_dict()))
 
 
 @router.put("/rating-product", dependencies=[Depends(auth)])
@@ -50,8 +51,11 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
         return JSONResponse(status_code=403,
                             content={"detail": "You are not the user who made this review. "
                                                "Only the owner of the review can delete it."})
+    updated = update(update_rating=upd_rating, db=db)
+    product = get_product_by_id(rating.product_id, db=db)
+    product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
     return JSONResponse(status_code=200,
-                        content=jsonable_encoder(update(update_rating=upd_rating, db=db).to_dict()))
+                        content=jsonable_encoder(updated.to_dict()))
 
 
 @router.get("/rating-product/{product_id}", dependencies=[Depends(auth)])
@@ -63,15 +67,15 @@ async def get_rating(product_id: str, db: Session = Depends(get_db), username: s
         return JSONResponse(status_code=404, content={"detail": "Product not found"})
     rating = get_rating_by_product_and_user(product_id=product_id, username=username, db=db)
     if rating is None:
-        return JSONResponse(status_code=204, content={"detail": "Rating not found"})
+        return Response(status_code=204)
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 
-# TODO: check if functional
-@router.get("/rating-product/{product_id}")
+@router.get("/rating-product/ratings/{product_id}")
 async def get_ratings_product(product_id: str, db: Session = Depends(get_db)):
     """
-    Get all product's rating
+    Get a product's ratings
+    #TODO: seems functional, do testing
     """
     if get_product_by_id(product_id, db=db) is None:
         return JSONResponse(status_code=404, content={"detail": "Product not found"})
@@ -79,12 +83,18 @@ async def get_ratings_product(product_id: str, db: Session = Depends(get_db)):
                                                                    for rating in
                                                                    get_ratings(product_id=product_id, db=db)]))
 
-# TODO: check if functional
+
 @router.delete("/rating-product/{rating_id}", dependencies=[Depends(auth)])
 async def delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
     Delete an existing rating
+    TODO: seems functional, do testing
     """
-    return JSONResponse(status_code=200,
-                        content=jsonable_encoder(dr(rating_id=rating_id, db=db, username=username).to_dict()))
+    rating = cdr(rating_id, db, username)
+    produt_id = rating.product_id
+    rating.delete(db)
+    product = get_product_by_id(produt_id, db=db)
+    product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
 
+    return JSONResponse(status_code=200,
+                        content="Rating deleted successfully")
