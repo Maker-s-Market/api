@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
 from fastapi import Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -49,13 +50,46 @@ def get_following_by_id(id_user: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Follower not found")
     return db_user
 
-def get_followers(username: str, db: Session = Depends(get_db)):
+def get_followers(query:str, sort: str, username: str, db: Session = Depends(get_db)):
+    from models.ratingSeller import RatingSeller as RatingModel
     user = get_user(username, db)
+    sort.lower()
+    query.lower()
     followers_list = (db.query(UserModel)
                     .join(followers, UserModel.id == followers.c.follower_id)
-                    .filter(followers.c.followed_id == user.id)
-                    .all())
+                    .filter(followers.c.followed_id == user.id))
+    
+    if query != "" or query!=None:
+        followers_list = followers_list.filter(UserModel.name.contains(query))
+    if sort == "":
+        return followers_list
+    elif sort not in ["asc_name", "desc_name", "asc_rating", "desc_rating", "asc_num_rating", "desc_num_rating"]:
+        raise HTTPException(status_code=400, detail="Sort parameter is invalid")
+    elif sort == "asc_name":    #working
+        followers_list = followers_list.order_by(UserModel.name.asc()).all()
+    elif sort == "desc_name":   #working
+        followers_list = followers_list.order_by(UserModel.name.desc()).all()
+    elif sort == "asc_rating":  #working
+        followers_list = followers_list.order_by(UserModel.avg_rating.asc()).all()
+    elif sort == "desc_rating": #working
+        followers_list = followers_list.order_by(UserModel.avg_rating.desc()).all()
+    elif sort == "asc_num_rating":
+        followers_list = (
+            followers_list
+            .outerjoin(RatingModel, UserModel.id == RatingModel.user_id)
+            .group_by(UserModel.id)
+            .order_by(func.count(RatingModel.id).asc())
+        )
+    elif sort == "desc_num_rating":
+        followers_list = (
+            followers_list
+            .outerjoin(RatingModel, UserModel.id == RatingModel.user_id)
+            .group_by(UserModel.id)
+            .order_by(func.count(RatingModel.id).desc())
+        )
+    
     return followers_list
+
 
 def get_seller_by_id(id_user: str, db: Session = Depends(get_db)):
     db_user = get_user_by_id_query(id_user, db)
