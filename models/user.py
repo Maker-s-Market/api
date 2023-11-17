@@ -105,7 +105,7 @@ class User(Base):
             "followed": self.followed
         }
 
-    def update_average(self, db: Session, avg: float):
+    def update_avg(self, db: Session, avg: float):
         self.avg_rating = avg
         db.commit()
         db.refresh(self)

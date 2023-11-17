@@ -11,7 +11,6 @@ from schemas.user import CreateUser
 def new_user(user: CreateUser, db: Session = Depends(get_db)):
     return save_user(new_user=user, db=db)
 
-
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
     return db.query(UserModel).filter(UserModel.username == username).first()
 

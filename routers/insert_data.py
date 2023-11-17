@@ -41,7 +41,7 @@ async def insert_data(db: Session = Depends(get_db)):
     #USER
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal", region="nao existe", photo="", role="Client")
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro", region="nao sei", photo="", role="Client")
-    
+
     db.add_all([user1, user2])
     db.commit()
 
