@@ -23,7 +23,7 @@ class RatingSeller(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
 
     user_id = Column(String(50), ForeignKey("user.id"))
-    seller_id = Column(String(50), ForeignKey("product.id"))
+    seller_id = Column(String(50), ForeignKey("user.id"))
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)

@@ -1,4 +1,5 @@
 from fastapi import Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from auth.auth import get_current_user
 from db.database import get_db
@@ -22,3 +23,8 @@ def get_rating(rating: UpdateRatingSeller, db: Session = Depends(get_db)):
     if rating_ == None:
         raise HTTPException(status_code=404, detail="Rating was not found")
     return rating_
+
+def get_average(seller_id: str, db: Session = Depends(get_db)):
+    average = db.query(func.avg(RatingModel.rating).label('average')).filter(
+        RatingModel.seller_id == seller_id).scalar()
+    return "{:.1f}".format(average)

@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from auth.auth import get_current_user
 from db.database import get_db
-from repositories.userRepo import get_user, get_seller_by_id, get_followers, get_user_by_id as user_by_id, get_follower_by_id
+from repositories.userRepo import get_user, get_seller_by_id, get_followings, get_user_by_id as user_by_id, get_following_by_id, get_followers
 from schemas.user import UserUpdate
 from auth.auth import get_current_user, jwks
 from auth.JWTBearer import JWTBearer
@@ -29,7 +29,7 @@ async def update_user(update_user: UserUpdate, db: Session = Depends(get_db), us
 @router.post("/user/follow-seller/{seller_id}", dependencies=[Depends(auth)])
 async def follow_seller(seller_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
-        follow (seller) 
+        follow (seller) (Add to list of following)
         TODO: locally functional, need to do tests
     """
     user = get_user(username, db)
@@ -42,37 +42,41 @@ async def follow_seller(seller_id: str, db: Session = Depends(get_db), username:
     user_updated = user.update(user, db)   #update user in db
     return JSONResponse(status_code=200, content = jsonable_encoder(user_updated.to_dict()))
 
-@router.get("/user/follows")
-async def get_users_i_follow(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+@router.get("/user/following")
+async def get_following(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
-        check (seller) followers page   
+        check a user's following page   
         TODO: locally functional, need to do tests
     """
-    followers = get_followers(username, db)
+    followers = get_followings(username, db)
     return JSONResponse(status_code=200,
                         content=jsonable_encoder([follower.to_dict() for follower in followers]))
 
-@router.delete("/user/remove-follower/{follower_id}")
-async def remove_follower(follower_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+@router.delete("/user/remove-following/{follower_id}")
+async def remove_following(following_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
-        remove follower
+        remove following
         TODO: locally functional, need to do test
     """
     user = get_user(username, db)
-    follower = get_follower_by_id(follower_id, db)
+    following = get_following_by_id(following_id, db)
 
-    if not user.is_following(follower):
+    if not user.is_following(following):
         raise HTTPException(status_code=403, detail="You are not following this user")  #working
     
-    user.unfollow(follower)
+    user.unfollow(following)
     user_updated = user.update(user, db)
     return JSONResponse(status_code=200, content = jsonable_encoder(user_updated.to_dict()))
 
 @router.get("/user/followers/filter")
 async def order_followerd_by(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    """ filter followers page """
-    
-    pass
+    """ 
+        filter followers page -> can filter by date joined/alphabetically/review
+        TODO - the actual filtering, since the rating seller part needs to be refactored a bit 1st. For now, it only displays a user's followers with no order
+        /number of placed orders (TODO this part, only on next sprint)
+    """
+    followers = get_followers(username, db)
+    return JSONResponse(status_code=200, content = jsonable_encoder([follower.to_dict() for follower in followers]))
 
 @router.get("/user/{user_id}")      #no need to be authenticated
 async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):

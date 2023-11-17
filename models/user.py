@@ -3,7 +3,7 @@ import enum
 from uuid import uuid4
 
 from fastapi import Depends
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, ForeignKey, Table
 from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
@@ -39,6 +39,7 @@ class User(Base):
     region = Column(String(200), index=True, nullable=False)
     photo = Column(String(200), index=True, nullable=False)
     role = Column(Enum(Role))
+    avg_rating = Column(Float, index=True, default=0)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
@@ -81,6 +82,7 @@ class User(Base):
             "region": self.region,
             "photo": self.photo,
             "role": self.role,
+            "average_rating": self.avg_rating,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "deleted_at": self.deleted_at,
@@ -98,9 +100,17 @@ class User(Base):
             "city": self.city,
             "region": self.region,
             "photo": self.photo,
+            "average_rating": self.avg_rating,
             "created_at": self.created_at,
             "followed": self.followed
         }
+
+    def update_average(self, db: Session, avg: float):
+        self.avg_rating = avg
+        db.commit()
+        db.refresh(self)
+        return self 
+    
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
