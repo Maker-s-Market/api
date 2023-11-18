@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from auth.JWTBearer import JWTBearer
@@ -75,7 +75,7 @@ async def get_my_seller_rating(seller_id: str, db: Session = Depends(get_db), us
     """
     rating = get_rating_by_seller_id_and_user(seller_id, db, username)
     if not rating:
-        raise HTTPException(status_code=404, detail="Rating not found.")
+        raise Response(status_code=204)
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 @router.get("/rating-seller/ratings/{seller_id}")
