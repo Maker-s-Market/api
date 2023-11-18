@@ -68,7 +68,7 @@ def test_create_review_not_auth():
 
 
 def test_create_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -97,8 +97,7 @@ def test_delete_review_not_auth():
 
 
 def test_delete_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -113,7 +112,7 @@ def test_delete_review_success():
 
 
 def test_delete_review_not_found():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -130,7 +129,7 @@ def test_delete_review_not_found():
 
 
 def test_delete_review_not_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -147,8 +146,7 @@ def test_delete_review_not_owner():
 
 
 def test_put_review_update_invalid_review_id():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -181,8 +179,7 @@ def test_put_review_update_no_auth():
 
 
 def test_put_review_user_not_review_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -203,7 +200,7 @@ def test_put_review_user_not_review_owner():
 
 
 def test_put_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
@@ -233,7 +230,7 @@ def test_get_my_reviews_not_auth():
 
 
 def test_get_my_reviews_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.environ.get("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
