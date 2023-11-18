@@ -4,7 +4,7 @@ import boto3
 import botocore
 from dotenv import load_dotenv
 
-load_dotenv(".aws")
+load_dotenv("../.aws")
 
 cognito_client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
 
