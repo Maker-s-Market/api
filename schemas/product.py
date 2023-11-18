@@ -14,3 +14,7 @@ class CreateProduct(BaseModel):
     discount: float
     image: str
     categories: List[CategoryIdentifier] = []
+
+class UpdateDiscount(BaseModel):
+    product_id: str
+    discount: float
