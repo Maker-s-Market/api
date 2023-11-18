@@ -18,7 +18,7 @@ load_dotenv() #import pytest.ini env variables
 client = TestClient(app)
 
 def get_client_id():
-    return '3v77d66vrtucrhjqlvc5g2f5mm'
+    return '414qtus5nd7veam6tgeqtua9j6'
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -46,7 +46,6 @@ def load_data():
 
 def test_normal_post_product_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -537,7 +536,6 @@ def test_delete_non_existing_product():
 
 def test_delete_not_authenticated():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -654,7 +652,6 @@ def test_filter_product():
 
 def test_filter_product_category_not_found():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -760,6 +757,7 @@ def test_product_location():
 
 def test_product_no_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
