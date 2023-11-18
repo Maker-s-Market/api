@@ -7,7 +7,6 @@ from starlette.status import HTTP_403_FORBIDDEN
 
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
 
-load_path = os.path.join(os.path.dirname(__file__), ".aws")
 load_dotenv(".aws")  # Automatically load environment variables from a '.env' file.
 
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
