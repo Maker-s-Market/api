@@ -2,7 +2,7 @@ import datetime
 from uuid import uuid4
 
 from sqlalchemy import Column, String, DateTime, ForeignKey, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 
 from db.database import Base
 
@@ -27,3 +27,24 @@ class Wishlist(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     products = relationship("Product", secondary=ProductWishlist, back_populates="wishlists")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'products': self.products
+        }
+    
+    def add_product(self, db: Session, product):
+        self.products.append(product)
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
+    
+    def remove_product(self, db: Session, product):
+        self.products.remove(product)
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)

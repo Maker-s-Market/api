@@ -9,6 +9,7 @@ from db.database import get_db
 from models.category import Category
 from models.product import Product
 from models.user import User
+from models.wishList import Wishlist
 
 router = APIRouter(tags=['Insert Data'])
 
@@ -38,9 +39,16 @@ async def insert_data(db: Session = Depends(get_db)):
                 jewelry_and_accessories, animals_and_plants, piece_of_crockery, art, candles_and_air_fresheners])
     db.commit()
 
+    #Wishlist
+    wishlist1 = Wishlist(id=str(uuid4()), products=[])
+    wishlist2 = Wishlist(id=str(uuid4()), products=[])
+
+    db.add_all([wishlist1, wishlist2])
+    db.commit()
+
     #USER
-    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal", region="nao existe", photo="", role="Client")
-    user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro", region="nao sei", photo="", role="Client")
+    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal", region="nao existe", photo="", role="Client", wishlist_id=wishlist1.id)
+    user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro", region="nao sei", photo="", role="Client", wishlist_id=wishlist1.id)
 
     db.add_all([user1, user2])
     db.commit()

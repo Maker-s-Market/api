@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, ForeignKe
 from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
+from models.wishList import Wishlist
 from schemas.user import CreateUser, UserUpdate
 
 followers = Table(
@@ -136,6 +137,11 @@ class User(Base):
 
 
 def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
+    wishlist = Wishlist(products=[])
+    db.add(wishlist)
+    db.commit()
+    db.refresh(wishlist)
+
     db_user = User(name=new_user.name,
                    username=new_user.username,
                    email=new_user.email,
@@ -143,9 +149,12 @@ def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
                    region=new_user.region,
                    photo=new_user.photo,
                    role=Role.Client,
+                   wishlist_id=wishlist.id,
                    is_active=False)
+    
     db_user.is_active = False
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
     return db_user
