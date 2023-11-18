@@ -9,7 +9,7 @@ from models.category import Category
 from models.product import Product
 from models.ratingProduct import RatingProduct
 from models.user import User
-from schemas.rating import CreateRating, UpdateRating
+from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -44,7 +44,7 @@ def load_data():
     db.add(
         RatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=4,
                       product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                      user_id="06e0da01-57fd-4441-95be-1111111111112"))
+                      user_id=user2.id))
     db.commit()
     db.close()
 
@@ -75,9 +75,9 @@ def login_user2():
 
 def test_create_rating_success():
     token = login_user1()
-    rating = CreateRating(rating=4,
-                          product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                          user_id="06e0da01-57fd-4441-95be-1111111111111")
+    rating = CreateRatingProduct(rating=4,
+                                 product_id="06e0da01-57fd-2228-95be-0d25c764ea57",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111111")
     response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
@@ -85,14 +85,14 @@ def test_create_rating_success():
     assert response.status_code == 201
     data = response.json()
     assert data["rating"] == 4
-    assert data["product_id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
+    assert data["product_id"] == "06e0da01-57fd-2228-95be-0d25c764ea57"
     assert data["user_id"] == "06e0da01-57fd-4441-95be-1111111111111"
 
 
 def test_create_rating_not_auth():
-    rating = CreateRating(rating=4,
-                          product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                          user_id="06e0da01-57fd-4441-95be-1111111111111")
+    rating = CreateRatingProduct(rating=4,
+                                 product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111111")
     response = client.post("/rating-product",
                            json=rating.model_dump())
 
@@ -102,9 +102,9 @@ def test_create_rating_not_auth():
 
 def test_create_rating_product_not_found():
     token = login_user1()
-    rating = CreateRating(rating=4,
-                          product_id="id_not_exists",
-                          user_id="06e0da01-57fd-4441-95be-1111111111111")
+    rating = CreateRatingProduct(rating=4,
+                                 product_id="id_not_exists",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111111")
     response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
@@ -113,11 +113,24 @@ def test_create_rating_product_not_found():
     assert response.json() == {"detail": "Product not found"}
 
 
+def test_create_rating_own_product():
+    token = login_user1()
+    rating = CreateRatingProduct(rating=4,
+                                 product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111111")
+    response = client.post("/rating-product",
+                           json=rating.model_dump(),
+                           headers={"Authorization": f"Bearer {token}"})
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "You can't rate your own product"}
+
+
 def test_create_rating_not_in_range():
     token = login_user1()
-    rating = CreateRating(rating=6,
-                          product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                          user_id="06e0da01-57fd-4441-95be-1111111111111")
+    rating = CreateRatingProduct(rating=6,
+                                 product_id="06e0da01-57fd-2228-95be-0d25c764ea57",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111111")
     response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
@@ -128,9 +141,9 @@ def test_create_rating_not_in_range():
 
 def test_create_rating_already_exists():
     token = login_user1()
-    rating = CreateRating(rating=4,
-                          product_id="06e0da01-57fd-2227-95be-0d25c764ea56",
-                          user_id="06e0da01-57fd-4441-95be-1111111111112")
+    rating = CreateRatingProduct(rating=4,
+                                 product_id="06e0da01-57fd-2228-95be-0d25c764ea57",
+                                 user_id="06e0da01-57fd-4441-95be-1111111111112")
     response = client.post("/rating-product",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {token}"})
@@ -141,7 +154,7 @@ def test_create_rating_already_exists():
 
 def test_update_rating_success():
     login_user2()
-    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user2()}"})
@@ -154,7 +167,7 @@ def test_update_rating_success():
 
 
 def test_update_rating_not_auth():
-    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump())
 
@@ -163,7 +176,7 @@ def test_update_rating_not_auth():
 
 
 def test_update_rating_not_found():
-    upd_rating = UpdateRating(id="id_not_exists", rating=5)
+    upd_rating = UpdateRatingProduct(id="id_not_exists", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user2()}"})
@@ -173,7 +186,7 @@ def test_update_rating_not_found():
 
 
 def test_update_rating_not_owner():
-    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
+    upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user1()}"})
@@ -184,7 +197,7 @@ def test_update_rating_not_owner():
 
 
 def test_update_rating_not_in_range():
-    upd_rating = UpdateRating(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=0)
+    upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=0)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user2()}"})
