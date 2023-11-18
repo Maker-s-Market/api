@@ -204,3 +204,29 @@ def test_update_rating_not_in_range():
 
     assert response.status_code == 403
     assert response.json() == {"detail": "Rating should be between 1 and 5"}
+
+
+def test_get_rating_sucess():
+    response = client.get("/rating-product/06e0da01-57fd-2227-95be-0d25c764ea56",
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["rating"] == 5
+    assert data["product_id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
+    assert data["user_id"] == "06e0da01-57fd-4441-95be-1111111111112"
+
+
+def test_get_rating_not_found():
+    response = client.get("/rating-product/id_not_exists",
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Product not found"}
+
+
+def test_get_rating_not_exists_rating():
+    response = client.get("/rating-product/06e0da01-57fd-2229-95be-123455555566",
+                          headers={"Authorization": f"Bearer {login_user2()}"})
+
+    assert response.status_code == 204

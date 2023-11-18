@@ -9,7 +9,7 @@ from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRat
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
 from repositories.ratingProductRepo import (create_rating as cr, check_delete_rating as cdr, update_rating as update,
-                                            get_ratings, get_average as avg, in_db as rating_in_db, get_rating_by_id,
+                                            get_average as avg, in_db as rating_in_db, get_rating_by_id,
                                             get_rating_by_product_and_user)
 
 auth = JWTBearer(jwks)
@@ -74,20 +74,6 @@ async def get_rating(product_id: str, db: Session = Depends(get_db), username: s
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 
-@router.delete("/rating-product/{rating_id}", dependencies=[Depends(auth)])
-async def delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    """
-    Delete an existing rating
-    TODO: seems functional, do testing
-    """
-    rating = cdr(rating_id, db, username)
-    produt_id = rating.product_id
-    rating.delete(db)
-    product = get_product_by_id(produt_id, db=db)
-    product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
-
-    return JSONResponse(status_code=200,
-                        content="Rating deleted successfully")
 
 # TODO : PROXIMO SPRINT - IMPLEMENTAR UM ENDPOINT PARA LISTAR TODOS OS RATINGS ASSOCIADOS A UM USER
 #  (GET /rating-product/user)
