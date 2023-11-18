@@ -12,13 +12,13 @@ from uuid import uuid4
 from dotenv import load_dotenv
 
 client = TestClient(app)
-load_dotenv()
 
-AUTH_CURRENT_USER = "/auth/current-user"
+AUTH_CURRENT_USER = "/auth/me"
 AUTH_SIGN_IN = "/auth/sign-in"
 BEARER = "Bearer "
 USER = "/user"
 UPDATE_BRUNA = "Bruna update"
+
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -41,7 +41,6 @@ def test_get_current_user_not_logged():
 
 
 def test_get_current_user_logged():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
@@ -77,7 +76,6 @@ def test_update_user_not_logged():
 
 
 def test_update_user_sucess():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
@@ -106,8 +104,8 @@ def test_update_user_sucess():
     assert data["region"] == "Leiria"
     assert data["photo"] == ""
 
+
 def test_update_user_not_the_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
@@ -130,5 +128,3 @@ def test_update_user_not_the_owner():
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'You can only update your own user'}
-
-

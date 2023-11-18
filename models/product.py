@@ -29,13 +29,14 @@ class Product(Base):
     discount = Column(Integer, index=True, default=0)
     number_views = Column(Integer, index=True, default=0)
     image = Column(String(255), index=True, nullable=True)
+    avg_rating = Column(Float, index=True, default=0)
 
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
 
-    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)  # TODO CHANGE TO FALSE
+    user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
 
@@ -69,6 +70,12 @@ class Product(Base):
         db.refresh(self)
         return self
 
+    def update_avg(self, db: Session, avg: float):
+        self.avg_rating = avg
+        db.commit()
+        db.refresh(self)
+        return self
+
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
         db.commit()
@@ -85,6 +92,7 @@ class Product(Base):
             'discount': self.discount,
             'image': self.image,
             'number_views': self.number_views,
+            'avg_rating': self.avg_rating,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'categories': [category.to_dict() for category in self.categories],

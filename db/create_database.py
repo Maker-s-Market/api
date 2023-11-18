@@ -1,6 +1,6 @@
 from models.category import Category
 from models.product import Product
-from models.rating import Rating
+from models.ratingProduct import RatingProduct
 from models.review import Review
 from models.user import User
 from models.wishList import Wishlist
@@ -12,6 +12,6 @@ def create_tables():
     User.metadata.create_all(bind=engine)
     Product.metadata.create_all(bind=engine)
     Category.metadata.create_all(bind=engine)
-    Rating.metadata.create_all(bind=engine)
+    RatingProduct.metadata.create_all(bind=engine)
     Review.metadata.create_all(bind=engine)
     Wishlist.metadata.create_all(bind=engine)
