@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def mock_sign_up(ClientId, Username, Password, UserAttributes):
     return {
         'ResponseMetadata': {

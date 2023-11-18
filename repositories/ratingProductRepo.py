@@ -1,12 +1,12 @@
 from fastapi import Depends, HTTPException
-from auth.auth import get_current_user
-from db.database import get_db
-from repositories.productRepo import get_product_by_id
-from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
-from models.ratingProduct import create_rating as cr, RatingProduct as RatingModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+
+from auth.auth import get_current_user
+from db.database import get_db
+from models.ratingProduct import create_rating as cr, RatingProduct as RatingModel
 from repositories.userRepo import get_user
+from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 
 
 def create_rating(rating: CreateRating, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
@@ -41,10 +41,6 @@ def get_rating_by_product_and_user(product_id: str, username: str, db: Session =
     user = get_user(username, db)
     return (db.query(RatingModel).filter(RatingModel.product_id == product_id)
             .filter(RatingModel.user_id == user.id).first())
-
-
-def get_ratings(product_id: str, db: Session = Depends(get_db)):
-    return db.query(RatingModel).filter(RatingModel.product_id == product_id).all()
 
 
 def check_delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):

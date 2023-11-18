@@ -12,7 +12,6 @@ from uuid import uuid4
 from dotenv import load_dotenv
 
 client = TestClient(app)
-load_dotenv()
 
 AUTH_CURRENT_USER = "/auth/me"
 AUTH_SIGN_IN = "/auth/sign-in"
@@ -35,10 +34,6 @@ def load_data():
     db.close()
 
 
-def get_client_id():
-    return '3v77d66vrtucrhjqlvc5g2f5mm'
-
-
 def test_get_current_user_not_logged():
     response = client.get(AUTH_CURRENT_USER)
     assert response.status_code == 403
@@ -46,7 +41,6 @@ def test_get_current_user_not_logged():
 
 
 def test_get_current_user_logged():
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
@@ -82,7 +76,6 @@ def test_update_user_not_logged():
 
 
 def test_update_user_sucess():
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",
@@ -113,7 +106,6 @@ def test_update_user_sucess():
 
 
 def test_update_user_not_the_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post(AUTH_SIGN_IN, json={
         "identifier": "brums21",

@@ -76,6 +76,12 @@ class Product(Base):
         db.refresh(self)
         return self
 
+    def update_avg(self, db: Session, avg: float):
+        self.avg_rating = avg
+        db.commit()
+        db.refresh(self)
+        return self
+
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
         db.commit()
