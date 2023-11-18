@@ -78,8 +78,6 @@ async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db))
         return JSONResponse(status_code=status, content=jsonable_encoder({"message": "Code resent successfully"}))
 
 
-
-
 @router.post("/auth/sign-in")
 async def login(user: UserLogin):
     """
