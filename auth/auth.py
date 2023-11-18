@@ -7,7 +7,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
 
-load_dotenv("../.aws")  # Automatically load environment variables from a '.env' file.
+load_dotenv(".aws")  # Automatically load environment variables from a '.env' file.
 
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 USER_POOL_ID = os.environ.get("USER_POOL_ID", "3v77d66vrtucrhjqlvc5g2f5mm")
