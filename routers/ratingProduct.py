@@ -60,7 +60,7 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
         raise HTTPException(status_code=404, detail="Rating not found")
 
     if rating.user_id != get_user(username, db).id:
-        raise HTTPException(status_code=403, detail="You can't edit other user's rating")
+        raise HTTPException(status_code=403, detail="You can't edit other user's rating") # todo: mudar test
 
     updated = update(update_rating=upd_rating, db=db)
     product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
@@ -68,6 +68,7 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
                         content=jsonable_encoder(updated.to_dict()))
 
 
+# TODO TESTES
 @router.get("/rating-product/{product_id}", dependencies=[Depends(auth)])
 async def get_rating(product_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
