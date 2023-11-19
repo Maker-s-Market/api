@@ -30,6 +30,8 @@ def update_rating(update_rating: UpdateRating, db: Session = Depends(get_db)):
 def get_average(product_id: str, db: Session = Depends(get_db)):
     average = db.query(func.avg(RatingModel.rating).label('average')).filter(
         RatingModel.product_id == product_id).scalar()
+    if average is None:
+        average = 0.0
     return "{:.1f}".format(average)
 
 

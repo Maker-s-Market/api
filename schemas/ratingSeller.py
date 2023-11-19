@@ -7,5 +7,5 @@ class CreateRatingSeller(BaseModel):
 
 
 class UpdateRatingSeller(BaseModel):
-    id: str
+    id: str  # id of SellerRating
     rating: float

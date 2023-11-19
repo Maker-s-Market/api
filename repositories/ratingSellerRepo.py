@@ -31,7 +31,7 @@ def get_rating(rating: UpdateRatingSeller, db: Session = Depends(get_db)):
 def get_average(seller_id: str, db: Session = Depends(get_db)):
     average = db.query(func.avg(RatingModel.rating).label('average')).filter(
         RatingModel.seller_id == seller_id).scalar()
-    if average == None:
+    if average is None:
         average = 0.0
     return "{:.1f}".format(average)
 
@@ -40,17 +40,6 @@ def get_seller_rating_by_user(seller_id: str, db: Session = Depends(get_db), use
     user = get_user(username, db)
     rating = db.query(RatingModel).filter(RatingModel.seller_id == seller_id).filter(
         RatingModel.user_id == user.id).first()
-    return rating
-
-
-def get_seller_rating_by_rating_id(rating_id: str, db: Session = Depends(get_db),
-                                   username: str = Depends(get_current_user)):
-    user = get_user(username, db)
-    rating = db.query(RatingModel).filter(RatingModel.id == rating_id).first()
-    if not rating:
-        raise HTTPException(status_code=404, detail="Rating not found")
-    if rating.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Only the user can delete its ratings")
     return rating
 
 
