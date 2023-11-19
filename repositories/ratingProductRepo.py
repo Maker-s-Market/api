@@ -27,10 +27,6 @@ def update_rating(update_rating: UpdateRating, db: Session = Depends(get_db)):
     return rating.update(db=db, rating_up=update_rating)
 
 
-def get_rating_by_id(rating_id: str, db: Session = Depends(get_db)):
-    return db.query(RatingModel).filter(RatingModel.id == rating_id).first()
-
-
 def get_average(product_id: str, db: Session = Depends(get_db)):
     average = db.query(func.avg(RatingModel.rating).label('average')).filter(
         RatingModel.product_id == product_id).scalar()
@@ -42,13 +38,3 @@ def get_rating_by_product_and_user(product_id: str, username: str, db: Session =
     return (db.query(RatingModel).filter(RatingModel.product_id == product_id)
             .filter(RatingModel.user_id == user.id).first())
 
-
-def check_delete_rating(rating_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    user = get_user(username=username, db=db)
-    rating = db.query(RatingModel).filter(RatingModel.id == rating_id).first()
-    if not rating:
-        raise HTTPException(status_code=404, detail="Rating not found.")
-    if rating.user_id != user.id:
-        raise HTTPException(status_code=403,
-                            detail="You are not the user who made this review. Only the owner of the review can delete it.")
-    return rating

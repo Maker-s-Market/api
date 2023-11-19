@@ -88,6 +88,8 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=404, detail="Error loging in...")
     else:
         return JSONResponse(status_code=200, content=jsonable_encoder({"token": token}))
+
+
 # forgot password
 @router.post("/auth/forgot-password")
 async def forgot_password(user: UserIdentifier):
