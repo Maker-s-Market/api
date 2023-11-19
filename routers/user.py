@@ -55,14 +55,13 @@ async def get_following(db: Session = Depends(get_db), username: str = Depends(g
                         content=jsonable_encoder([follower.information() for follower in followers]))
 
 
-@router.delete("/user/remove-following/{follower_id}")
+@router.delete("/user/remove-following/{following_id}")
 async def remove_following(following_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
         remove following
-        TODO: locally functional, need to do test
     """
     user = get_user(username, db)
-    following = get_user_by_id(following_id, db)
+    following = user_by_id(following_id, db)
     if following is None:
         raise HTTPException(status_code=404, detail="Follower not found")
     if not user.is_following(following):
