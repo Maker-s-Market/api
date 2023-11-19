@@ -62,5 +62,18 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
     return JSONResponse(status_code=200,
                         content=jsonable_encoder(updated.to_dict()))
 
+
+@router.get("/rating-product/{product_id}", dependencies=[Depends(auth)])
+async def get_rating(product_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """
+    Get review the user made for a certain product
+    """
+    if get_product_by_id(product_id, db=db) is None:
+        return JSONResponse(status_code=404, content={"detail": "Product not found"})
+    rating = get_rating_by_product_and_user(product_id=product_id, username=username, db=db)
+    if rating is None:
+        return Response(status_code=204)
+    return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
+
 # TODO : PROXIMO SPRINT - IMPLEMENTAR UM ENDPOINT PARA LISTAR TODOS OS RATINGS ASSOCIADOS A UM USER
 #  (GET /rating-product/user)
