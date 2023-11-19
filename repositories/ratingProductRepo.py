@@ -23,7 +23,7 @@ def in_db(rating: CreateRating, db: Session = Depends(get_db), username: str = D
 
 
 def update_rating(update_rating: UpdateRating, db: Session = Depends(get_db)):
-    rating = db.query(RatingModel).filter(RatingModel.id == update_rating.id).first()
+    rating = db.query(RatingModel).filter(RatingModel.product_id == update_rating.id).first()
     return rating.update(db=db, rating_up=update_rating)
 
 
