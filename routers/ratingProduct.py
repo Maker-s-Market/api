@@ -48,14 +48,6 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
     """
     if upd_rating.rating < 1 or upd_rating.rating > 5:
         raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
-    rating = get_rating_by_product_and_user(product_id=upd_rating.id, username=username, db=db)
-    print(rating)
-    if rating is None:
-        raise HTTPException(status_code=404, detail="Rating not found")
-
-    if rating.user_id != get_user(username, db).id:
-        raise HTTPException(status_code=403, detail="You can't edit other user's rating")
-
     product = get_product_by_id(upd_rating.id, db=db)
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -63,7 +55,13 @@ async def update_rating(upd_rating: UpdateRating, db: Session = Depends(get_db),
         raise HTTPException(status_code=403,
                             detail="You can't rate your own product")
 
-    rating = update(update_rating=upd_rating, db=db)
+    rating = get_rating_by_product_and_user(product_id=upd_rating.id, username=username, db=db)
+    if rating is None:
+        raise HTTPException(status_code=404, detail="Rating not found")
+
+    if rating.user_id != get_user(username, db).id:
+        raise HTTPException(status_code=403, detail="You can't edit other user's rating")
+
     updated = update(update_rating=upd_rating, db=db)
     product.update_avg(db, float(avg(product_id=rating.product_id, db=db)))
     return JSONResponse(status_code=200,
