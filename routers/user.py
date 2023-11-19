@@ -89,7 +89,6 @@ async def order_followed_by(query_name: str = "", sort: str = "",
 async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
     """ 
         get user info (only some info) by user id
-        #TODO: functional locally, need to do tests
     """
     user = user_by_id(user_id, db)
     if not user:

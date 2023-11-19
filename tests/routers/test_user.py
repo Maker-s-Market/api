@@ -193,7 +193,6 @@ def test_remove_following_success():
     assert len(data["followed"]) == 0
 
 
-
 def test_remove_following_not_following():
     response = client.delete("/user/remove-following/682d9204-9be4-4897-aafc-fe89b3f35183",
                              headers={"Authorization": BEARER + login_user_1()})
@@ -212,3 +211,16 @@ def test_remove_following_not_logged():
     response = client.delete("/user/remove-following/7fbae594-be16-4803-99b1-4c6a3b023bff")
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_get_user_by_id():
+    response = client.get("/user/682d9204-9be4-4897-aafc-fe89b3f35183")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "brums21"
+
+
+def test_get_user_by_id_not_found():
+    response = client.get("/user/1234567")
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'User not found'}
