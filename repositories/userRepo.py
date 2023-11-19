@@ -49,18 +49,19 @@ def get_user_by_id(id_user: str, db: Session = Depends(get_db)):
     return get_user_by_id_query(id_user, db)
 
 
-def get_followers(query: str, sort: str, username: str, db: Session = Depends(get_db)):
+def get_followers(username: str, query: str = '', sort: str = '', db: Session = Depends(get_db)):
     from models.ratingSeller import RatingSeller as RatingModel
-    user = get_user(username, db)
-    sort.lower()
     query.lower()
+    sort.lower()
+    user = get_user(username, db)
     followers_list = (db.query(UserModel)
                       .join(followers, UserModel.id == followers.c.follower_id)
                       .filter(followers.c.followed_id == user.id))
 
-    if query != "" or query != None:
+    if query != '' or query is not None:
+        query = query.lower()
         followers_list = followers_list.filter(UserModel.name.contains(query))
-    if sort == "":
+    if sort == '':
         return followers_list
     elif sort not in ["asc_name", "desc_name", "asc_rating", "desc_rating", "asc_num_rating", "desc_num_rating"]:
         raise HTTPException(status_code=400, detail="Sort parameter is invalid")

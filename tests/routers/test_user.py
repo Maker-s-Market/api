@@ -1,15 +1,12 @@
 import os
 
 import pytest
-
 from starlette.testclient import TestClient
+
 from main import app
 from models.user import User
 from schemas.user import UserUpdate
-from repositories.userRepo import new_user
 from tests.test_sql_app import TestingSessionLocal
-from uuid import uuid4
-from dotenv import load_dotenv
 
 client = TestClient(app)
 
@@ -30,9 +27,15 @@ def load_data():
     user2 = User(id="7fbae594-be16-4803-99b1-4c6a3b023bff", name="Mariana", username="mariana",
                  email="marianaandrade@ua.pt", city="aveiro",
                  region="nao sei", photo="", role="Client")
+    user3 = User(id="7fbae594-be16-4803-99b1-4c6a3b023bfx", name="Joao", username="joao",
+                 email="joao@gmail.com", city="aveiro", region="nao sei", photo="", role="Client")
     db.add(user1)
     db.add(user2)
+    db.add(user3)
     user2.follow(user1)
+    user1.follow(user3)
+    user3.follow(user1)
+    user3.update_avg(db, 4.5)
     db.commit()
     db.close()
 
@@ -129,8 +132,9 @@ def test_follow_success():
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 1
-    assert data["followed"][0]["username"] == "mariana"
+    assert len(data["followed"]) == 2
+    assert data["followed"][0]["username"] == "joao"
+    assert data["followed"][1]["username"] == "mariana"
 
 
 def test_follow_already_following():
@@ -174,8 +178,7 @@ def test_get_following_success():
                           headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["username"] == "mariana"
+    assert len(data) == 2
 
 
 def test_get_following_not_logged():
@@ -190,7 +193,8 @@ def test_remove_following_success():
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 0
+    assert len(data["followed"]) == 1
+    assert data["followed"][0]["username"] == "joao"
 
 
 def test_remove_following_not_following():
@@ -224,3 +228,92 @@ def test_get_user_by_id_not_found():
     response = client.get("/user/1234567")
     assert response.status_code == 404
     assert response.json() == {'detail': 'User not found'}
+
+
+def test_get_followers_success():
+    response = client.get("/user/followers",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+
+
+def test_get_followers_not_logged():
+    response = client.get("/user/followers")
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_get_followers_query():
+    response = client.get("/user/followers?query_name=jo",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["username"] == "joao"
+
+
+def test_get_followers_sort_invalid():
+    response = client.get("/user/followers?sort=notfound",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Sort parameter is invalid'}
+
+
+def test_get_followers_sort_asc_name():
+    response = client.get("/user/followers?sort=asc_name",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["username"] == "joao"
+    assert data[1]["username"] == "mariana"
+
+
+def test_get_followers_sort_desc_name():
+    response = client.get("/user/followers?sort=desc_name",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["username"] == "mariana"
+    assert data[1]["username"] == "joao"
+
+
+def test_get_followers_sort_asc_rating():
+    response = client.get("/user/followers?sort=asc_rating&query_name=jo",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["username"] == "joao"
+
+
+def test_get_followers_sort_desc_rating():
+    response = client.get("/user/followers?sort=desc_rating",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["username"] == "joao"
+    assert data[1]["username"] == "mariana"
+
+
+def test_get_followers_sort_asc_num_rating():
+    response = client.get("/user/followers?sort=asc_num_rating",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["username"] == "mariana"
+    assert data[1]["username"] == "joao"
+
+
+def test_get_followers_sort_desc_num_rating():
+    response = client.get("/user/followers?sort=desc_num_rating",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["username"] == "mariana"
+    assert data[1]["username"] == "joao"

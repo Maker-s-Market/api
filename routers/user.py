@@ -72,20 +72,19 @@ async def remove_following(following_id: str, db: Session = Depends(get_db), use
     return JSONResponse(status_code=200, content=jsonable_encoder(user_updated.information()))
 
 
-@router.get("/user/followers/filter")
-async def order_followed_by(query_name: str = "", sort: str = "",
+@router.get("/user/followers")
+async def order_followed_by(query_name: str = '', sort: str = '',
                             db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
-        filter followers page -> can filter by date joined/alphabetically/review
-        TODO - the actual filtering, since the rating seller part needs to be refactored a bit 1st. For now, it only displays a user's followers with no order
-        /number of placed orders (TODO this part, only on next sprint)
+        filter followers page -> can filter by date joined/alphabetically/reviews
     """
-    followers = get_followers(query_name, sort, username, db)
+
+    followers = get_followers(username=username, query=query_name, sort=sort, db=db)
 
     return JSONResponse(status_code=200, content=jsonable_encoder([follower.information() for follower in followers]))
 
 
-@router.get("/user/{user_id}")  # no need to be authenticated
+@router.get("/user/{user_id}")
 async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
     """ 
         get user info (only some info) by user id
