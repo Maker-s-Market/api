@@ -27,11 +27,6 @@ class RatingProduct(Base):
     user_id = Column(String(50), ForeignKey("user.id"))
     product_id = Column(String(50), ForeignKey("product.id"))
 
-    def delete(self, db: Session = Depends(get_db)):
-        db.delete(self)
-        db.commit()
-        return self
-
     def update(self, db: Session, rating_up: UpdateRatingProduct):
         self.rating = rating_up.rating
         self.updated_at = datetime.datetime.now()
