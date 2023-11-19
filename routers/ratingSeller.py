@@ -65,9 +65,12 @@ async def get_my_seller_rating(seller_id: str, db: Session = Depends(get_db),
         get my seller rating based on the seller_id
         #TODO: functional locally, need to perform tests
     """
+    seller = get_seller_by_id(seller_id, db)
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller not found")
     rating = get_rating_by_seller_id_and_user(seller_id, db, username)
     if not rating:
-        raise HTTPException(status_code=404, detail="Rating not found.")
+        return Response(status_code=204)
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 
