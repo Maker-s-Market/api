@@ -49,13 +49,6 @@ def get_user_by_id(id_user: str, db: Session = Depends(get_db)):
     return get_user_by_id_query(id_user, db)
 
 
-def get_following_by_id(id_user: str, db: Session = Depends(get_db)):
-    db_user = get_user_by_id_query(id_user, db)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="Follower not found")
-    return db_user
-
-
 def get_followers(query: str, sort: str, username: str, db: Session = Depends(get_db)):
     from models.ratingSeller import RatingSeller as RatingModel
     user = get_user(username, db)

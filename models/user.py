@@ -46,7 +46,7 @@ class User(Base):
                         nullable=False)
     is_active = Column(Integer, index=True, default=True, nullable=False)
     # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)     # TODO - remover
+    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)  # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
     followed = relationship(
@@ -87,11 +87,10 @@ class User(Base):
             "deleted_at": self.deleted_at,
             "is_active": self.is_active,
             "wishlist_id": self.wishlist_id,
-            "followed": [user.information() for user in self.followed]
         }
-    
-    def information(self):
-        return {
+
+    def information(self, followed_bool: bool = True):
+        info = {
             "id": self.id,
             "name": self.name,
             "username": self.username,
@@ -101,8 +100,10 @@ class User(Base):
             "photo": self.photo,
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
-            "followed": [user.information() for user in self.followed]
         }
+        if followed_bool:
+            info["followed"] = [user.information(followed_bool=False) for user in self.followed]
+        return info
 
     def update_avg(self, db: Session, avg: float):
         self.avg_rating = avg

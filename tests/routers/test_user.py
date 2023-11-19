@@ -32,6 +32,7 @@ def load_data():
                  region="nao sei", photo="", role="Client")
     db.add(user1)
     db.add(user2)
+    user2.follow(user1)
     db.commit()
     db.close()
 
@@ -168,4 +169,18 @@ def test_follow_not_logged():
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
 
+
+def test_get_following_success():
+    response = client.get("/user/following",
+                          headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["username"] == "mariana"
+
+
+def test_get_following_not_logged():
+    response = client.get("/user/following")
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
 
