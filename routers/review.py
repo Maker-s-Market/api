@@ -27,7 +27,7 @@ async def get_my_reviews(db: Session = Depends(get_db), username: str = Depends(
 @router.get("/review/{product_id}")
 async def get_product_reviews(product_id: str, db: Session = Depends(get_db)):
     result = gpr(product_id=product_id, db=db)
-    response = [{"review": review.to_dict(), "user": get_user_by_id(review.user_id, db).to_dict()} for review in result]
+    response = [{"review": review.to_dict(), "user": get_user_by_id(review.user_id, db).information()} for review in result]
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
 

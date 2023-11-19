@@ -169,3 +169,12 @@ def test_put_seller_rating_rating_not_between_0_and_5():
     assert response.status_code == 403
     assert response.json() == {"detail": "Rating should be between 0 and 5"}
 
+
+def test_put_seller_rating_not_auth():
+    rating = UpdateRatingSeller(rating=6, id="06e0da01-57fd-4441-95be-1111111111112")
+
+    response = client.put("/rating-seller",
+                          json=rating.model_dump())
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Not authenticated"}

@@ -23,7 +23,7 @@ def random_uuid():
 
 class Role(enum.Enum):
     Client = "Client"
-    Seller = "Seller"
+    Seller = "Seller"  # # TODO - remover
     Premium = "Premium"
 
 
@@ -44,10 +44,9 @@ class User(Base):
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
-
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
     is_active = Column(Integer, index=True, default=True, nullable=False)
+    # POR CAUSA DO RGPD
+    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)     # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
     followed = relationship(
@@ -109,8 +108,7 @@ class User(Base):
         self.avg_rating = avg
         db.commit()
         db.refresh(self)
-        return self 
-    
+        return self
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)

@@ -79,7 +79,7 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
-        "user": user.to_dict()
+        "user": user.information()
     }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 

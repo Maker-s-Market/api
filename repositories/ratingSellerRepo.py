@@ -21,13 +21,6 @@ def create_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), use
     return cr(rating=rating, db=db, username=username)
 
 
-def get_rating(rating: UpdateRatingSeller, db: Session = Depends(get_db)):
-    rating_ = db.query(RatingModel).filter(RatingModel.id == rating.id).first()
-    if rating_ == None:
-        raise HTTPException(status_code=404, detail="Rating was not found")
-    return rating_
-
-
 def get_average(seller_id: str, db: Session = Depends(get_db)):
     average = db.query(func.avg(RatingModel.rating).label('average')).filter(
         RatingModel.seller_id == seller_id).scalar()

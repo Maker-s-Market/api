@@ -26,6 +26,7 @@ async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends
     seller = get_user_by_id(rating.seller_id, db=db)
     if not seller:
         raise HTTPException(status_code=404, detail="Seller not found")
+    # TODO: check if Len(product) do seller> 0
     if rating.rating < 0 or rating.rating > 5:
         raise HTTPException(status_code=403, detail="Rating should be between 0 and 5")
     if rating_in_db(rating, db, username):
