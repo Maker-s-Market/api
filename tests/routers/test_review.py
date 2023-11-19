@@ -24,9 +24,11 @@ def load_data():
     db.query(Product).delete()
     db.query(Review).delete()
     db.query(User).delete()
-    user1 = User(id="06e0da01-57fd-4441-95be-1111111111111",name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
+    user1 = User(id="06e0da01-57fd-4441-95be-1111111111111", name="Bruna", username="brums21",
+                 email="brums21.10@gmail.com", city="pombal",
                  region="nao existe", photo="", role="Client")
-    user2 = User(id="06e0da01-57fd-4441-95be-1111111111112", name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
+    user2 = User(id="06e0da01-57fd-4441-95be-1111111111112", name="Mariana", username="mariana",
+                 email="marianaandrade@ua.pt", city="aveiro",
                  region="nao sei", photo="", role="Client")
     db.add(user1)
     db.add(user2)
@@ -50,6 +52,10 @@ def load_data():
     db.close()
 
 
+def get_client_id():
+    return '414qtus5nd7veam6tgeqtua9j6'
+
+
 def test_get_reviews():
     response = client.get("/review/06e0da01-57fd-2229-95be-123455555566")
 
@@ -68,7 +74,7 @@ def test_create_review_not_auth():
 
 
 def test_create_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -97,7 +103,7 @@ def test_delete_review_not_auth():
 
 
 def test_delete_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -112,7 +118,7 @@ def test_delete_review_success():
 
 
 def test_delete_review_not_found():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -129,8 +135,7 @@ def test_delete_review_not_found():
 
 
 def test_delete_review_not_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -146,7 +151,8 @@ def test_delete_review_not_owner():
 
 
 def test_put_review_update_invalid_review_id():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -179,7 +185,8 @@ def test_put_review_update_no_auth():
 
 
 def test_put_review_user_not_review_owner():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -200,7 +207,7 @@ def test_put_review_user_not_review_owner():
 
 
 def test_put_review_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
@@ -230,8 +237,7 @@ def test_get_my_reviews_not_auth():
 
 
 def test_get_my_reviews_success():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -251,9 +257,3 @@ def test_get_my_reviews_success():
     assert data[1]["text"] == "some comment3"
     assert data[1]["product_id"] == "06e0da01-57fd-2229-95be-123455555566"
     assert data[1]["user_id"] == "06e0da01-57fd-4441-95be-1111111111112"
-
-
-
-
-
-

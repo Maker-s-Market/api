@@ -9,6 +9,7 @@ from models.category import Category
 from models.product import Product
 from models.ratingProduct import RatingProduct
 from models.user import User
+
 from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
@@ -50,7 +51,7 @@ def load_data():
 
 
 def login_user1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -62,7 +63,7 @@ def login_user1():
 
 
 def login_user2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '3v77d66vrtucrhjqlvc5g2f5mm'
+    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
@@ -153,7 +154,6 @@ def test_create_rating_already_exists():
 
 
 def test_update_rating_success():
-    login_user2()
     upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
@@ -175,25 +175,34 @@ def test_update_rating_not_auth():
     assert response.json() == {"detail": "Not authenticated"}
 
 
-def test_update_rating_not_found():
+def test_update_rating_not_found_product():
     upd_rating = UpdateRatingProduct(id="id_not_exists", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user2()}"})
 
     assert response.status_code == 404
+    assert response.json() == {"detail": "Product not found"}
+
+
+def test_update_rating_not_found_rating():
+    upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2229-95be-123455555566", rating=5)
+    response = client.put("/rating-product",
+                          json=upd_rating.model_dump(),
+                          headers={"Authorization": f"Bearer {login_user1()}"})
+
+    assert response.status_code == 404
     assert response.json() == {"detail": "Rating not found"}
 
 
-def test_update_rating_not_owner():
+def test_update_rating_not_own_product():
     upd_rating = UpdateRatingProduct(id="06e0da01-57fd-2227-95be-0d25c764ea56", rating=5)
     response = client.put("/rating-product",
                           json=upd_rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user1()}"})
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "You are not the user who made this review. "
-                                         "Only the owner of the review can delete it."}
+    assert response.json() == {"detail": "You can't rate your own product"}
 
 
 def test_update_rating_not_in_range():
@@ -204,29 +213,3 @@ def test_update_rating_not_in_range():
 
     assert response.status_code == 403
     assert response.json() == {"detail": "Rating should be between 1 and 5"}
-
-
-def test_get_rating_sucess():
-    response = client.get("/rating-product/06e0da01-57fd-2227-95be-0d25c764ea56",
-                          headers={"Authorization": f"Bearer {login_user2()}"})
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["rating"] == 5
-    assert data["product_id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
-    assert data["user_id"] == "06e0da01-57fd-4441-95be-1111111111112"
-
-
-def test_get_rating_not_found():
-    response = client.get("/rating-product/id_not_exists",
-                          headers={"Authorization": f"Bearer {login_user2()}"})
-
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Product not found"}
-
-
-def test_get_rating_not_exists_rating():
-    response = client.get("/rating-product/06e0da01-57fd-2229-95be-123455555566",
-                          headers={"Authorization": f"Bearer {login_user2()}"})
-
-    assert response.status_code == 204

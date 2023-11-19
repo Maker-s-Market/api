@@ -74,10 +74,12 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     user = get_user_by_id(product.user_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
-        "user": user.to_dict()
+        "user": user.information()
     }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 

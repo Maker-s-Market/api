@@ -6,18 +6,16 @@ from sqlalchemy.orm import Session
 from auth.auth import get_current_user
 from db.database import Base, get_db
 from fastapi import Depends, HTTPException
-from repositories.productRepo import get_product_by_id
-from repositories.userRepo import get_user
-
-from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
+from repositories.userRepo import get_user, get_user_by_id
+from schemas.ratingSeller import UpdateRatingSeller, CreateRatingSeller
 
 
 def random_uuid():
     return str(uuid4())
 
 
-class RatingProduct(Base):
-    __tablename__ = "rating product"
+class RatingSeller(Base):
+    __tablename__ = "rating seller"
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     rating = Column(Float, index=True, nullable=False)
@@ -25,13 +23,11 @@ class RatingProduct(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
 
     user_id = Column(String(50), ForeignKey("user.id"))
-    product_id = Column(String(50), ForeignKey("product.id"))
+    seller_id = Column(String(50), ForeignKey("user.id"))
 
-    def update(self, db: Session, rating_up: UpdateRatingProduct):
-        self.rating = rating_up.rating
-        self.updated_at = datetime.datetime.now()
+    def delete(self, db: Session = Depends(get_db)):
+        db.delete(self)
         db.commit()
-        db.refresh(self)
         return self
 
     def to_dict(self):
@@ -41,13 +37,22 @@ class RatingProduct(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "user_id": self.user_id,
-            "product_id": self.product_id
+            "seller_id": self.seller_id
         }
 
+    def update(self, db: Session, rating_up: UpdateRatingSeller):
+        self.rating = rating_up.rating
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
 
-def create_rating(rating: CreateRatingProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+
+def create_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    db_rating = RatingProduct(**rating.model_dump())
+    if rating.seller_id == user.id:
+        raise HTTPException(status_code=403, detail="You can not rate yourself")
+    db_rating = RatingSeller(**rating.model_dump())
     db_rating.user_id = user.id
     db.add(db_rating)
     db.commit()

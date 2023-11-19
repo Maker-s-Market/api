@@ -3,7 +3,7 @@ import enum
 from uuid import uuid4
 
 from fastapi import Depends
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, ForeignKey, Table
 from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
@@ -23,7 +23,7 @@ def random_uuid():
 
 class Role(enum.Enum):
     Client = "Client"
-    Seller = "Seller"
+    Seller = "Seller"  # # TODO - remover
     Premium = "Premium"
 
 
@@ -39,14 +39,14 @@ class User(Base):
     region = Column(String(200), index=True, nullable=False)
     photo = Column(String(200), index=True, nullable=False)
     role = Column(Enum(Role))
+    avg_rating = Column(Float, index=True, default=0)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
-
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)
     is_active = Column(Integer, index=True, default=True, nullable=False)
+    # POR CAUSA DO RGPD
+    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)  # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
     followed = relationship(
@@ -64,9 +64,12 @@ class User(Base):
     def unfollow(self, user):
         if self.is_following(user):
             self.followed.remove(user)
+            return True
+        else:
+            return False
 
     def is_following(self, user):
-        return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+        return any(follower.id == user.id for follower in self.followed)
 
     def to_dict(self):
         return {
@@ -78,13 +81,35 @@ class User(Base):
             "region": self.region,
             "photo": self.photo,
             "role": self.role,
+            "average_rating": self.avg_rating,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "deleted_at": self.deleted_at,
             "is_active": self.is_active,
             "wishlist_id": self.wishlist_id,
-            "followed": self.followed
         }
+
+    def information(self, followed_bool: bool = True):
+        info = {
+            "id": self.id,
+            "name": self.name,
+            "username": self.username,
+            "email": self.email,
+            "city": self.city,
+            "region": self.region,
+            "photo": self.photo,
+            "average_rating": self.avg_rating,
+            "created_at": self.created_at,
+        }
+        if followed_bool:
+            info["followed"] = [user.information(followed_bool=False) for user in self.followed]
+        return info
+
+    def update_avg(self, db: Session, avg: float):
+        self.avg_rating = avg
+        db.commit()
+        db.refresh(self)
+        return self
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
