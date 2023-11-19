@@ -52,10 +52,6 @@ class RatingProduct(Base):
 
 def create_rating(rating: CreateRatingProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    if not get_product_by_id(rating.product_id, db=db):
-        raise HTTPException(status_code=404, detail="Product not found")
-    if rating.rating < 0 or rating.rating > 5:
-        raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
     db_rating = RatingProduct(**rating.model_dump())
     db_rating.user_id = user.id
     db.add(db_rating)

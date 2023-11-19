@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from auth.auth import get_current_user, jwks
 from repositories.userRepo import get_seller_by_id, get_user, get_user_by_id
 from schemas.ratingSeller import CreateRatingSeller, UpdateRatingSeller
-from repositories.ratingSellerRepo import rating_in_db, create_rating as cr, get_rating, get_average as avg, \
+from repositories.ratingSellerRepo import rating_in_db, create_rating, get_rating, get_average as avg, \
     get_seller_rating_by_user as get_rating_by_seller_id_and_user, \
     get_seller_rating_by_rating_id, \
     get_ratings_by_seller_id
@@ -23,7 +23,6 @@ async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends
     """
     function that creates a rating for a certain seller
     rate (seller) in catalog
-    #TODO - functional locally, need to perform tests
     """
     seller = get_user_by_id(rating.seller_id, db=db)
     if not seller:
@@ -33,7 +32,7 @@ async def create_seller_rating(rating: CreateRatingSeller, db: Session = Depends
     if rating_in_db(rating, db, username):
         raise HTTPException(status_code=403,
                             detail="A rating for this seller was already created, please edit it instead")
-    rating = cr(rating=rating, db=db, username=username)
+    rating = create_rating(rating=rating, db=db, username=username)
     seller.update_avg(db, float(avg(seller_id=rating.seller_id, db=db)))
     return JSONResponse(status_code=201,
                         content=jsonable_encoder(rating.to_dict()))

@@ -95,4 +95,6 @@ async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
         #TODO: functional locally, need to do tests
     """
     user = user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return JSONResponse(status_code=200, content=jsonable_encoder(user.information()))

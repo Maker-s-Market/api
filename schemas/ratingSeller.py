@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class CreateRatingSeller(BaseModel):
     rating: float
     seller_id: str
