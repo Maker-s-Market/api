@@ -50,10 +50,6 @@ class RatingSeller(Base):
 
 def create_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    if not get_user_by_id(rating.seller_id, db=db):
-        raise HTTPException(status_code=404, detail="Seller not found")
-    if rating.rating < 0 or rating.rating > 5:
-        raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
     if rating.seller_id == user.id:
         raise HTTPException(status_code=403, detail="You can not rate yourself")
     db_rating = RatingSeller(**rating.model_dump())

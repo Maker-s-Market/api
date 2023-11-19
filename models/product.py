@@ -69,7 +69,7 @@ class Product(Base):
         db.commit()
         db.refresh(self)
         return self
-    
+
     def update_avg(self, db: Session, avg: float):
         self.avg_rating = avg
         db.commit()

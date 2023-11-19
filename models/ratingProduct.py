@@ -27,11 +27,6 @@ class RatingProduct(Base):
     user_id = Column(String(50), ForeignKey("user.id"))
     product_id = Column(String(50), ForeignKey("product.id"))
 
-    def delete(self, db: Session = Depends(get_db)):
-        db.delete(self)
-        db.commit()
-        return self
-
     def update(self, db: Session, rating_up: UpdateRatingProduct):
         self.rating = rating_up.rating
         self.updated_at = datetime.datetime.now()
@@ -52,10 +47,6 @@ class RatingProduct(Base):
 
 def create_rating(rating: CreateRatingProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    if not get_product_by_id(rating.product_id, db=db):
-        raise HTTPException(status_code=404, detail="Product not found")
-    if rating.rating < 0 or rating.rating > 5:
-        raise HTTPException(status_code=403, detail="Rating should be between 1 and 5")
     db_rating = RatingProduct(**rating.model_dump())
     db_rating.user_id = user.id
     db.add(db_rating)
