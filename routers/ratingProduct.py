@@ -8,8 +8,8 @@ from repositories.userRepo import get_user
 from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
-from repositories.ratingProductRepo import (create_rating as cr, check_delete_rating as cdr, update_rating as update,
-                                            get_average as avg, in_db as rating_in_db, get_rating_by_id,
+from repositories.ratingProductRepo import (create_rating as cr, update_rating as update,
+                                            get_average as avg, in_db as rating_in_db,
                                             get_rating_by_product_and_user)
 
 auth = JWTBearer(jwks)
