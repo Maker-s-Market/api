@@ -87,7 +87,7 @@ class User(Base):
             "deleted_at": self.deleted_at,
             "is_active": self.is_active,
             "wishlist_id": self.wishlist_id,
-            "followed": self.followed
+            "followed": [user.information() for user in self.followed]
         }
     
     def information(self):
@@ -101,7 +101,7 @@ class User(Base):
             "photo": self.photo,
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
-            "followed": self.followed
+            "followed": [user.information() for user in self.followed]
         }
 
     def update_avg(self, db: Session, avg: float):

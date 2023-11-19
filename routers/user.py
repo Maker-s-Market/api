@@ -34,7 +34,6 @@ async def update_user(update_user: UserUpdate, db: Session = Depends(get_db),
 async def follow_seller(seller_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
         follow (seller) (Add to list of following)
-        TODO: locally functional, need to do tests
     """
     user = get_user(username, db)
     if user.id == seller_id:
@@ -44,7 +43,7 @@ async def follow_seller(seller_id: str, db: Session = Depends(get_db), username:
         raise HTTPException(status_code=403, detail="Already following this user/seller")
     user.follow(seller)
     user_updated = user.update(user, db)  # update user in db
-    return JSONResponse(status_code=200, content=jsonable_encoder(user_updated.to_dict()))
+    return JSONResponse(status_code=200, content=jsonable_encoder(user_updated.information()))
 
 
 @router.get("/user/following")
