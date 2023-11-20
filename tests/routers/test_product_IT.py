@@ -17,6 +17,7 @@ load_dotenv() #import pytest.ini env variables
 
 client = TestClient(app)
 
+
 def get_client_id():
     return '414qtus5nd7veam6tgeqtua9j6'
 
@@ -26,6 +27,7 @@ def load_data():
     db = TestingSessionLocal()
     db.query(Category).delete()
     db.query(Product).delete()
+    db.query(User).delete()
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
                  region="nao existe", photo="", role="Client")
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",

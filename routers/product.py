@@ -92,15 +92,16 @@ async def get_top_products(limit: int = 4, db: Session = Depends(get_db)):
                                                                                                       db=db)]))
 
 
+# TODO CHANGE THIS NAME TO /product/discount
 @router.put("/products/discount", dependencies=[Depends(auth)])
-async def get_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
+async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
                                 username: str = Depends(get_current_user)):
     """
         Create/Update a product discount
     """
     product = get_product_by_id(product_id=update.product_id, db=db)
     user = get_user(username, db)
-    if product == None:
+    if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     if product.user_id != user.id:
         raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
