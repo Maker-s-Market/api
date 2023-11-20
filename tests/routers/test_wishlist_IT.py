@@ -150,3 +150,49 @@ def test_add_product_to_wishlist_fail_not_found():
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Product not found"
+
+
+def test_delete_product_from_wishlist_success():
+    token = login_user1()
+    response = client.delete(
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detail"] == "Product deleted from wishlist successfully."
+
+
+def test_delete_product_from_wishlist_fail_not_in_wishlist():
+    token = login_user1()
+    response = client.delete(
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "Product is not in your wishlist, nothing to remove"
+
+
+def test_delete_product_from_wishlist_fail_not_found():
+    token = login_user1()
+    response = client.delete(
+        "/wishlist/id_not_exists",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "Product not found"
+
+
+def test_delete_product_from_wishlist_fail_not_auth():
+    response = client.delete(
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57"
+    )
+
+    assert response.status_code == 403
+    data = response.json()
+    assert data["detail"] == "Not authenticated"
