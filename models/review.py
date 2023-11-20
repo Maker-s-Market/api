@@ -55,8 +55,6 @@ class Review(Base):
 
 def create_review(review: CreateReview, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    if not get_product_by_id(review.product_id, db=db):
-        raise HTTPException(status_code=404, detail="Product not found")
     db_review = Review(**review.model_dump())
     db_review.user_id = user.id
     db.add(db_review)
