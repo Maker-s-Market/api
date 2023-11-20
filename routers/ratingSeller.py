@@ -58,6 +58,22 @@ async def put_seller_rating(upd_rating: UpdateRatingSeller, db: Session = Depend
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
 
 
+@router.get("/rating-seller/{seller_id}", dependencies=[Depends(auth)])
+async def get_my_seller_rating(seller_id: str, db: Session = Depends(get_db),
+                               username: str = Depends(get_current_user)):
+    """
+        get my seller rating based on the seller_id
+        #TODO: functional locally, need to perform tests
+    """
+    seller = get_seller_by_id(seller_id, db)
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller not found")
+    rating = get_rating_by_seller_id_and_user(seller_id, db, username)
+    if not rating:
+        return Response(status_code=204)
+    return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
+
+
 @router.get("/rating-seller/ratings/{seller_id}")
 async def get_all_seller_rating(seller_id: str, db: Session = Depends(get_db)):
     """

@@ -54,8 +54,6 @@ def load_data():
 
 def get_client_id():
     return '414qtus5nd7veam6tgeqtua9j6'
-
-
 def test_get_reviews():
     response = client.get("/review/06e0da01-57fd-2229-95be-123455555566")
 
@@ -75,7 +73,6 @@ def test_create_review_not_auth():
 
 def test_create_review_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -119,7 +116,6 @@ def test_delete_review_success():
 
 def test_delete_review_not_found():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")

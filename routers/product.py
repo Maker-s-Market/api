@@ -8,7 +8,7 @@ from repositories.categoryRepo import get_category_by_id
 from repositories.productRepo import get_product_by_id, new_product, get_top_products_db, \
     get_products_by_filters
 from repositories.userRepo import get_user, get_user_by_id
-from schemas.product import CreateProduct
+from schemas.product import CreateProduct, UpdateDiscount
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
 
@@ -22,11 +22,13 @@ MESSAGE_NOT_FOUND = "Product not found"
 async def create_product(product: CreateProduct,
                          db: Session = Depends(get_db),
                          username: str = Depends(get_current_user)):
-    return JSONResponse(status_code=201, content=jsonable_encoder(new_product(db=db, product=product, username=username).to_dict()))
+    return JSONResponse(status_code=201,
+                        content=jsonable_encoder(new_product(db=db, product=product, username=username).to_dict()))
 
 
 @router.put("/product/{product_id}", dependencies=[Depends(auth)])
-async def update_product(product_id: str, edit_product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+async def update_product(product_id: str, edit_product: CreateProduct, db: Session = Depends(get_db),
+                         username: str = Depends(get_current_user)):
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
@@ -54,7 +56,6 @@ async def get_products(q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False, location: str = "",
                        category_id: str = "", db: Session = Depends(get_db)):
-
     if category_id != "" and not get_category_by_id(category_id, db):
         raise HTTPException(status_code=404, detail="Category not found")
 
@@ -89,3 +90,23 @@ async def get_top_products(limit: int = 4, db: Session = Depends(get_db)):
     return JSONResponse(status_code=200, content=jsonable_encoder([product.to_dict()
                                                                    for product in get_top_products_db(limit=limit,
                                                                                                       db=db)]))
+
+
+# TODO CHANGE THIS NAME TO /product/discount
+@router.put("/products/discount", dependencies=[Depends(auth)])
+async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
+                                username: str = Depends(get_current_user)):
+    """
+        Create/Update a product discount
+    """
+    product = get_product_by_id(product_id=update.product_id, db=db)
+    user = get_user(username, db)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
+
+    product.discount = update.discount
+    updated_product = product.update_product(db, product)
+
+    return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))

@@ -17,6 +17,7 @@ load_dotenv() #import pytest.ini env variables
 
 client = TestClient(app)
 
+
 def get_client_id():
     return '414qtus5nd7veam6tgeqtua9j6'
 
@@ -26,6 +27,7 @@ def load_data():
     db = TestingSessionLocal()
     db.query(Category).delete()
     db.query(Product).delete()
+    db.query(User).delete()
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
                  region="nao existe", photo="", role="Client")
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
@@ -487,7 +489,6 @@ def test_put_not_allowed():
 
 def test_delete_existing_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -604,7 +605,6 @@ def test_delete_not_owner():
 
 def test_filter_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -705,7 +705,6 @@ def test_filter_product_invalid_price_range():
 # this
 def test_product_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -757,8 +756,6 @@ def test_product_location():
 
 def test_product_no_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")

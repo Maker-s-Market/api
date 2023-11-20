@@ -37,7 +37,7 @@ def get_seller(username: str, db: Session = Depends(get_db)):
 
 def get_followings(username: str, db: Session = Depends(get_db)):
     db_user = get_seller(username, db)
-    followers = db_user.followers
+    followers = db_user.followed
     return followers
 
 
