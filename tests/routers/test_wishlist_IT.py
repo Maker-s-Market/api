@@ -100,5 +100,53 @@ def test_get_user_wishlist_not_auth():
     assert response.status_code == 403
     assert response.json()["detail"] == "Not authenticated"
 
+
 def test_add_product_to_wishlist_success():
-    pass
+    token = login_user1()
+    response = client.post(
+        "/wishlist/06e0da01-57fd-2229-95be-123455555566",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == "06e0da01-57fd-4441-95be-1111111111111"
+    assert len(data["products"]) == 2
+    assert data["products"][0]["id"] == "06e0da01-57fd-2228-95be-0d25c764ea57"
+    assert data["products"][1]["id"] == "06e0da01-57fd-2229-95be-123455555566"
+
+
+def test_add_product_to_wishlist_fail_already_in_wishlist():
+    token = login_user1()
+    response = client.post(
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "Product already in wishlist"
+
+
+def test_add_product_to_wishlist_fail_own_product():
+    token = login_user1()
+    response = client.post(
+        "/wishlist/06e0da01-57fd-2227-95be-0d25c764ea56",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "You can't add your own products to the wishlist"
+
+
+def test_add_product_to_wishlist_fail_not_found():
+    token = login_user1()
+    response = client.post(
+        "/wishlist/id_not_exists",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "Product not found"

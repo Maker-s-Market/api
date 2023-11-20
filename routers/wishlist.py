@@ -31,13 +31,12 @@ async def add_product_to_wishlist(product_id: str, db: Session = Depends(get_db)
                                   username: str = Depends(get_current_user)):
     """
         Function that adds a product to the authenticated user's wishlist
-        #TODO: tested locally, needs code testing
     """
     user = get_user(username, db)
     wishlist_user = get_wishlist_user(user, db)
     product = get_product_by_id(product_id, db)
     if product is None:
-        raise HTTPException(status_code=400, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Product not found")
     if product in wishlist_user.products:
         raise HTTPException(status_code=400, detail="Product already in wishlist")
     if product.user_id == user.id:
