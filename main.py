@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 from db.create_database import create_tables
 from db.database import SessionLocal
-from routers import product, category, insert_data, auth, review, user, ratingProduct, ratingSeller, wishlist
+from routers import product, category, insert_data, auth, ratingUser, review, user, ratingProduct, wishlist
 
 
 @asynccontextmanager
@@ -59,7 +59,7 @@ app.include_router(prefix="/api", router=category.router)
 app.include_router(prefix="/api", router=product.router)
 app.include_router(prefix="/api", router=review.router)
 app.include_router(prefix="/api", router=ratingProduct.router)
-app.include_router(prefix="/api", router=ratingSeller.router)
+app.include_router(prefix="/api", router=ratingUser.router)
 app.include_router(prefix="/api", router=wishlist.router)
 
 load_dotenv(".aws")

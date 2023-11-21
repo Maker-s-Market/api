@@ -7,15 +7,15 @@ from auth.auth import get_current_user
 from db.database import Base, get_db
 from fastapi import Depends, HTTPException
 from repositories.userRepo import get_user, get_user_by_id
-from schemas.ratingSeller import UpdateRatingSeller, CreateRatingSeller
+from schemas.ratingUser import UpdateRatingUser, CreateRatingUser
 
 
 def random_uuid():
     return str(uuid4())
 
 
-class RatingSeller(Base):
-    __tablename__ = "rating seller"
+class RatingUser(Base):
+    __tablename__ = "rating user"
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     rating = Column(Float, index=True, nullable=False)
@@ -23,7 +23,7 @@ class RatingSeller(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
 
     user_id = Column(String(50), ForeignKey("user.id"))
-    seller_id = Column(String(50), ForeignKey("user.id"))
+    rated_user_id = Column(String(50), ForeignKey("user.id"))
 
     def delete(self, db: Session = Depends(get_db)):
         db.delete(self)
@@ -37,10 +37,10 @@ class RatingSeller(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "user_id": self.user_id,
-            "seller_id": self.seller_id
+            "rated_user_id": self.rated_user_id
         }
 
-    def update(self, db: Session, rating_up: UpdateRatingSeller):
+    def update(self, db: Session, rating_up: UpdateRatingUser):
         self.rating = rating_up.rating
         self.updated_at = datetime.datetime.now()
         db.commit()
@@ -48,11 +48,11 @@ class RatingSeller(Base):
         return self
 
 
-def create_rating(rating: CreateRatingSeller, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+def create_rating(rating: CreateRatingUser, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     user = get_user(username, db)
-    if rating.seller_id == user.id:
+    if rating.rated_user_id == user.id:
         raise HTTPException(status_code=403, detail="You can not rate yourself")
-    db_rating = RatingSeller(**rating.model_dump())
+    db_rating = RatingUser(**rating.model_dump())
     db_rating.user_id = user.id
     db.add(db_rating)
     db.commit()

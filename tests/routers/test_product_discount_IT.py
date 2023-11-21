@@ -50,7 +50,7 @@ def load_data():
 def login_user1():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -62,7 +62,7 @@ def login_user1():
 def login_user2():
     os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -74,7 +74,7 @@ def login_user2():
 def test_put_products_discount_not_owner():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea56", discount=0.5)
 
-    response = client.put("/products/discount",
+    response = client.put("/api/products/discount",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user2()})
 
@@ -85,7 +85,7 @@ def test_put_products_discount_not_owner():
 def test_put_products_discount_not_found():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea59", discount=0.5)
 
-    response = client.put("/products/discount",
+    response = client.put("/api/products/discount",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user1()})
 
@@ -96,7 +96,7 @@ def test_put_products_discount_not_found():
 def test_put_products_discount():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea56", discount=0.5)
 
-    response = client.put("/products/discount",
+    response = client.put("/api/products/discount",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user1()})
 

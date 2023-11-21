@@ -28,15 +28,15 @@ def get_user(username: str, db: Session = Depends(get_db)):
     return db_user
 
 
-def get_seller(username: str, db: Session = Depends(get_db)):
-    db_seller = get_user_by_username(username, db)
-    if db_seller is None:
-        raise HTTPException(status_code=404, detail="Seller not found")
-    return db_seller
+def get_rated_user(username: str, db: Session = Depends(get_db)):
+    db_rated_user = get_user_by_username(username, db)
+    if db_rated_user is None:
+        raise HTTPException(status_code=404, detail="Rated user not found")
+    return db_rated_user
 
 
 def get_followings(username: str, db: Session = Depends(get_db)):
-    db_user = get_seller(username, db)
+    db_user = get_rated_user(username, db)
     followers = db_user.followed
     return followers
 
@@ -50,7 +50,7 @@ def get_user_by_id(id_user: str, db: Session = Depends(get_db)):
 
 
 def get_followers(username: str, query: str = '', sort: str = '', db: Session = Depends(get_db)):
-    from models.ratingSeller import RatingSeller as RatingModel
+    from models.ratingUser import RatingUser as RatingModel
     query.lower()
     sort.lower()
     user = get_user(username, db)
@@ -91,10 +91,10 @@ def get_followers(username: str, query: str = '', sort: str = '', db: Session = 
     return followers_list
 
 
-def get_seller_by_id(id_user: str, db: Session = Depends(get_db)):
+def get_rated_user_by_id(id_user: str, db: Session = Depends(get_db)):
     db_user = get_user_by_id_query(id_user, db)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="Seller not found")
+        raise HTTPException(status_code=404, detail="Rated user not found")
     return db_user
 
 

@@ -55,7 +55,7 @@ def load_data():
 def get_client_id():
     return '414qtus5nd7veam6tgeqtua9j6'
 def test_get_reviews():
-    response = client.get("/review/06e0da01-57fd-2229-95be-123455555566")
+    response = client.get("/api/review/06e0da01-57fd-2229-95be-123455555566")
 
     assert response.status_code == 200
     data = response.json()
@@ -65,7 +65,7 @@ def test_get_reviews():
 
 
 def test_create_review_not_auth():
-    response = client.post("/review",
+    response = client.post("/api/review",
                            json={"text": "some comment", "product_id": "06e0da01-57fd-2228-95be-0d25c764ea57"})
     assert response.status_code == 403
     assert response.json() == {"detail": "Not authenticated"}
@@ -73,19 +73,19 @@ def test_create_review_not_auth():
 
 def test_create_review_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/review",
+    response = client.post("/api/review",
                            json={"text": "some comment", "product_id": "06e0da01-57fd-2228-95be-0d25c764ea57"},
                            headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 201
 
-    response = client.get("/review/06e0da01-57fd-2228-95be-0d25c764ea57")
+    response = client.get("/api/review/06e0da01-57fd-2228-95be-0d25c764ea57")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 3
@@ -94,21 +94,21 @@ def test_create_review_success():
 
 
 def test_delete_review_not_auth():
-    response = client.delete("/review/06e0da01-57fd-2229-95be-123455555567")
+    response = client.delete("/api/review/06e0da01-57fd-2229-95be-123455555567")
     assert response.status_code == 403
     assert response.json() == {"detail": "Not authenticated"}
 
 
 def test_delete_review_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.delete("/review/06e0da01-57fd-2229-95be-123455555567",
+    response = client.delete("/api/review/06e0da01-57fd-2229-95be-123455555567",
                              headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert response.json() == {"message": "Review deleted succesfully"}
@@ -116,14 +116,14 @@ def test_delete_review_success():
 
 def test_delete_review_not_found():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.delete("/review/123456",
+    response = client.delete("/api/review/123456",
                              headers={"Authorization": f"Bearer {token}"})
 
     assert response.status_code == 404
@@ -132,14 +132,14 @@ def test_delete_review_not_found():
 
 def test_delete_review_not_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.delete("/review/06e0da01-57fd-2229-95be-123455555568",
+    response = client.delete("/api/review/06e0da01-57fd-2229-95be-123455555568",
                              headers={"Authorization": f"Bearer {token}"})
 
     assert response.status_code == 403
@@ -149,14 +149,14 @@ def test_delete_review_not_owner():
 def test_put_review_update_invalid_review_id():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/review",
+    response = client.put("/api/review",
                           json={
                               "id": "06e0da01-57fd-2229-95be-123455555567",
                               "text": "review random text",
@@ -169,7 +169,7 @@ def test_put_review_update_invalid_review_id():
 
 
 def test_put_review_update_no_auth():
-    response = client.put("/review",
+    response = client.put("/api/review",
                           json={
                               "id": "06e0da01-57fd-2229-95be-123455555568",
                               "text": "review random text",
@@ -183,14 +183,14 @@ def test_put_review_update_no_auth():
 def test_put_review_user_not_review_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/review",
+    response = client.put("/api/review",
                           json={
                               "id": "06e0da01-57fd-2229-95be-123455555568",
                               "text": "review random text",
@@ -205,14 +205,14 @@ def test_put_review_user_not_review_owner():
 def test_put_review_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/review",
+    response = client.put("/api/review",
                           json={"id": "06e0da01-57fd-2229-95be-123455555568",
                                 "text": "some comment updated",
                                 "product_id": "06e0da01-57fd-2228-95be-0d25c764ea57"},
@@ -227,21 +227,21 @@ def test_put_review_success():
 
 
 def test_get_my_reviews_not_auth():
-    response = client.get("/review")
+    response = client.get("/api/review")
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
 
 
 def test_get_my_reviews_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.get("/review", headers={"Authorization": f"Bearer {token}"})
+    response = client.get("/api/review", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 2
