@@ -80,7 +80,7 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/api/")
+@app.get("/")
 def read_root():
     return {"Hello": "from makers market AWS"}
 
