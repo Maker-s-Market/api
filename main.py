@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 import boto3
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, APIRouter
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
@@ -25,20 +25,22 @@ Some useful links:
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
 """
-app = FastAPI(lifespan=lifespan,
+app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs", redoc_url="/api/redoc",
+              lifespan=lifespan,
               title="Makers Market API",
               description=description,
               version="0.0.1",
-              docs_url="/docs",
-              redoc_url="/redoc",
-              openapi_url="/openapi.json",
               contact={
                   "name": "Makers Market",
               },
               servers=[
                   {
-                      "url": "http://localhost:8000",
+                      "url": "http://localhost:8000/api/",
                       "description": "Local server"
+                  },
+                  {
+                      "url": os.getenv("AWS_URL"),
+                      "description": "AWS server"
                   }]
               )
 
@@ -49,17 +51,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Add routers
-app.include_router(insert_data.router)
-app.include_router(auth.router)
-app.include_router(user.router)
-app.include_router(category.router)
-app.include_router(product.router)
-app.include_router(review.router)
-app.include_router(ratingProduct.router)
-app.include_router(ratingSeller.router)
-app.include_router(wishlist.router)
+app.include_router(prefix="/api", router=insert_data.router)
+app.include_router(prefix="/api", router=auth.router)
+app.include_router(prefix="/api", router=user.router)
+app.include_router(prefix="/api", router=category.router)
+app.include_router(prefix="/api", router=product.router)
+app.include_router(prefix="/api", router=review.router)
+app.include_router(prefix="/api", router=ratingProduct.router)
+app.include_router(prefix="/api", router=ratingSeller.router)
+app.include_router(prefix="/api", router=wishlist.router)
 
 load_dotenv(".aws")
 # Configure AWS credentials
@@ -79,7 +80,12 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.post("/uploadfile")
+@app.get("/api/")
+def read_root():
+    return {"Hello": "from makers market AWS"}
+
+
+@app.post("/api/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     # Generate a unique filename for the uploaded file
     filename = file.filename
@@ -88,10 +94,10 @@ async def create_upload_file(file: UploadFile = File(...)):
     s3.upload_fileobj(file.file, os.getenv("BUCKET_NAME"), filename)
 
     # Generate a pre-signed URL to access the image in S3
-    presigned_url = s3.generate_presigned_url(
+    pre_signed_url = s3.generate_presigned_url(
         'get_object',
         Params={'Bucket': os.getenv("BUCKET_NAME"), 'Key': filename},
         ExpiresIn=3600
     )
 
-    return JSONResponse(status_code=201, content=jsonable_encoder({"url": presigned_url}))
+    return JSONResponse(status_code=201, content=jsonable_encoder({"url": pre_signed_url}))
