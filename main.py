@@ -25,7 +25,7 @@ Some useful links:
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
 """
-app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs", redoc_url="/api/redoc",
+app = FastAPI(openapi_url="/openapi.json", docs_url="/api/docs", redoc_url="/api/redoc",
               lifespan=lifespan,
               title="Makers Market API",
               description=description,
