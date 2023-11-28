@@ -130,9 +130,9 @@ def test_follow_success():
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 2
-    assert data["followed"][0]["username"] == "joao"
-    assert data["followed"][1]["username"] == "mariana"
+    assert len(data["following"]) == 2
+    assert data["following"][0]["username"] == "joao"
+    assert data["following"][1]["username"] == "mariana"
 
 
 def test_follow_already_following():
@@ -191,8 +191,8 @@ def test_remove_following_success():
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 1
-    assert data["followed"][0]["username"] == "joao"
+    assert len(data["following"]) == 1
+    assert data["following"][0]["username"] == "joao"
 
 
 def test_remove_following_not_following():

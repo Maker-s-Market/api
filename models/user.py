@@ -50,7 +50,7 @@ class User(Base):
     deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)  # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
-    followed = relationship(
+    following = relationship(
         "User",
         secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
@@ -60,17 +60,17 @@ class User(Base):
 
     def follow(self, user):
         if not self.is_following(user):
-            self.followed.append(user)
+            self.following.append(user)
 
     def unfollow(self, user):
         if self.is_following(user):
-            self.followed.remove(user)
+            self.following.remove(user)
             return True
         else:
             return False
 
     def is_following(self, user):
-        return any(follower.id == user.id for follower in self.followed)
+        return any(following.id == user.id for following in self.following)
 
     def to_dict(self):
         return {
@@ -90,7 +90,7 @@ class User(Base):
             "wishlist_id": self.wishlist_id,
         }
 
-    def information(self, followed_bool: bool = True):
+    def information(self, following_bool: bool = True):
         info = {
             "id": self.id,
             "name": self.name,
@@ -102,8 +102,8 @@ class User(Base):
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
         }
-        if followed_bool:
-            info["followed"] = [user.information(followed_bool=False) for user in self.followed]
+        if following_bool:
+            info["following"] = [user.information(following_bool=False) for user in self.following]
         return info
 
     def update_avg(self, db: Session, avg: float):

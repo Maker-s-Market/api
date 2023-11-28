@@ -37,8 +37,8 @@ def get_rated_user(username: str, db: Session = Depends(get_db)):
 
 def get_followings(username: str, db: Session = Depends(get_db)):
     db_user = get_rated_user(username, db)
-    followers = db_user.followed
-    return followers
+    followings = db_user.following
+    return followings
 
 
 def get_user_by_id_query(id_user: str, db: Session = Depends(get_db)):
