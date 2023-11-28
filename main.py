@@ -21,15 +21,68 @@ async def lifespan(app):
 
 
 description = """
+COLOCAR MORE INFORMATION THE PLATAFORME 
+
 Some useful links:
 <br> - [Makers Market Repository](https://github.com/Maker-s-Market/)
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
 """
+
+tags_metadata = [
+    {
+        "name": "Home Page",
+        "description": ""
+    },
+    {
+        "name": "Authentication and Authorization",
+        "description": "Authentication verifies the user's identity, while authorization defines what an "
+                       "authenticated user can do within the system."
+    },
+
+    {
+        "name": "User",
+        "description": "...."
+    },
+    {
+        "name": "Category",
+        "description": "...."
+    },
+    {
+        "name": "Product",
+        "description": "...."
+    },
+    {
+        "name": "Review",
+        "description": "...."
+    },
+    {
+        "name": "Rating The Product",
+        "description": "...."
+    },
+    {
+        "name": "Rating The User",
+        "description": "...."
+    },
+    {
+        "name": "Wishlist",
+        "description": "...."
+    },
+    {
+        "name": "Image",
+        "description": "...."
+    },
+
+
+
+
+]
+
 app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
               lifespan=lifespan,
               title="Makers Market API",
               description=description,
+              openapi_tags=tags_metadata,
               version="0.0.1",
               contact={
                   "name": "Makers Market",
@@ -80,14 +133,13 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/")
+@app.get("/", tags=["Home Page"])
 async def main():
     # return {"Hello": "from makers market AWS"}
-    # Redirect to /docs (relative URL)
     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
-@app.post("/api/uploadfile/")
+@app.post("/api/uploadfile/", tags=["Images"])
 async def create_upload_file(file: UploadFile = File(...)):
     # Generate a unique filename for the uploaded file
     filename = file.filename
