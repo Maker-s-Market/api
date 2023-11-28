@@ -62,7 +62,7 @@ tags_metadata = [
     },
     {
         "name": "Rating The User",
-        "description": "...."
+        "description": "....",
     },
     {
         "name": "Wishlist",
@@ -135,8 +135,8 @@ async def db_session_middleware(request: Request, call_next):
 
 @app.get("/", tags=["Home Page"])
 async def main():
-    # return {"Hello": "from makers market AWS"}
-    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
+    return {"Hello": "from makers market AWS"}
+    # return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/api/uploadfile/", tags=["Images"])
