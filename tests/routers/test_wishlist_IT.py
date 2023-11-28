@@ -54,7 +54,7 @@ def load_data():
 
 
 def login_user1():
-    response = client.post("/api/auth/sign-in", json={
+    response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -64,7 +64,7 @@ def login_user1():
 
 
 def login_user2():
-    response = client.post("/api/auth/sign-in", json={
+    response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -75,7 +75,7 @@ def login_user2():
 
 def test_get_user_wishlist_success():
     token = login_user1()
-    response = client.get("/api/wishlist", headers={"Authorization": f"Bearer {token}"})
+    response = client.get("/wishlist", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == "06e0da01-57fd-4441-95be-1111111111111"
@@ -85,14 +85,14 @@ def test_get_user_wishlist_success():
 
 def test_get_user_wishlist_fail_not_initialized():
     token = login_user2()
-    response = client.get("/api/wishlist", headers={"Authorization": f"Bearer {token}"})
+    response = client.get("/wishlist", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Wishlist was not initialized"
 
 
 def test_get_user_wishlist_not_auth():
-    response = client.get("/api/wishlist")
+    response = client.get("/wishlist")
     assert response.status_code == 403
     assert response.json()["detail"] == "Not authenticated"
 
@@ -100,7 +100,7 @@ def test_get_user_wishlist_not_auth():
 def test_add_product_to_wishlist_success():
     token = login_user1()
     response = client.post(
-        "/api/wishlist/06e0da01-57fd-2229-95be-123455555566",
+        "/wishlist/06e0da01-57fd-2229-95be-123455555566",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -115,7 +115,7 @@ def test_add_product_to_wishlist_success():
 def test_add_product_to_wishlist_fail_already_in_wishlist():
     token = login_user1()
     response = client.post(
-        "/api/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -127,7 +127,7 @@ def test_add_product_to_wishlist_fail_already_in_wishlist():
 def test_add_product_to_wishlist_fail_own_product():
     token = login_user1()
     response = client.post(
-        "/api/wishlist/06e0da01-57fd-2227-95be-0d25c764ea56",
+        "/wishlist/06e0da01-57fd-2227-95be-0d25c764ea56",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -139,7 +139,7 @@ def test_add_product_to_wishlist_fail_own_product():
 def test_add_product_to_wishlist_fail_not_found():
     token = login_user1()
     response = client.post(
-        "/api/wishlist/id_not_exists",
+        "/wishlist/id_not_exists",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -151,7 +151,7 @@ def test_add_product_to_wishlist_fail_not_found():
 def test_delete_product_from_wishlist_success():
     token = login_user1()
     response = client.delete(
-        "/api/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -163,7 +163,7 @@ def test_delete_product_from_wishlist_success():
 def test_delete_product_from_wishlist_fail_not_in_wishlist():
     token = login_user1()
     response = client.delete(
-        "/api/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -175,7 +175,7 @@ def test_delete_product_from_wishlist_fail_not_in_wishlist():
 def test_delete_product_from_wishlist_fail_not_found():
     token = login_user1()
     response = client.delete(
-        "/api/wishlist/id_not_exists",
+        "/wishlist/id_not_exists",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -186,7 +186,7 @@ def test_delete_product_from_wishlist_fail_not_found():
 
 def test_delete_product_from_wishlist_fail_not_auth():
     response = client.delete(
-        "/api/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57"
+        "/wishlist/06e0da01-57fd-2228-95be-0d25c764ea57"
     )
 
     assert response.status_code == 403

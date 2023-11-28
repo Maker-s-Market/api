@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, UploadFile, File, APIRouter
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
+from starlette import status
+from starlette.responses import JSONResponse, RedirectResponse
 
 from db.create_database import create_tables
 from db.database import SessionLocal
@@ -25,7 +26,7 @@ Some useful links:
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
 """
-app = FastAPI(openapi_url="/openapi.json", docs_url="/api/docs", redoc_url="/api/redoc",
+app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
               lifespan=lifespan,
               title="Makers Market API",
               description=description,
@@ -52,18 +53,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Add routers
-app.include_router(prefix="/api", router=insert_data.router)
-app.include_router(prefix="/api", router=auth.router)
-app.include_router(prefix="/api", router=user.router)
-app.include_router(prefix="/api", router=category.router)
-app.include_router(prefix="/api", router=product.router)
-app.include_router(prefix="/api", router=review.router)
-app.include_router(prefix="/api", router=ratingProduct.router)
-app.include_router(prefix="/api", router=ratingUser.router)
-app.include_router(prefix="/api", router=wishlist.router)
+app.include_router(router=insert_data.router)
+app.include_router(router=auth.router)
+app.include_router(router=user.router)
+app.include_router(router=category.router)
+app.include_router(router=product.router)
+app.include_router(router=review.router)
+app.include_router(router=ratingProduct.router)
+app.include_router(router=ratingUser.router)
+app.include_router(router=wishlist.router)
 
 load_dotenv(".aws")
-# Configure AWS credentials
 s3 = boto3.client(
     's3',
     region_name=os.getenv("AWS_REGION"),
@@ -81,8 +81,10 @@ async def db_session_middleware(request: Request, call_next):
 
 
 @app.get("/")
-def read_root():
-    return {"Hello": "from makers market AWS"}
+async def main():
+    # return {"Hello": "from makers market AWS"}
+    # Redirect to /docs (relative URL)
+    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/api/uploadfile/")

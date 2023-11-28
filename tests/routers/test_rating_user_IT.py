@@ -35,7 +35,7 @@ def load_data():
 
 def login_user_1():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
-    response = client.post("/api/auth/sign-in", json={
+    response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -46,7 +46,7 @@ def login_user_1():
 
 def login_user_2():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
-    response = client.post("/api/auth/sign-in", json={
+    response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -58,7 +58,7 @@ def login_user_2():
 def test_create_rating_user_success():
     rating = CreateRatingUser(rating=5, rated_user_id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -71,7 +71,7 @@ def test_create_rating_user_success():
 def create_rating_user_not_auth():
     rating = CreateRatingUser(rating=5, rated_user_id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump())
 
     assert response.status_code == 403
@@ -81,7 +81,7 @@ def create_rating_user_not_auth():
 def test_create_rating_rated_user_not_found():
     rating = CreateRatingUser(rating=5, rated_user_id="06e0da01-57fd-4441-95be-1111111111113")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -92,7 +92,7 @@ def test_create_rating_rated_user_not_found():
 def test_create_rating_user_rating_already_exists():
     rating = CreateRatingUser(rating=5, rated_user_id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -104,7 +104,7 @@ def test_create_rating_user_rating_already_exists():
 def test_create_rating_user_rating_not_between_0_and_5():
     rating = CreateRatingUser(rating=6, rated_user_id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -115,7 +115,7 @@ def test_create_rating_user_rating_not_between_0_and_5():
 def test_create_rating_user_rating_cannot_rate_yourself():
     rating = CreateRatingUser(rating=5, rated_user_id="06e0da01-57fd-4441-95be-1111111111111")
 
-    response = client.post("/api/rating-user",
+    response = client.post("/rating-user",
                            json=rating.model_dump(),
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -126,7 +126,7 @@ def test_create_rating_user_rating_cannot_rate_yourself():
 def test_put_user_success():
     rating = UpdateRatingUser(rating=3, id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.put("/api/rating-user",
+    response = client.put("/rating-user",
                           json=rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -139,7 +139,7 @@ def test_put_user_success():
 def test_put_user_rating_user_rated_not_found():
     rating = UpdateRatingUser(rating=3, id="06e0da01-57fd-4441-95be-1111111111113")
 
-    response = client.put("/api/rating-user",
+    response = client.put("/rating-user",
                           json=rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -150,7 +150,7 @@ def test_put_user_rating_user_rated_not_found():
 def test_put_user_rating_rating_not_found():
     rating = UpdateRatingUser(rating=3, id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.put("/api/rating-user",
+    response = client.put("/rating-user",
                           json=rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user_2()}"})
 
@@ -161,7 +161,7 @@ def test_put_user_rating_rating_not_found():
 def test_put_user_rating_rating_not_between_0_and_5():
     rating = UpdateRatingUser(rating=6, id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.put("/api/rating-user",
+    response = client.put("/rating-user",
                           json=rating.model_dump(),
                           headers={"Authorization": f"Bearer {login_user_1()}"})
 
@@ -172,7 +172,7 @@ def test_put_user_rating_rating_not_between_0_and_5():
 def test_put_user_rating_not_auth():
     rating = UpdateRatingUser(rating=6, id="06e0da01-57fd-4441-95be-1111111111112")
 
-    response = client.put("/api/rating-user",
+    response = client.put("/rating-user",
                           json=rating.model_dump())
 
     assert response.status_code == 403

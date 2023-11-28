@@ -18,10 +18,10 @@ LINK_SIGN_IN = 'routers.auth.sign_in_auth'
 LINK_CONFIRM_PASSWORD = 'routers.auth.confirm_forgot_password_auth'
 LINK_RESEND_EMAIL_CODE = 'routers.auth.resend_email_code_auth'
 
-SIGN_UP_DIR = "/api/auth/sign-up"
-SIGN_IN_DIR = "/api/auth/sign-in"
-CONFIRM_PASSWORD_DIR = "/api/auth/confirm-forgot-password"
-RESEND_EMAIL_CODE = "/api/auth/resend-email-code"
+SIGN_UP_DIR = "/auth/sign-up"
+SIGN_IN_DIR = "/auth/sign-in"
+CONFIRM_PASSWORD_DIR = "/auth/confirm-forgot-password"
+RESEND_EMAIL_CODE = "/auth/resend-email-code"
 
 
 USERNAME_TEST = "user name test"
@@ -159,7 +159,7 @@ class TestAuthRoutes(unittest.TestCase):
                 code="123456"
             )
 
-            response = self.client.post("/api/auth/verify-email", json={
+            response = self.client.post("/auth/verify-email", json={
                 "username": activate_user.username,
                 "code": activate_user.code
             })
@@ -174,7 +174,7 @@ class TestAuthRoutes(unittest.TestCase):
                 code="123456"
             )
 
-            response = self.client.post("/api/auth/verify-email", json={
+            response = self.client.post("/auth/verify-email", json={
                 "username": activate_user.username,
                 "code": activate_user.code
             })
@@ -272,7 +272,7 @@ class TestAuthRoutes(unittest.TestCase):
                 identifier="usertest1",
             )
 
-            response = self.client.post("/api/auth/forgot-password", json={
+            response = self.client.post("/auth/forgot-password", json={
                 "identifier": user_identifier.identifier,
             })
 
@@ -285,7 +285,7 @@ class TestAuthRoutes(unittest.TestCase):
                 identifier="usertest1",
             )
 
-            response = self.client.post("/api/auth/forgot-password", json={
+            response = self.client.post("/auth/forgot-password", json={
                 "identifier": user_identifier.identifier,
             })
 

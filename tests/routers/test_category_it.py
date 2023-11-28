@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
-CATEGORY = "/api/category"
+CATEGORY = "/category"
 
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
@@ -38,14 +38,14 @@ def test_create_category_with_same_name():
 
 
 def test_put_not_existing_category():
-    response = client.put("/api/category/1", json={"name": "Category1", "icon": "icon1"})
+    response = client.put("/category/1", json={"name": "Category1", "icon": "icon1"})
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Category not found'}
 
 
 def test_put_existing_category():
-    response = client.put("/api/category/06e0da01-57fd-4441-95be-0d25c764ea57",
+    response = client.put("/category/06e0da01-57fd-4441-95be-0d25c764ea57",
                           json={"name": "Category1Edit", "icon": "icon1"})
 
     assert response.status_code == 200, response.text
@@ -77,7 +77,7 @@ def test_get_all_categories():
 
 
 def test_get_category_by_id():
-    response = client.get("/api/category/06e0da01-57fd-4441-95be-0d25c764ea57")
+    response = client.get("/category/06e0da01-57fd-4441-95be-0d25c764ea57")
 
     assert response.status_code == 200, response.text
 
@@ -90,7 +90,7 @@ def test_get_category_by_id():
 
 
 def test_get_category_by_id_not_existing():
-    response = client.get("/api/category/1")
+    response = client.get("/category/1")
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Category not found'}
@@ -98,7 +98,7 @@ def test_get_category_by_id_not_existing():
 
 def test_get_top_category():
     
-    response = client.get("/api/category/top/4")
+    response = client.get("/category/top/4")
 
     assert response.status_code == 200, response.text
 
@@ -116,19 +116,19 @@ def test_get_top_category():
 
 
 def test_delete_not_existing_category():
-    response = client.delete("/api/category/1")
+    response = client.delete("/category/1")
 
     assert response.status_code == 404, response.text
     assert response.json() == {'detail': 'Category not found'}
 
 
 def test_delete_existing_category():
-    response = client.delete("/api/category/06e0da01-57fd-4441-95be-0d25c764ea57")
+    response = client.delete("/category/06e0da01-57fd-4441-95be-0d25c764ea57")
 
     assert response.status_code == 200, response.text
     assert response.json() == {'message': 'DELETE DATA SUCCESS'}
 
-    verify_response = client.get("/api/category/06e0da01-57fd-4441-95be-0d25c764ea57")
+    verify_response = client.get("/category/06e0da01-57fd-4441-95be-0d25c764ea57")
     assert verify_response.status_code == 404, verify_response.text
     assert verify_response.json() == {'detail': 'Category not found'}
 
