@@ -7,10 +7,11 @@ from starlette.status import HTTP_403_FORBIDDEN
 
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
 
-load_dotenv(".aws")
+env_path = os.path.join(os.path.dirname(__file__), "..", '.aws')
+load_dotenv(env_path)
 
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-USER_POOL_ID = os.environ.get("USER_POOL_ID", "us-east-1_IRQgO7Lpl")
+AWS_REGION = os.environ.get("AWS_REGION")
+USER_POOL_ID = os.environ.get("USER_POOL_ID")
 
 jwks = JWKS.parse_obj(
     requests.get(
@@ -19,6 +20,7 @@ jwks = JWKS.parse_obj(
 )
 
 auth = JWTBearer(jwks)
+
 
 async def get_current_user(credentials: JWTAuthorizationCredentials = Depends(auth)) -> str:
     try:

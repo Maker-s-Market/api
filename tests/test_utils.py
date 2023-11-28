@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class TestVerifyPassword(unittest.TestCase):
 
     def test_valid_password(self):

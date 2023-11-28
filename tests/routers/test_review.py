@@ -53,7 +53,9 @@ def load_data():
 
 
 def get_client_id():
-    return '414qtus5nd7veam6tgeqtua9j6'
+    return os.getenv("COGNITO_USER_CLIENT_ID")
+
+
 def test_get_reviews():
     response = client.get("/api/review/06e0da01-57fd-2229-95be-123455555566")
 

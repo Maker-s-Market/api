@@ -13,13 +13,14 @@ from models.user import User
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
-load_dotenv() #import pytest.ini env variables
+load_dotenv()  # import pytest.ini env variables
+COGNITO_USER_CLIENT_ID = os.getenv("COGNITO_USER_CLIENT_ID")
 
 client = TestClient(app)
 
 
 def get_client_id():
-    return '414qtus5nd7veam6tgeqtua9j6'
+    return COGNITO_USER_CLIENT_ID
 
 
 @pytest.fixture(scope="module", autouse=True)

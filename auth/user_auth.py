@@ -4,9 +4,10 @@ import boto3
 import botocore
 from dotenv import load_dotenv
 
-load_dotenv(".aws")
+env_path = os.path.join(os.path.dirname(__file__), "..", '.aws')
+load_dotenv(env_path)
 
-cognito_client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION', 'us-east-1'))
+cognito_client = boto3.client('cognito-idp', region_name=os.getenv('AWS_REGION'))
 
 
 def sign_up_auth(username: str, email: str, password: str, client: botocore.client.BaseClient = cognito_client):

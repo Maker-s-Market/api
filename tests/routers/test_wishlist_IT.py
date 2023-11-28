@@ -13,7 +13,7 @@ from models.user import User
 from models.wishList import Wishlist
 from tests.test_sql_app import TestingSessionLocal
 
-load_dotenv()
+load_dotenv()  # import pytest.ini env variables
 
 client = TestClient(app)
 
@@ -54,8 +54,6 @@ def load_data():
 
 
 def login_user1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
-
     response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -66,8 +64,6 @@ def login_user1():
 
 
 def login_user2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
-
     response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")

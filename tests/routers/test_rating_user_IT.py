@@ -10,7 +10,7 @@ from schemas.ratingUser import CreateRatingUser, UpdateRatingUser
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  # import pytest.ini env variables
 
 client = TestClient(app)
 
@@ -34,8 +34,7 @@ def load_data():
 
 
 def login_user_1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
     response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -46,8 +45,7 @@ def login_user_1():
 
 
 def login_user_2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
-
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
     response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -99,7 +97,8 @@ def test_create_rating_user_rating_already_exists():
                            headers={"Authorization": f"Bearer {login_user_1()}"})
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "A rating for this user was already created, please edit it instead"}  #TODO: check this
+    assert response.json() == {
+        "detail": "A rating for this user was already created, please edit it instead"}  # TODO: check this
 
 
 def test_create_rating_user_rating_not_between_0_and_5():
@@ -124,9 +123,7 @@ def test_create_rating_user_rating_cannot_rate_yourself():
     assert response.json() == {"detail": "You can not rate yourself"}
 
 
-
-
-
+def test_put_user_success():
     rating = UpdateRatingUser(rating=3, id="06e0da01-57fd-4441-95be-1111111111112")
 
     response = client.put("/api/rating-user",
