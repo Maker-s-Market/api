@@ -73,9 +73,6 @@ tags_metadata = [
         "description": "...."
     },
 
-
-
-
 ]
 
 app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
@@ -89,11 +86,11 @@ app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
               },
               servers=[
                   {
-                      "url": "http://localhost:8000/api/",
+                      "url": "http://localhost:8000/",
                       "description": "Local server"
                   },
                   {
-                      "url": os.getenv("AWS_URL", "http://localhost:8000/api/"),
+                      "url": os.getenv("AWS_URL", "http://load-balancer-dev-40629798.us-east-1.elb.amazonaws.com"),
                       "description": "AWS server"
                   }]
               )
@@ -133,10 +130,14 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/", tags=["Home Page"])
+@app.get("/health")
 async def main():
     return {"Hello": "from makers market AWS"}
-    # return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
+
+
+@app.get("/", tags=["Home Page"])
+async def main():
+    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/api/uploadfile/", tags=["Images"])
