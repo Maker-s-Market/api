@@ -94,7 +94,7 @@ async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return JSONResponse(status_code=200, content=jsonable_encoder(user.information()))
 
-@router.put("/user/role", dependencies=[Depends(auth)])
+@router.put("/user/role/{role}", dependencies=[Depends(auth)])
 async def change_user_role(role: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
         change user role
