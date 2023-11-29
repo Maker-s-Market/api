@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from auth.auth import get_current_user
+from repositories.userRepo import get_user
 from models.user import User as UserModel
 from db.database import get_db
 from schemas.product import CreateProduct
@@ -12,6 +13,11 @@ def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
 
 
 def new_product(product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    #cant create more than 5 products if the user 
+    user = get_user(username, db)
+    products = db.query(ProductModel).filter(ProductModel.user_id == user.id).all()
+    if len(products)>=5 and user.role == "Client":
+        raise HTTPException(status_code=403, detail="Number of products exceeded, please upgrade to premium or delete existing products.")
     return create_product(db=db, product=product, username=username)
 
 

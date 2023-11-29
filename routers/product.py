@@ -92,8 +92,7 @@ async def get_top_products(limit: int = 4, db: Session = Depends(get_db)):
                                                                                                       db=db)]))
 
 
-# TODO CHANGE THIS NAME TO /product/discount
-@router.put("/products/discount", dependencies=[Depends(auth)])
+@router.put("/product/discount", dependencies=[Depends(auth)])
 async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
                                 username: str = Depends(get_current_user)):
     """
