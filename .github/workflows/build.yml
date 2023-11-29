@@ -30,6 +30,20 @@ jobs:
           pip install tox
 
       - name: Run tox
+        env:
+          AWS_REGION: ${{ variables.AWS_REGION }}
+          BUCKET_NAME: ${{ variables.BUCKET_NAME }}
+          COGNITO_DOMAIN: ${{ variables.COGNITO_DOMAIN }}
+
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+
+          AUTH_URL: https://${{ variables.COGNITO_DOMAIN }}/oauth2/authorize
+          TOKEN_URL: https://${{ variables.COGNITO_DOMAIN }}/oauth2/token
+          LOGOUT_URL: https://${{ variables.COGNITO_DOMAIN }}/logout
+
         run: tox -e py
 
       - name: SonarCloud Scan
