@@ -30,9 +30,9 @@ def load_data():
     db.query(Product).delete()
     db.query(User).delete()
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
-                 region="nao existe", photo="", role="Client")
+                 region="nao existe", photo="", role="Premium")
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
-                 region="nao sei", photo="", role="Client")
+                 region="nao sei", photo="", role="Premium")
     db.add(user1)
     db.add(user2)
     db.add(Category(id="06e0da01-57fd-4441-95be-0d25c764ea57", name="Category1x", icon="icon1", slug="category1x"))

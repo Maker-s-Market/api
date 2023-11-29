@@ -41,6 +41,7 @@ def load_data():
         city="city",
         region="region",
         photo="photo",
+        role="Client"
     )
     new_user(user, db)
     db.commit()
@@ -61,6 +62,7 @@ class TestAuthRoutes(unittest.TestCase):
                 city="city",
                 region="region",
                 photo="photo",
+                role="Client",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -70,7 +72,8 @@ class TestAuthRoutes(unittest.TestCase):
                 "password": create_user.password,
                 "city": create_user.city,
                 "region": create_user.region,
-                "photo": create_user.photo
+                "photo": create_user.photo,
+                "role": create_user.role,
             })
 
             self.assertEqual(response.status_code, 201)  # Adjust this based on your expected status code
@@ -86,6 +89,7 @@ class TestAuthRoutes(unittest.TestCase):
                 city="city",
                 region="region",
                 photo="photo",
+                role="Client",
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -95,7 +99,8 @@ class TestAuthRoutes(unittest.TestCase):
                 "password": create_user.password,
                 "city": create_user.city,
                 "region": create_user.region,
-                "photo": create_user.photo
+                "photo": create_user.photo,
+                "role": create_user.role,
             })
 
             self.assertEqual(response.status_code, 500)
@@ -112,6 +117,7 @@ class TestAuthRoutes(unittest.TestCase):
                 city="city",
                 region="region",
                 photo="photo",
+                role="Client"
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -121,7 +127,8 @@ class TestAuthRoutes(unittest.TestCase):
                 "password": create_user.password,
                 "city": create_user.city,
                 "region": create_user.region,
-                "photo": create_user.photo
+                "photo": create_user.photo,
+                "role": create_user.role
             })
 
             self.assertEqual(response.status_code, 500)
@@ -137,6 +144,7 @@ class TestAuthRoutes(unittest.TestCase):
                 city="city",
                 region="region",
                 photo="photo",
+                role="Client"
             )
 
             response = self.client.post(SIGN_UP_DIR, json={
@@ -146,7 +154,8 @@ class TestAuthRoutes(unittest.TestCase):
                 "password": create_user.password,
                 "city": create_user.city,
                 "region": create_user.region,
-                "photo": create_user.photo
+                "photo": create_user.photo,
+                "role": create_user.role
             })
 
             self.assertEqual(response.status_code, 500)

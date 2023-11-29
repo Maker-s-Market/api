@@ -6,10 +6,13 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from models.user import save_user, User as UserModel, followers
+
 from schemas.user import CreateUser
 
 
 def new_user(user: CreateUser, db: Session = Depends(get_db)):
+    if user.role!="Client" and user.role!="Premium":
+        raise HTTPException(status_code=403, detail="User role is not valid. Valid options are: Client and Premium.")
     return save_user(new_user=user, db=db)
 
 
@@ -100,3 +103,15 @@ def get_rated_user_by_id(id_user: str, db: Session = Depends(get_db)):
 
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
     return db.query(UserModel).filter(UserModel.email == email).first()
+
+def update_user_role(role: str, username: str, db: Session = Depends(get_db)):
+    user = get_user(username, db)
+    # NOTA: implementei esta lógica mas nao faz muito sentido no mundo real... o user fica stuck como premium?? entao e se nao pagar??
+    # para ja fica assim... se ficar como client depois de premium entao continua sem poder adicionar mais items, 
+    # apesar de continuar com os mesmos que tinha
+    #if user.role == "Client" and role == "Premium":
+        #products = db.query(ProductModel).filter(ProductModel.user_id == user.id).all()
+        #if len(products)>5:
+        #    raise HTTPException(status_code=403, detail="Clients can only have a max of 5 products. Please delete some first")
+    return user.update_role(role, db)
+
