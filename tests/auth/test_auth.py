@@ -4,9 +4,6 @@ import boto3
 from unittest.mock import patch
 from auth.user_auth import sign_up_auth, check_email_auth, resend_email_code_auth, sign_in_auth, forgot_password_auth, \
     confirm_forgot_password_auth
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 def mock_sign_up(ClientId, Username, Password, UserAttributes):

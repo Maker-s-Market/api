@@ -41,8 +41,6 @@ def load_data():
 
 
 def login_user_1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
-
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
@@ -127,48 +125,48 @@ def test_follow_success():
     response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
 
-    response = client.post("/user/follow-seller/7fbae594-be16-4803-99b1-4c6a3b023bff",
+    response = client.post("/user/follow-user/7fbae594-be16-4803-99b1-4c6a3b023bff",
                            headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 2
-    assert data["followed"][0]["username"] == "joao"
-    assert data["followed"][1]["username"] == "mariana"
+    assert len(data["following"]) == 2
+    assert data["following"][0]["username"] == "joao"
+    assert data["following"][1]["username"] == "mariana"
 
 
 def test_follow_already_following():
     response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
 
-    response = client.post("/user/follow-seller/7fbae594-be16-4803-99b1-4c6a3b023bff",
+    response = client.post("/user/follow-user/7fbae594-be16-4803-99b1-4c6a3b023bff",
                            headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 403
-    assert response.json() == {'detail': 'Already following this user/seller'}
+    assert response.json() == {'detail': 'Already following this user'}
 
 
 def test_follow_not_found():
     response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
 
-    response = client.post("/user/follow-seller/1234567",
+    response = client.post("/user/follow-user/1234567",
                            headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 404
-    assert response.json() == {'detail': 'Seller not found'}
+    assert response.json() == {'detail': 'Rated user not found'}
 
 
 def test_follow_yourself():
     response = client.get(AUTH_CURRENT_USER, headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 200
 
-    response = client.post("/user/follow-seller/682d9204-9be4-4897-aafc-fe89b3f35183",
+    response = client.post("/user/follow-user/682d9204-9be4-4897-aafc-fe89b3f35183",
                            headers={"Authorization": BEARER + login_user_1()})
     assert response.status_code == 403
     assert response.json() == {'detail': 'You can not follow yourself'}
 
 
 def test_follow_not_logged():
-    response = client.post("/user/follow-seller/682d9204-9be4-4897-aafc-fe89b3f35183")
+    response = client.post("/user/follow-user/682d9204-9be4-4897-aafc-fe89b3f35183")
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
 
@@ -193,8 +191,8 @@ def test_remove_following_success():
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "brums21"
-    assert len(data["followed"]) == 1
-    assert data["followed"][0]["username"] == "joao"
+    assert len(data["following"]) == 1
+    assert data["following"][0]["username"] == "joao"
 
 
 def test_remove_following_not_following():

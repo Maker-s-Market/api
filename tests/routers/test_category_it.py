@@ -9,7 +9,6 @@ client = TestClient(app)
 
 CATEGORY = "/category"
 
-
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()

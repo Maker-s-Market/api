@@ -19,10 +19,6 @@ load_dotenv()  # import pytest.ini env variables
 client = TestClient(app)
 
 
-def get_client_id():
-    return '414qtus5nd7veam6tgeqtua9j6'
-
-
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -48,7 +44,7 @@ def load_data():
 
 
 def login_user1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
 
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
@@ -60,7 +56,7 @@ def login_user1():
 
 
 def login_user2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = '414qtus5nd7veam6tgeqtua9j6'
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
 
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",

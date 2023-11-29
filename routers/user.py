@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from auth.auth import get_current_user
 from db.database import get_db
-from repositories.userRepo import get_user, get_seller_by_id, get_followings, get_user_by_id as user_by_id, get_followers
+from repositories.userRepo import get_user, get_rated_user_by_id, get_followings, get_user_by_id as user_by_id, get_followers
 from schemas.user import UserUpdate
 from auth.auth import get_current_user, jwks
 from auth.JWTBearer import JWTBearer
@@ -29,18 +29,18 @@ async def update_user(update_user: UserUpdate, db: Session = Depends(get_db),
         return JSONResponse(status_code=200, content=jsonable_encoder(user_updated.information()))
 
 
-@router.post("/user/follow-seller/{seller_id}", dependencies=[Depends(auth)])
-async def follow_seller(seller_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+@router.post("/user/follow-user/{rated_user_id}", dependencies=[Depends(auth)])
+async def follow_user(rated_user_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
-        follow (seller) (Add to list of following)
+        follow (user) (Add to list of following)
     """
     user = get_user(username, db)
-    if user.id == seller_id:
+    if user.id == rated_user_id:
         raise HTTPException(status_code=403, detail="You can not follow yourself")  # working
-    seller = get_seller_by_id(seller_id, db)
-    if user.is_following(seller):
-        raise HTTPException(status_code=403, detail="Already following this user/seller")
-    user.follow(seller)
+    rated_user = get_rated_user_by_id(rated_user_id, db)
+    if user.is_following(rated_user):
+        raise HTTPException(status_code=403, detail="Already following this user")
+    user.follow(rated_user)
     user_updated = user.update(user, db)  # update user in db
     return JSONResponse(status_code=200, content=jsonable_encoder(user_updated.information()))
 
