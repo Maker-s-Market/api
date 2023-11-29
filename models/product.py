@@ -26,7 +26,7 @@ class Product(Base):
     price = Column(Float, index=True, nullable=False)
     stockable = Column(Boolean, index=True, nullable=False)
     stock = Column(Integer, index=True)
-    discount = Column(Integer, index=True, default=0)
+    discount = Column(Float, index=True, default=0.0)
     number_views = Column(Integer, index=True, default=0)
     image = Column(String(255), index=True, nullable=True)
     avg_rating = Column(Float, index=True, default=0)

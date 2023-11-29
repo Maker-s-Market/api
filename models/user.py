@@ -125,7 +125,6 @@ class User(Base):
         self.city = user.city
         self.region = user.region
         self.photo = user.photo
-        self.role = user.role
         self.updated_at = datetime.datetime.now()
         db.commit()
         db.refresh(self)

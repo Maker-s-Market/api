@@ -96,7 +96,9 @@ async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
 
 @router.put("/user/role", dependencies=[Depends(auth)])
 async def change_user_role(role: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """ 
+        change user role
+    """
     if role!="Client" and role!="Premium":
         raise HTTPException(status_code=403, detail="User role is not valid. Valid options are: Client and Premium.")
     return JSONResponse(status_code=200, content=jsonable_encoder(update_user_role(role, username, db)))
-    pass
