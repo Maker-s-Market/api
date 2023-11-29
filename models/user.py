@@ -1,5 +1,5 @@
 import datetime
-import enum
+
 from uuid import uuid4
 
 from fastapi import Depends
@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
 from models.wishList import Wishlist
+from models.role import Role
 from schemas.user import CreateUser, UserUpdate
 
 followers = Table(
@@ -22,12 +23,6 @@ def random_uuid():
     return str(uuid4())
 
 
-class Role(enum.Enum):
-    Client = "Client"
-    Seller = "Seller"  # # TODO - remover
-    Premium = "Premium"
-
-
 class User(Base):
     __tablename__ = "user"
     # email and password are AWS cognito matters, not ours!
@@ -39,7 +34,7 @@ class User(Base):
     city = Column(String(200), index=True, nullable=False)
     region = Column(String(200), index=True, nullable=False)
     photo = Column(String(200), index=True, nullable=False)
-    role = Column(Enum(Role))
+    role = Column(Enum(Role), index=True, nullable=False, default="Client")
     avg_rating = Column(Float, index=True, default=0)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
@@ -97,6 +92,7 @@ class User(Base):
             "username": self.username,
             "email": self.email,
             "city": self.city,
+            "role": self.role,
             "region": self.region,
             "photo": self.photo,
             "average_rating": self.avg_rating,
@@ -133,13 +129,19 @@ class User(Base):
         db.commit()
         db.refresh(self)
         return self
+    
+    def update_role(self, role: str, db: Session = Depends(get_db)):
+        self.role = role
+        db.commit()
+        db.refresh(self)
+        return self
 
 
 def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
     wishlist = Wishlist(products=[])
     db.add(wishlist)
     db.commit()
-    db.refresh(wishlist)
+    db.refresh(wishlist)  
 
     db_user = User(name=new_user.name,
                    username=new_user.username,
@@ -147,7 +149,7 @@ def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
                    city=new_user.city,
                    region=new_user.region,
                    photo=new_user.photo,
-                   role=Role.Client,
+                   role=new_user.role,
                    wishlist_id=wishlist.id,
                    is_active=False)
     
