@@ -31,18 +31,18 @@ jobs:
 
       - name: Run tox
         env:
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          BUCKET_NAME: ${{ vars.BUCKET_NAME }}
-          COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN }}
+          AWS_REGION: $AWS_REGION
+          BUCKET_NAME: $BUCKET_NAME
+          COGNITO_DOMAIN: $COGNITO_DOMAIN
 
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
 
-          AUTH_URL: https://${{ vars.COGNITO_DOMAIN }}/oauth2/authorize
-          TOKEN_URL: https://${{ vars.COGNITO_DOMAIN }}/oauth2/token
-          LOGOUT_URL: https://${{ vars.COGNITO_DOMAIN }}/logout
+          AUTH_URL: https://$COGNITO_DOMAIN/oauth2/authorize
+          TOKEN_URL: https://$COGNITO_DOMAIN/oauth2/token
+          LOGOUT_URL: https://$COGNITO_DOMAIN/logout
 
         run: tox -e py
 
