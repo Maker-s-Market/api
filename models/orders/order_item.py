@@ -11,6 +11,8 @@ def random_uuid():
     return str(uuid4())
 
 
+# status : placed, cancelled, accepted, rejected, send
+
 class OrderItem(Base):
     __tablename__ = "order_item"
 

@@ -10,7 +10,7 @@ from db.database import Base
 def random_uuid():
     return str(uuid4())
 
-
+# status : in progress, Shipped, Delivered, Cancelled, Rejected
 class Order(Base):
     __tablename__ = "order"
 
