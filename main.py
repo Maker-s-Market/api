@@ -90,7 +90,7 @@ app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
                       "description": "Local server"
                   },
                   {
-                      "url": os.getenv("AWS_URL", "http://load-balancer-dev-40629798.us-east-1.elb.amazonaws.com"),
+                      "url": os.getenv("AWS_URL", "COLOCAR URL"),
                       "description": "AWS server"
                   }]
               )
