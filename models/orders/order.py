@@ -1,10 +1,11 @@
 import datetime
 from uuid import uuid4
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship, Session
 from typing import List
+from models.orders.order_item import OrderItem
 
 from db.database import Base, get_db
 from schemas.order import CreateOrder
@@ -21,7 +22,7 @@ class Order(Base):
     user_id = Column(String(50), ForeignKey('user.id'))
     total_price = Column(Float, index=True, default=0, nullable=False)
     total_quantity = Column(Integer, index=True, default=0, nullable=False)
-    status = Column(String, index=True, default="in_progress", nullable=False)
+    status = Column(String(50), index=True, default="in_progress", nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
@@ -40,7 +41,7 @@ class Order(Base):
             "order_items": [order_item.to_dict() for order_item in self.order_items]
         }
     
-def save_order(order = CreateOrder, db: Session = Depends(get_db)):
+def save_order(order: CreateOrder, db: Session = Depends(get_db)):
     db_order = Order(**order.model_dump())
     db.add(db_order)
     db.commit()

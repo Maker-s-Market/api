@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Session
 
 from db.database import Base, get_db
-from schemas.orderItem import CreateOrderItem
+from schemas.orderItem import CreateOrderItem, CreateOrderItemOrderId
 
 
 def random_uuid():
@@ -22,7 +22,7 @@ class OrderItem(Base):
     order_id = Column(String(50), ForeignKey('order.id'))
     product_id = Column(String(50), ForeignKey('product.id'))
     quantity = Column(Integer, index=True, default=0, nullable=False)
-    status = Column(String, index=True, default="placed", nullable=False)
+    status = Column(String(50), index=True, default="placed", nullable=False)
     order = relationship('Order', back_populates='order_items')
     product = relationship('Product', back_populates='order_items')
 
@@ -33,14 +33,14 @@ class OrderItem(Base):
         }
     
 def save_order_item(item: CreateOrderItem, order_id: str, db: Session = Depends(get_db)):
-    order_item = OrderItem(
+    order_item = CreateOrderItemOrderId(
         order_id=order_id,
         product_id=item.product_id,
-        quantity=item.quantity,
-        status="placed",
+        quantity=item.quantity
     )
-    db.add(order_item)
+    db_order_item = OrderItem(**order_item.model_dump())
+    db.add(db_order_item)
     db.commit()
-    db.refresh(order_item)
+    db.refresh(db_order_item)
     
-    return order_item
+    return db_order_item

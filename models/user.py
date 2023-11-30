@@ -52,6 +52,7 @@ class User(Base):
         secondaryjoin=(followers.c.followed_id == id),
         backref="followers"
     )
+    orders = relationship('Order', back_populates='user')
 
     def follow(self, user):
         if not self.is_following(user):
@@ -83,6 +84,7 @@ class User(Base):
             "deleted_at": self.deleted_at,
             "is_active": self.is_active,
             "wishlist_id": self.wishlist_id,
+            "orders": self.orders
         }
 
     def information(self, following_bool: bool = True):
@@ -97,6 +99,7 @@ class User(Base):
             "photo": self.photo,
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
+            "orders": self.orders
         }
         if following_bool:
             info["following"] = [user.information(following_bool=False) for user in self.following]
