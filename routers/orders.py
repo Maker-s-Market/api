@@ -8,7 +8,6 @@ from auth.auth import jwks, get_current_user
 from auth.JWTBearer import JWTBearer
 from db.database import get_db
 from models.orders.order_item import save_order_item
-from repositories.orderItemRepo import get_order_items_by_order_id
 from repositories.orderRepo import save_order
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user

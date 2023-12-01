@@ -13,11 +13,12 @@ def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
 
 
 def new_product(product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    #cant create more than 5 products if the user 
+    # cant create more than 5 products if the user
     user = get_user(username, db)
     products = db.query(ProductModel).filter(ProductModel.user_id == user.id).all()
-    if len(products)>=5 and user.role == "Client":
-        raise HTTPException(status_code=403, detail="Number of products exceeded, please upgrade to premium or delete existing products.")
+    if len(products) >= 5 and user.role == "Client":
+        raise HTTPException(status_code=403,
+                            detail="Number of products exceeded, please upgrade to premium or delete existing products.")
     return create_product(db=db, product=product, username=username)
 
 
@@ -38,8 +39,8 @@ def get_products_by_filters(q: str = "",
         raise HTTPException(status_code=400, detail="Invalid sort parameter")
 
     result = (db.query(ProductModel).filter(ProductModel.name.contains(q))
-                .filter(ProductModel.price >= price_min)
-                .filter(ProductModel.price <= price_max))
+              .filter(ProductModel.price >= price_min)
+              .filter(ProductModel.price <= price_max))
     if discount:
         result = result.filter(ProductModel.discount > 0)
 
@@ -52,7 +53,7 @@ def get_products_by_filters(q: str = "",
         result = result.filter(
             (UserModel.city.contains(location)) | (UserModel.region.contains(location))
         )
-        
+
     if sort == "newest":
         return result.order_by(ProductModel.created_at.desc()).limit(limit).all()
     elif sort == "oldest":
@@ -67,3 +68,5 @@ def get_products_by_filters(q: str = "",
         return result.limit(limit).all()
 
 
+def get_products_by_user_id(user_id: str, db: Session = Depends(get_db)):
+    return db.query(ProductModel).filter(ProductModel.user_id == user_id).all()

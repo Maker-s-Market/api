@@ -13,3 +13,6 @@ def save_order(order: CreateOrder, db: Session = Depends(get_db)):
 def get_order_by_id(order_id: str, db: Session = Depends(get_db)):
     return db.query(Order).filter(Order.id == order_id).first()
 
+
+def get_orders_by_user_id(user_id: str, db: Session = Depends(get_db)):
+    return db.query(Order).filter(Order.user_id == user_id).all()
