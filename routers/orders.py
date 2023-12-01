@@ -8,7 +8,8 @@ from auth.auth import jwks, get_current_user
 from auth.JWTBearer import JWTBearer
 from db.database import get_db
 from models.orders.order_item import save_order_item
-from repositories.orderRepo import save_order, get_orders_by_user_id
+from models.orders.status import Status
+from repositories.orderRepo import save_order, get_orders_by_user_id, get_orders_by_user_id_filter
 from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user
 from schemas.order import CreateOrder
@@ -55,8 +56,30 @@ async def get_orders(products: List[CreateOrderItem], db: Session = Depends(get_
 @router.get("/order", dependencies=[Depends(auth)])
 async def get_orders(status: str = None, sort: str = None, db: Session = Depends(get_db),
                      username: str = Depends(get_current_user)):
-    if status is None:
-        status = 'all'
+    if status not in Status.__members__ and status is not None:
+        detail = "Status " + status + " is not valid."
+        raise HTTPException(status_code=400, detail=detail)
+    list_sort = ["desc_price", "asc_price", "desc_date", "asc_date", "desc_quantity", "asc_quantity"]
+
+    if sort not in list_sort and sort is not None:
+        detail = "Sort " + sort + " is not valid."
+        raise HTTPException(status_code=400, detail=detail)
+
     user = get_user(username, db)
-    orders = get_orders_by_user_id(user.id, db)
+    orders = get_orders_by_user_id_filter(user_id=user.id, status=status, sort=sort, db=db)
+
     return JSONResponse(status_code=200, content=jsonable_encoder([order.to_dict(db=db) for order in orders]))
+
+
+@router.get("/order/{order_id}", dependencies=[Depends(auth)])
+async def get_order_by_id(order_id: str, db: Session = Depends(get_db),
+                          username: str = Depends(get_current_user)):
+    user = get_user(username, db)
+    order = get_order_by_id(order_id, db)
+    if order is None:
+        detail = "Order with id: " + order_id + " was not found."
+        raise HTTPException(status_code=404, detail=detail)
+    if order.user_id != user.id:
+        detail = "You don't have permission to access this order."
+        raise HTTPException(status_code=403, detail=detail)
+    return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
