@@ -7,4 +7,5 @@ from schemas.orderItem import CreateOrderItem
 
 class CreateOrder(BaseModel):
     user_id: str
-    order_items: List[CreateOrderItem]
+    total_price: float
+    total_quantity: int

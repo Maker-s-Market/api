@@ -1,19 +1,13 @@
-import datetime
 from uuid import uuid4
-from fastapi import Depends
+from uuid import uuid4
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
-from sqlalchemy.orm import relationship, Session
+from fastapi import Depends
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import Session
 
 from db.database import Base, get_db
+from models.product import Product
 from schemas.orderItem import CreateOrderItem, CreateOrderItemOrderId
-
-OrderAndOrderItem = Table(
-    'order_and_order_item',
-    Base.metadata,
-    Column('order_id', String(50), ForeignKey('order.id')),
-    Column('order_item_id', String(50), ForeignKey('order_item.id'))
-)
 
 
 def random_uuid():
@@ -25,12 +19,12 @@ class OrderItem(Base):
 
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     quantity = Column(Integer, index=True, default=0, nullable=False)
-    order = relationship("Order", secondary=OrderAndOrderItem, back_populates="order_items")
+    order_id = Column(String(50), ForeignKey("order.id", ondelete="CASCADE"), nullable=False)
     product_id = Column(String(50), ForeignKey("product.id", ondelete="CASCADE"), nullable=False)
 
-    def to_dict(self):
+    def to_dict(self, db: Session = Depends(get_db)):
         return {
-            "product": self.product.to_dict(),
+            "product": db.query(Product).filter(Product.id == self.product_id).first().to_dict(),
             "quantity": self.quantity,
         }
 
@@ -45,5 +39,4 @@ def save_order_item(item: CreateOrderItem, order_id: str, db: Session = Depends(
     db.add(db_order_item)
     db.commit()
     db.refresh(db_order_item)
-
     return db_order_item

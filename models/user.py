@@ -64,25 +64,6 @@ class User(Base):
     def is_following(self, user):
         return any(following.id == user.id for following in self.following)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "username": self.username,
-            "email": self.email,
-            "city": self.city,
-            "region": self.region,
-            "photo": self.photo,
-            "role": self.role,
-            "average_rating": self.avg_rating,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-            "deleted_at": self.deleted_at,
-            "is_active": self.is_active,
-            "wishlist_id": self.wishlist_id,
-            "orders": self.orders
-        }
-
     def information(self, following_bool: bool = True):
         info = {
             "id": self.id,
@@ -95,7 +76,7 @@ class User(Base):
             "photo": self.photo,
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
-            "orders": self.orders
+            "updated_at": self.updated_at
         }
         if following_bool:
             info["following"] = [user.information(following_bool=False) for user in self.following]

@@ -1,12 +1,12 @@
 import datetime
 from uuid import uuid4
-from fastapi import Depends
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Table
-from sqlalchemy.orm import relationship, Session
+from fastapi import Depends
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.orm import Session
 
 from db.database import Base, get_db
-from models.orders.order_item import OrderAndOrderItem
+from repositories.orderItemRepo import get_order_items_by_order_id
 from schemas.order import CreateOrder
 
 
@@ -27,9 +27,8 @@ class Order(Base):
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    order_items = relationship("OrderItem", secondary=OrderAndOrderItem, back_populates="order")
 
-    def to_dict(self):
+    def to_dict(self, db: Session = Depends(get_db)):
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -37,7 +36,8 @@ class Order(Base):
             "total_quantity": self.total_quantity,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "order_items": [order_item.to_dict() for order_item in self.order_items]
+            "status": self.status,
+            "order_items": [item.to_dict(db=db) for item in get_order_items_by_order_id(self.id, db)]
         }
 
     def add_order_item(self, order_item, db: Session = Depends(get_db)):
