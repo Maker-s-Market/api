@@ -20,10 +20,11 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     user = get_user(username, db)
     products_names = [product.name for product in get_products_by_user_id(user.id, db)]
     sales = {}
+    total_quantity = 0
     for product_id in products_names:
         sales[product_id] = 0
         items = get_orders_items_by_product_id(product_id, db)
         for item in items:
             sales[product_id] += item.quantity
-    return sales
-
+            total_quantity += item.quantity
+    return sales, total_quantity
