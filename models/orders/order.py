@@ -22,7 +22,7 @@ class Order(Base):
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     total_price = Column(Float, index=True, default=0, nullable=False)
     total_quantity = Column(Integer, index=True, default=0, nullable=False)
-    status = Column(Enum(Status), index=True, default="Pending", nullable=False)
+    status = Column(Enum(Status), index=True, default="Accepted", nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
