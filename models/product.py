@@ -39,7 +39,6 @@ class Product(Base):
     user_id = Column(String(50), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     categories = relationship('Category', secondary=ProductCategory, back_populates='products')
     wishlists = relationship("Wishlist", secondary=ProductWishlist, back_populates="products")
-    order_items = relationship('OrderItem', back_populates='product')
 
     def increment_number_views(self, db: Session = Depends(get_db)):
         self.number_views += 1

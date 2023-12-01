@@ -36,15 +36,12 @@ class User(Base):
     photo = Column(String(200), index=True, nullable=False)
     role = Column(Enum(Role), index=True, nullable=False, default="Client")
     avg_rating = Column(Float, index=True, default=0)
-    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
-                        nullable=False)
-    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
-                        nullable=False)
+    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
     is_active = Column(Integer, index=True, default=True, nullable=False)
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)  # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
+
     following = relationship(
         "User",
         secondary=followers,
@@ -52,7 +49,6 @@ class User(Base):
         secondaryjoin=(followers.c.followed_id == id),
         backref="followers"
     )
-    orders = relationship('Order', back_populates='user')
 
     def follow(self, user):
         if not self.is_following(user):

@@ -1,17 +1,14 @@
 import datetime
 from uuid import uuid4
 
+from fastapi import Depends
 from sqlalchemy import Column, ForeignKey, String, DateTime
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import Session
 
-from fastapi import HTTPException, Depends
-
-from repositories.userRepo import get_user
-from repositories.productRepo import get_product_by_id
-
-from db.database import get_db, Base
-from schemas.review import CreateReview, UpdateReview
 from auth.auth import get_current_user
+from db.database import get_db, Base
+from repositories.userRepo import get_user
+from schemas.review import CreateReview, UpdateReview
 
 
 def random_uuid():
