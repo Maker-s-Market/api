@@ -31,6 +31,10 @@ async def get_orders(products: List[CreateOrderItem], db: Session = Depends(get_
         if product is None:
             detail = "Product with id: " + item.product_id + " was not found."
             raise HTTPException(status_code=404, detail=detail)
+        if product.user_id == user.id:
+            detail = "You can't buy your own product."
+            raise HTTPException(status_code=400, detail=detail)
+        # TODO : quantidade em stock
         total_quantity += item.quantity
         total_price += ((product.price * (1 - product.discount)) * item.quantity)
 
@@ -47,8 +51,12 @@ async def get_orders(products: List[CreateOrderItem], db: Session = Depends(get_
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
 
+# status, price, quantity, date
 @router.get("/order", dependencies=[Depends(auth)])
-async def get_orders(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+async def get_orders(status: str = None, sort: str = None, db: Session = Depends(get_db),
+                     username: str = Depends(get_current_user)):
+    if status is None:
+        status = 'all'
     user = get_user(username, db)
     orders = get_orders_by_user_id(user.id, db)
     return JSONResponse(status_code=200, content=jsonable_encoder([order.to_dict(db=db) for order in orders]))

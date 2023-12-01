@@ -2,10 +2,11 @@ import datetime
 from uuid import uuid4
 
 from fastapi import Depends
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum
 from sqlalchemy.orm import Session
 
 from db.database import Base, get_db
+from models.orders.status import Status
 from repositories.orderItemRepo import get_order_items_by_order_id
 from schemas.order import CreateOrder
 
@@ -21,7 +22,7 @@ class Order(Base):
     id = Column(String(50), primary_key=True, index=True, default=random_uuid)
     total_price = Column(Float, index=True, default=0, nullable=False)
     total_quantity = Column(Integer, index=True, default=0, nullable=False)
-    status = Column(String(50), index=True, default="in_progress", nullable=False)
+    status = Column(Enum(Status), index=True, default="Pending", nullable=False)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
