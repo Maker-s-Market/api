@@ -77,6 +77,8 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
     user = get_user_by_id(product.user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if product.available is False:
+        raise HTTPException(status_code=404, detail="Product not available")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
