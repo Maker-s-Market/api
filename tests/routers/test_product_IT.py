@@ -826,3 +826,82 @@ def test_get_top_products():
 
     data = response.json()
     assert len(data) == 4
+
+
+def test_put_products_available_not_auth():
+    response = client.put("/products/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_put_products_available_not_owner():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.put("/products/06e0da01-57fd-2229-95be-123455555566/available?available=true",
+                          headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 403
+    assert response.json() == {'detail': "Only the user can change their product's available"}
+
+
+def test_put_products_available_not_existing_product():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.put("/products/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
+                          headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 404
+    assert response.json() == {'detail': "Product not found"}
+
+
+def test_put_products_available_already_available():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.put("/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
+                          headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 400
+    assert response.json() == {'detail': "Product is already in that state"}
+
+
+def test_put_products_available_success():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.put("/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
+                          headers={"Authorization": "Bearer " + token})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == "06e0da01-57fd-2228-95be-0d25c764ea57"
+    assert data["available"] == False
+
+
+def test_get_product_id_not_available():
+    response = client.get("/product/06e0da01-57fd-2228-95be-0d25c764ea57")
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Product not available'}

@@ -114,7 +114,7 @@ async def put_products_discount(update: UpdateDiscount, db: Session = Depends(ge
 
 
 @router.put("/products/{product_id}/available", dependencies=[Depends(auth)])
-async def put_products_available(product_id: str, avaible: bool, db: Session = Depends(get_db),
+async def put_products_available(product_id: str, available: bool, db: Session = Depends(get_db),
                                  username: str = Depends(get_current_user)):
     """
     Change product available
@@ -126,7 +126,7 @@ async def put_products_available(product_id: str, avaible: bool, db: Session = D
         raise HTTPException(status_code=404, detail="Product not found")
     if product.user_id != user.id:
         raise HTTPException(status_code=403, detail="Only the user can change their product's available")
-    if product.available == avaible:
+    if product.available == available:
         raise HTTPException(status_code=400, detail="Product is already in that state")
 
     product.change_available(db=db)

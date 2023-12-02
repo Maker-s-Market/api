@@ -97,7 +97,8 @@ class Product(Base):
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'categories': [category.to_dict() for category in self.categories],
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'available': self.available
         }
 
     def change_available(self, db: Session = Depends(get_db)):
