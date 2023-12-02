@@ -32,10 +32,6 @@ Some useful links:
 
 tags_metadata = [
     {
-        "name": "Home Page",
-        "description": ""
-    },
-    {
         "name": "Authentication and Authorization",
         "description": "Authentication verifies the user's identity, while authorization defines what an "
                        "authenticated user can do within the system."
@@ -43,40 +39,58 @@ tags_metadata = [
 
     {
         "name": "User",
-        "description": "...."
+        "description": "Handles user profiles, profile management, and user-specific operations within the marketplace"
     },
     {
         "name": "Category",
-        "description": "...."
+        "description": "Manages product categories, enabling users to browse and organize products based on their "
+                       "classification"
     },
     {
         "name": "Product",
-        "description": "...."
+        "description": "Covers all aspects of product management, from listing new products to updating and "
+                       "retrieving product information."
     },
     {
         "name": "Review",
-        "description": "...."
+        "description": "Enables users to post reviews on products, providing feedback and experiences for other users "
+                       "to reference."
     },
     {
         "name": "Rating The Product",
-        "description": "...."
+        "description": "Allows users to rate products, contributing to an overall product rating system that helps "
+                       "others in making purchasing decisions."
     },
     {
         "name": "Rating The User",
-        "description": "....",
+        "description": "Facilitates the rating of users, particularly sellers, to maintain a trustworthy and reliable "
+                       "user community.",
     },
     {
         "name": "Wishlist",
-        "description": "...."
+        "description": "Provides functionality for users to add products to a personal wishlist, aiding in future "
+                       "purchase planning."
     },
     {
         "name": "Order",
-        "description": "...."
+        "description": "Handles all order-related processes, including order placement, tracking, and history "
+                       "management for both buyers and sellers."
     },
     {
         "name": "Image",
-        "description": "...."
+        "description": "Manages the uploading, storing, and retrieval of product images, enhancing the visual "
+                       "representation of products."
     },
+    {
+        "name": "Statistics",
+        "description": "Gathers and presents statistical data on various aspects of the marketplace, such as sales "
+                       "trends, popular products, and user engagement."
+    },
+    {
+        "name": "Payment",
+        "description": "Handles payment processing, including support for multiple payment methods and transaction "
+                       "security."
+    }
 
 ]
 
@@ -148,7 +162,7 @@ async def main():
     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
 
 
-@app.post("/api/uploadfile/", tags=["Images"])
+@app.post("/api/uploadfile/", tags=["Image"])
 async def create_upload_file(file: UploadFile = File(...)):
     # Generate a unique filename for the uploaded file
     filename = file.filename

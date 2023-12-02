@@ -1,7 +1,5 @@
-import os
 from typing import List
 
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -18,11 +16,6 @@ from repositories.productRepo import get_product_by_id, get_products_by_user_id
 from repositories.userRepo import get_user, get_user_by_id
 from schemas.order import CreateOrder
 from schemas.orderItem import CreateOrderItem
-import stripe
-
-env_path = os.path.join(os.path.dirname(__file__), "..", '.env')
-load_dotenv(env_path)
-stripe.api_key = os.getenv("STRIPE_KEY")
 
 auth = JWTBearer(jwks)
 
