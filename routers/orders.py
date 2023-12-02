@@ -1,5 +1,7 @@
+import os
 from typing import List
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -16,6 +18,10 @@ from repositories.productRepo import get_product_by_id, get_products_by_user_id
 from repositories.userRepo import get_user, get_user_by_id
 from schemas.order import CreateOrder
 from schemas.orderItem import CreateOrderItem
+import stripe
+env_path = os.path.join(os.path.dirname(__file__), "..", '.env')
+load_dotenv(env_path)
+stripe.api_key = os.getenv("STRIPE_KEY")
 
 auth = JWTBearer(jwks)
 
@@ -44,16 +50,25 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
         total_quantity += item.quantity
         total_price += ((product.price * (1 - product.discount)) * item.quantity)
 
+    amount_in_cents = int(total_price * 100)
+
+    payment = stripe.PaymentIntent.create(
+        amount=amount_in_cents,
+        currency="eur",
+        payment_method_types=["card"],
+        description="Order payment in MarkersMarket",
+    )
     order = CreateOrder(user_id=user.id, total_price=total_price, total_quantity=total_quantity)
     order_db = save_order(order, db)
 
     for item in products:
         save_order_item(item, order_db.id, db)
 
-    return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
+    return JSONResponse(status_code=201,
+                        content=jsonable_encoder({"order": order_db.to_dict(db=db),
+                                                  "client_secret": payment.client_secret}))
 
 
-# status, price, quantity, date
 @router.get("/order", dependencies=[Depends(auth)])
 async def get_orders(status: str = None, sort: str = None, db: Session = Depends(get_db),
                      username: str = Depends(get_current_user)):
