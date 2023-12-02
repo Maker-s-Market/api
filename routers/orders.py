@@ -42,7 +42,7 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
             raise HTTPException(status_code=400, detail=detail)
         # TODO : quantidade em stock
         total_quantity += item.quantity
-        total_price += ((product.price * (1 - product.discount)) * item.quantity)
+        total_price += ((product.price * (100 - product.discount)) * item.quantity)
 
     order = CreateOrder(user_id=user.id, total_price=total_price, total_quantity=total_quantity)
     order_db = save_order(order, db)
@@ -53,7 +53,6 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
 
-# status, price, quantity, date
 @router.get("/order", dependencies=[Depends(auth)])
 async def get_orders(status: str = None, sort: str = None, db: Session = Depends(get_db),
                      username: str = Depends(get_current_user)):

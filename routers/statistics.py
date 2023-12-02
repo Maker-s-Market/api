@@ -59,8 +59,9 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
         return JSONResponse(status_code=200, content=jsonable_encoder(create_empty_response()))
 
     statistics = calculate_statistics(orders, db)
-    
+
     return JSONResponse(status_code=200, content=jsonable_encoder({"statistics": statistics}))
+
 
 def create_empty_response():
     response = {
@@ -70,8 +71,9 @@ def create_empty_response():
                 "max_category": None,
                 "max_productor": None
             }
-        }
+    }
     return response
+
 
 def calculate_statistics(orders, db):
     quantity_per_product = {}
