@@ -14,7 +14,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
   USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
-  STRIPE_key: ${{ secrets.STRIPE_key }}
+  STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
 
   AUTH_URL: https://domain-makers-test.auth.us-east-1.amazoncognito.com/oauth2/authorize
   TOKEN_URL: https://domain-makers-test.auth.us-east-1.amazoncognito.com/oauth2/token
