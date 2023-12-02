@@ -48,15 +48,16 @@ def load_data():
                    price=11.0, stockable=True, user_id=user2.id))
     db.add(Product(id="06e0da01-57fd-2229-95be-123455555566", name="random product 4", description="some description 4",
                    price=10.0, stockable=True, user_id="123456789023456789"))
-    
+
     category = Category(id="06e0da01-57fd-2229-95be-123455555567", name="category name", slug="slug", icon="some icon")
     db.add(category)
 
     db.add(Product(id="06e0da01-57fd-2228-95be-0d25c764ea58", name="random product 2", description="some description 2",
-                   price=11.0, stockable=True, user_id=user2.id, categories = [category]))
+                   price=11.0, stockable=True, user_id=user2.id, categories=[category]))
 
     db.commit()
     db.close()
+
 
 def login_user_1():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
@@ -90,7 +91,6 @@ def test_get_statistics_seller():
 
 
 def test_get_statistics_buyer_no_orders():
-
     response = client.get(
         BUYER_STATISTICS,
         headers={"Authorization": f"Bearer {login_user_1()}"},
@@ -104,7 +104,6 @@ def test_get_statistics_buyer_no_orders():
 
 
 def test_get_statistics_buyer_no_category():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -131,7 +130,6 @@ def test_get_statistics_buyer_no_category():
 
 
 def test_get_statistics_buyer_accepted():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea58", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -149,9 +147,9 @@ def test_get_statistics_buyer_accepted():
         BUYER_STATISTICS,
         headers={"Authorization": f"Bearer {login_user_1()}"},
     )
-    
+
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["statistics"]["max_product"] != None
-    assert data["statistics"]["max_category"] != None
-    assert data["statistics"]["max_productor"] != None
+    assert data["statistics"]["max_product"] is not None
+    assert data["statistics"]["max_category"] is not None
+    assert data["statistics"]["max_productor"] is not None
