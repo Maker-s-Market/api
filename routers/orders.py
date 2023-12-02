@@ -71,6 +71,7 @@ async def get_orders(status: str = None, sort: str = None, db: Session = Depends
 
 @router.get("/order/seller", dependencies=[Depends(auth)])
 async def get_orders_seller(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """ which products of mine have been requested """
     user = get_user(username, db)
     products = get_products_by_user_id(user.id, db)
     orders_seller = []
