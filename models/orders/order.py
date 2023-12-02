@@ -41,11 +41,6 @@ class Order(Base):
             "order_items": [item.to_dict(db=db) for item in get_order_items_by_order_id(self.id, db)]
         }
 
-    def add_order_item(self, order_item, db: Session = Depends(get_db)):
-        self.order_items.append(order_item)
-        db.commit()
-        db.refresh(self)
-
 
 def save_order(order: CreateOrder, db: Session = Depends(get_db)):
     db_order = Order(**order.model_dump())
