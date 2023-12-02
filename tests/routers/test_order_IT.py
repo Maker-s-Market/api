@@ -53,27 +53,28 @@ def load_data():
     db.close()
 
 def login_user_1():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
+
     return token
 
 def login_user_2():
-    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
+
     return token
 
 def test_create_order_success():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -95,6 +96,7 @@ def test_create_order_success():
 
 
 def test_create_order_no_quantity():
+
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 0},
@@ -156,7 +158,7 @@ def test_create_order_quantity_zero():
 
     response = client.post(
         ORDER,
-        headers={"Authorization": f"Bearer {login_user_1()}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
         json=order_items
     )
 
@@ -167,43 +169,42 @@ def test_create_order_quantity_zero():
 
 def test_get_order():
 
-    token = login_user_1()
-
     response = client.get(
         ORDER + "?status=Accepted&sort=desc_date",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
 
     assert response.status_code == 200, response.text
 
     response = client.get(
         ORDER + "?status=Accepted&sort=asc_date",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
     assert response.status_code == 200, response.text
 
     response = client.get(
         ORDER + "?status=Accepted&sort=desc_price",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
     assert response.status_code == 200, response.text
 
     response = client.get(
         ORDER + "?status=Accepted&sort=asc_price",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
     assert response.status_code == 200, response.text
 
     response = client.get(
         ORDER + "?status=Accepted&sort=desc_quantity",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
     assert response.status_code == 200, response.text
 
     response = client.get(
         ORDER + "?status=Accepted&sort=asc_quantity",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
+
     assert response.status_code == 200, response.text
 
 
@@ -235,7 +236,7 @@ def test_get_order_seller():
 
     response = client.get(
         ORDER + "/seller",
-        headers={"Authorization": f"Bearer {login_user_1()}"},
+        headers={"Authorization": f"Bearer {login_user_2()}"},
     )
 
     data = response.json()
@@ -261,7 +262,7 @@ def test_get_order_by_id_success():
 
     response = client.get(
         ORDER + "/" + id,
-        headers={"Authorization": f"Bearer {login_user_2()}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
     )
 
     data = response.json()

@@ -68,6 +68,7 @@ def login_user_1():
     token = response.json()["token"]
     return token
 
+
 def login_user_2():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
     response = client.post("/auth/sign-in", json={
