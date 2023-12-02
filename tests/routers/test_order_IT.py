@@ -82,6 +82,33 @@ def test_create_order_success():
     assert len(data["order_items"]) == 2
 
 
+def test_create_order_no_quantity():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 0},
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 400, response.text
+    assert data["detail"] == "Quantity must be greater than 0."
+
+
 def test_create_order_no_product_found():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={

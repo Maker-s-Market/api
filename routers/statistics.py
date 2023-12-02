@@ -22,18 +22,17 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
         Function that returns the statistics of the seller
     """
     user = get_user(username, db)
-    products_names = [product.name for product in get_products_by_user_id(user.id, db)]
+    products_id = [product.id for product in get_products_by_user_id(user.id, db)]
     sales = {}
     total_quantity = 0
     total_views_products = 0
-    for product_id in products_names:
+    for product_id in products_id:
         sales[product_id] = 0
         items = get_orders_items_by_product_id(product_id, db)
         for item in items:
             sales[product_id] += item.quantity
             total_quantity += item.quantity
-
-        total_views_products += get_product_by_id(product_id, db).views
+        total_views_products += get_product_by_id(product_id, db).number_views
     total_views_profile = user.views
     top_product_sale = max(sales, key=lambda k: sales[k])
 
@@ -77,6 +76,8 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
                 if category["id"] not in quantity_per_category.keys():
                     quantity_per_category[category["id"]] = 0
                 quantity_per_category[category["id"]] += item["quantity"]
+
+
 
     max_product = get_product_by_id(max(quantity_per_product, key=lambda k: quantity_per_product[k]), db)
     max_category = get_category_by_id(max(quantity_per_category, key=lambda k: quantity_per_category[k]), db)
