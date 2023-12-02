@@ -55,14 +55,25 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     user = get_user(username, db)
     orders = get_orders_by_user_id(user.id, db)
 
-    if orders == []:
-        response = {
-            "max_product": None,
-            "max_category": None,
-            "max_productor": None
-        }
-        return JSONResponse(status_code=200, content=jsonable_encoder(response))
+    if not orders:
+        return JSONResponse(status_code=200, content=jsonable_encoder(create_empty_response()))
 
+    statistics = calculate_statistics(orders, db)
+    
+    return JSONResponse(status_code=200, content=jsonable_encoder({"statistics": statistics}))
+
+def create_empty_response():
+    response = {
+        "statistics":
+            {
+                "max_product": None,
+                "max_category": None,
+                "max_productor": None
+            }
+        }
+    return response
+
+def calculate_statistics(orders, db):
     quantity_per_product = {}
     quantity_per_category = {}
     quantity_per_productor = {}
@@ -70,33 +81,26 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     for order in orders:
         order_items = order.get_order_items(db)
         for item in order_items:
+            product_id = item["product"]["id"]
+            productor_id = item["product"]["user_id"]
 
-            if item["product"]["id"] not in quantity_per_product.keys():
-                quantity_per_product[item["product"]["id"]] = 0
-
-            if item["product"]["user_id"] not in quantity_per_productor.keys():
-                quantity_per_productor[item["product"]["user_id"]] = 0
-
-            quantity_per_product[item["product"]["id"]] += item["quantity"]
-            quantity_per_productor[item["product"]["user_id"]] += item["quantity"]
+            quantity_per_product[product_id] = quantity_per_product.get(product_id, 0) + item["quantity"]
+            quantity_per_productor[productor_id] = quantity_per_productor.get(productor_id, 0) + item["quantity"]
 
             for category in item["product"]["categories"]:
-                print(category)
-                if category["id"] not in quantity_per_category.keys():
-                    quantity_per_category[category["id"]] = 0
-                quantity_per_category[category["id"]] += item["quantity"]
+                category_id = category["id"]
+                quantity_per_category[category_id] = quantity_per_category.get(category_id, 0) + item["quantity"]
 
-    max_product = get_product_by_id(max(quantity_per_product, key=lambda k: quantity_per_product[k]), db)
-    max_productor = get_user_by_id(max(quantity_per_productor, key=lambda k: quantity_per_productor[k]), db)
+    max_product_id = max(quantity_per_product, key=quantity_per_product.get)
+    max_productor_id = max(quantity_per_productor, key=quantity_per_productor.get)
+
+    max_product = get_product_by_id(max_product_id, db)
+    max_productor = get_user_by_id(max_productor_id, db)
+
     max_category = None
 
-    if quantity_per_category != {}:
-        max_category = get_category_by_id(max(quantity_per_category, key=lambda k: quantity_per_category[k]), db)
+    if quantity_per_category:
+        max_category_id = max(quantity_per_category, key=quantity_per_category.get)
+        max_category = get_category_by_id(max_category_id, db)
 
-    response = {
-        "max_product": max_product,
-        "max_category": max_category,
-        "max_productor": max_productor
-    }
-
-    return JSONResponse(status_code=200, content=jsonable_encoder(response))
+    return {"max_product": max_product, "max_category": max_category, "max_productor": max_productor}

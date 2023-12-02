@@ -58,19 +58,31 @@ def load_data():
     db.commit()
     db.close()
 
+def login_user_1():
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    return token
 
-def test_get_statistics_seller():
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+def login_user_2():
+    os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
+    return token
 
+
+def test_get_statistics_seller():
     response = client.get(
         SELLER_STATISTICS,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
     )
 
     assert response.status_code == 200, response.text
@@ -78,36 +90,19 @@ def test_get_statistics_seller():
 
 def test_get_statistics_buyer_no_orders():
 
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
-        "identifier": "brums21",
-        "password": os.getenv("PASSWORD_CORRECT")
-    })
-    assert response.status_code == 200
-    token = response.json()["token"]
-
     response = client.get(
         BUYER_STATISTICS,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
     )
 
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["max_product"] == None
-    assert data["max_category"] == None
-    assert data["max_productor"] == None
+    assert data["statistics"]["max_product"] == None
+    assert data["statistics"]["max_category"] == None
+    assert data["statistics"]["max_productor"] == None
 
 
 def test_get_statistics_buyer_no_category():
-
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
-        "identifier": "brums21",
-        "password": os.getenv("PASSWORD_CORRECT")
-    })
-
-    assert response.status_code == 200
-    token = response.json()["token"]
 
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
@@ -116,34 +111,25 @@ def test_get_statistics_buyer_no_category():
 
     response = client.post(
         "/order",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
         json=order_items
     )
 
-    data = response.json()
     assert response.status_code == 201, response.text
 
     response = client.get(
         BUYER_STATISTICS,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
     )
 
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["max_product"] != None
-    assert data["max_category"] == None
-    assert data["max_productor"] != None
+    assert data["statistics"]["max_product"] != None
+    assert data["statistics"]["max_category"] == None
+    assert data["statistics"]["max_productor"] != None
+
 
 def test_get_statistics_buyer_accepted():
-
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
-        "identifier": "brums21",
-        "password": os.getenv("PASSWORD_CORRECT")
-    })
-
-    assert response.status_code == 200
-    token = response.json()["token"]
 
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea58", "quantity": 2},
@@ -152,7 +138,7 @@ def test_get_statistics_buyer_accepted():
 
     response = client.post(
         "/order",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
         json=order_items
     )
 
@@ -160,11 +146,11 @@ def test_get_statistics_buyer_accepted():
 
     response = client.get(
         BUYER_STATISTICS,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {login_user_1()}"},
     )
     
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["max_product"] != None
-    assert data["max_category"] != None
-    assert data["max_productor"] != None
+    assert data["statistics"]["max_product"] != None
+    assert data["statistics"]["max_category"] != None
+    assert data["statistics"]["max_productor"] != None
