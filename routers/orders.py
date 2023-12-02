@@ -45,10 +45,6 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
     order_db = save_order(order, db)
 
     for item in products:
-        product = get_product_by_id(item.product_id, db)
-        if product is None:
-            detail = "Product with id: " + item.product_id + " was not found."
-            raise HTTPException(status_code=404, detail=detail)
         save_order_item(item, order_db.id, db)
 
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
