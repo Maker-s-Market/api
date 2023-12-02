@@ -117,11 +117,10 @@ class User(Base):
         db.refresh(self)
         return self
 
-    def update_views(self, db: Session = Depends(get_db)):
+    def add_views(self, db: Session = Depends(get_db)):
         self.views += 1
         db.commit()
         db.refresh(self)
-        return self
 
 
 def save_user(new_user: CreateUser, db: Session = Depends(get_db)):

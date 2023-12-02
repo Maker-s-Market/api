@@ -10,8 +10,4 @@ def get_order_items_by_order_id(id_order: str, db: Session = Depends(get_db)):
 
 
 def get_orders_items_by_product_id(id_product: str, db: Session = Depends(get_db)):
-<<<<<<< HEAD
     return db.query(OrderItem).filter(OrderItem.product_id == id_product).all()
-=======
-    return db.query(OrderItem).filter(OrderItem.product_id == id_product).all()
->>>>>>> imp/MM-38-product-available

@@ -94,8 +94,8 @@ async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
     user = user_by_id(user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.add_view(db)
     response = user.information()
+    user.add_views(db=db)
     response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
