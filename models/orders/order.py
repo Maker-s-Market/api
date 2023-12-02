@@ -40,6 +40,9 @@ class Order(Base):
             "status": self.status,
             "order_items": [item.to_dict(db=db) for item in get_order_items_by_order_id(self.id, db)]
         }
+    
+    def get_order_items(self, db: Session = Depends(get_db)):
+        return [item.to_dict(db=db) for item in get_order_items_by_order_id(self.id, db)]
 
 
 def save_order(order: CreateOrder, db: Session = Depends(get_db)):
