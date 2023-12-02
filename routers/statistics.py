@@ -55,6 +55,14 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     user = get_user(username, db)
     orders = get_orders_by_user_id(user.id, db)
 
+    if orders == []:
+        response = {
+            "max_product": None,
+            "max_category": None,
+            "max_productor": None
+        }
+        return JSONResponse(status_code=200, content=jsonable_encoder(response))
+
     quantity_per_product = {}
     quantity_per_category = {}
     quantity_per_productor = {}
@@ -73,15 +81,17 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
             quantity_per_productor[item["product"]["user_id"]] += item["quantity"]
 
             for category in item["product"]["categories"]:
+                print(category)
                 if category["id"] not in quantity_per_category.keys():
                     quantity_per_category[category["id"]] = 0
                 quantity_per_category[category["id"]] += item["quantity"]
 
-
-
     max_product = get_product_by_id(max(quantity_per_product, key=lambda k: quantity_per_product[k]), db)
-    max_category = get_category_by_id(max(quantity_per_category, key=lambda k: quantity_per_category[k]), db)
     max_productor = get_user_by_id(max(quantity_per_productor, key=lambda k: quantity_per_productor[k]), db)
+    max_category = None
+
+    if quantity_per_category != {}:
+        max_category = get_category_by_id(max(quantity_per_category, key=lambda k: quantity_per_category[k]), db)
 
     response = {
         "max_product": max_product,

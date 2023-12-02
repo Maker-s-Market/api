@@ -48,31 +48,18 @@ def load_data():
                    price=11.0, stockable=True, user_id=user2.id))
     db.add(Product(id="06e0da01-57fd-2229-95be-123455555566", name="random product 4", description="some description 4",
                    price=10.0, stockable=True, user_id="123456789023456789"))
+    
+    category = Category(id="06e0da01-57fd-2229-95be-123455555567", name="category name", slug="slug", icon="some icon")
+    db.add(category)
+
+    db.add(Product(id="06e0da01-57fd-2228-95be-0d25c764ea58", name="random product 2", description="some description 2",
+                   price=11.0, stockable=True, user_id=user2.id, categories = [category]))
 
     db.commit()
     db.close()
 
+
 def test_get_statistics_seller():
-
-    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
-        "identifier": "brums21",
-        "password": os.getenv("PASSWORD_CORRECT")
-    })
-    assert response.status_code == 200
-    token = response.json()["token"]
-
-    order_items = [
-        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
-        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
-    ]
-
-    response = client.post(
-        "/order",
-        headers={"Authorization": f"Bearer {token}"},
-        json=order_items
-    )
-
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/auth/sign-in", json={
         "identifier": "mariana",
@@ -88,3 +75,96 @@ def test_get_statistics_seller():
 
     assert response.status_code == 200, response.text
 
+
+def test_get_statistics_buyer_no_orders():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get(
+        BUYER_STATISTICS,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+    assert data["max_product"] == None
+    assert data["max_category"] == None
+    assert data["max_productor"] == None
+
+
+def test_get_statistics_buyer_no_category():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+    ]
+
+    response = client.post(
+        "/order",
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+
+    response = client.get(
+        BUYER_STATISTICS,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+    assert data["max_product"] != None
+    assert data["max_category"] == None
+    assert data["max_productor"] != None
+
+def test_get_statistics_buyer_accepted():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea58", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+    ]
+
+    response = client.post(
+        "/order",
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    assert response.status_code == 201, response.text
+
+    response = client.get(
+        BUYER_STATISTICS,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    
+    data = response.json()
+    assert response.status_code == 200, response.text
+    assert data["max_product"] != None
+    assert data["max_category"] != None
+    assert data["max_productor"] != None
