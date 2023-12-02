@@ -10,6 +10,7 @@ from main import app
 from models.category import Category
 from models.product import Product
 from models.user import User
+from models.orders.order import Order
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -104,3 +105,239 @@ def test_create_order_no_product_found():
 
     assert response.status_code == 404, response.text
     assert data["detail"] ==  "Product with id: 06e0da01-57fd-2228-95be-0d25c764ea60 was not found."
+
+def test_create_order_product_owner():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2227-95be-0d25c764ea56", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    data = response.json()
+
+    assert response.status_code == 400, response.text
+    assert data["detail"] ==  "You can't buy your own product."
+
+def test_get_order():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    #TODO: mudar isto
+    response = client.get(
+        ORDER + "?status=Pending&sort=desc_date",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+    response = client.get(
+        ORDER + "?status=Pending&sort=asc_date",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+    
+    response = client.get(
+        ORDER + "?status=Pending&sort=desc_price",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+    response = client.get(
+        ORDER + "?status=Pending&sort=asc_price",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+    response = client.get(
+        ORDER + "?status=Pending&sort=desc_quantity",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+    response = client.get(
+        ORDER + "?status=Pending&sort=asc_quantity",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+def test_get_order_invalid_sort():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    #TODO: mudar isto
+    response = client.get(
+        ORDER + "?status=Pending&sort=invalid_sort",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 400, response.text
+    assert data["detail"] == "Sort invalid_sort is not valid."
+
+def test_get_order_invalid_status():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    #TODO: mudar isto
+    response = client.get(
+        ORDER + "?status=InvalidStatus&sort=desc_price",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 400, response.text
+    assert data["detail"] == "Status InvalidStatus is not valid."
+
+def test_get_order_seller():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get(
+        ORDER + "/seller",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+def test_get_order_by_id_success():
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+    id = data["id"]
+
+    response = client.get(
+        ORDER + "/" + id,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+
+def test_order_by_id_order_not_found():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get(
+        ORDER + "/someorderid",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 404, response.text
+    assert data["detail"] == "Order with id: someorderid was not found."
+
+def test_order_by_id_order_no_permission():
+    
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {token}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+    id = data["id"] 
+
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get(
+        ORDER + "/" + id,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 403, response.text
+    assert data["detail"] == "You don't have permission to access this order."
