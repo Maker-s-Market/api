@@ -34,14 +34,14 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
             total_quantity += item.quantity
 
         total_views_products += get_product_by_id(product_id, db).views
-    total_views_profile = 0  # TODO: IMPLEMENTAR
+    total_views_profile = user.views
     top_product_sale = max(sales, key=lambda k: sales[k])
 
     response = {"chart": sales,
                 "statistics":
                     {
                         "total quantity": total_quantity, "total views profile": total_views_profile,
-                        "total views Products": total_views_products, "top product sale": products_names[0]
+                        "total views Products": total_views_products, "top product sale": top_product_sale
                     }
                 }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))

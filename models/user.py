@@ -34,6 +34,7 @@ class User(Base):
     city = Column(String(200), index=True, nullable=False)
     region = Column(String(200), index=True, nullable=False)
     photo = Column(String(200), index=True, nullable=False)
+    views = Column(Integer, index=True, default=0)
     role = Column(Enum(Role), index=True, nullable=False, default="Client")
     avg_rating = Column(Float, index=True, default=0)
     created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
@@ -112,6 +113,12 @@ class User(Base):
     
     def update_role(self, role: str, db: Session = Depends(get_db)):
         self.role = role
+        db.commit()
+        db.refresh(self)
+        return self
+
+    def update_views(self, db: Session = Depends(get_db)):
+        self.views += 1
         db.commit()
         db.refresh(self)
         return self
