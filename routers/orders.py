@@ -37,6 +37,9 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
         if product.user_id == user.id:
             detail = "You can't buy your own product."
             raise HTTPException(status_code=400, detail=detail)
+        if item.quantity <= 0:
+            detail = "Quantity must be greater than 0."
+            raise HTTPException(status_code=400, detail=detail)
         # TODO : quantidade em stock
         total_quantity += item.quantity
         total_price += ((product.price * (1 - product.discount)) * item.quantity)

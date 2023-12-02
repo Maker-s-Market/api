@@ -77,6 +77,8 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
     user = get_user_by_id(product.user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if product.available is False:
+        raise HTTPException(status_code=404, detail="Product not available")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
@@ -109,3 +111,23 @@ async def put_products_discount(update: UpdateDiscount, db: Session = Depends(ge
     updated_product = product.update_product(db, product)
 
     return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))
+
+
+@router.put("/products/{product_id}/available", dependencies=[Depends(auth)])
+async def put_products_available(product_id: str, available: bool, db: Session = Depends(get_db),
+                                 username: str = Depends(get_current_user)):
+    """
+    Change product available
+    """
+
+    product = get_product_by_id(product_id=product_id, db=db)
+    user = get_user(username, db)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Only the user can change their product's available")
+    if product.available == available:
+        raise HTTPException(status_code=400, detail="Product is already in that state")
+
+    product.change_available(db=db)
+    return JSONResponse(status_code=200, content=jsonable_encoder(product.to_dict()))

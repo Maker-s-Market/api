@@ -2,9 +2,6 @@ import enum
 
 
 class Status(str, enum.Enum):
-    Pending = "Pending"
-    Confirmed = "Confirmed"
+    Accepted = "Accepted"
+    In_Expedition = "In Expedition"
     Delivered = "Delivered"
-    Cancelled = "Cancelled"
-    Returned = "Returned"
-    Refunded = "Refunded"

@@ -26,6 +26,7 @@ class Product(Base):
     price = Column(Float, index=True, nullable=False)
     stockable = Column(Boolean, index=True, nullable=False)
     stock = Column(Integer, index=True)
+    available = Column(Boolean, index=True, default=True)
     discount = Column(Float, index=True, default=0.0)
     number_views = Column(Integer, index=True, default=0)
     image = Column(String(255), index=True, nullable=True)
@@ -96,8 +97,16 @@ class Product(Base):
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'categories': [category.to_dict() for category in self.categories],
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'available': self.available
         }
+
+    def change_available(self, db: Session = Depends(get_db)):
+        self.available = not self.available
+        self.updated_at = datetime.datetime.now()
+        db.commit()
+        db.refresh(self)
+        return self
 
 
 def create_product(product: CreateProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
