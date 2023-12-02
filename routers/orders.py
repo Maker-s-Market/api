@@ -48,7 +48,7 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
             raise HTTPException(status_code=400, detail=detail)
         # TODO : quantidade em stock
         total_quantity += item.quantity
-        total_price += ((product.price * (1 - product.discount)) * item.quantity)
+        total_price += ((product.price * (1 - product.discount)) * item.quantity) # TODO : refazer o calculo do preço
 
     amount_in_cents = int(total_price * 100)
 
