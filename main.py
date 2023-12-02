@@ -11,7 +11,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 from db.create_database import create_tables
 from db.database import SessionLocal
-from routers import product, category, insert_data, auth, ratingUser, review, user, ratingProduct, wishlist
+from routers import product, category, insert_data, auth, ratingUser, review, user, ratingProduct, wishlist, orders
 
 
 @asynccontextmanager
@@ -69,6 +69,10 @@ tags_metadata = [
         "description": "...."
     },
     {
+        "name": "Order",
+        "description": "...."
+    },
+    {
         "name": "Image",
         "description": "...."
     },
@@ -112,6 +116,7 @@ app.include_router(router=review.router)
 app.include_router(router=ratingProduct.router)
 app.include_router(router=ratingUser.router)
 app.include_router(router=wishlist.router)
+app.include_router(router=orders.router)
 
 load_dotenv(".aws")
 s3 = boto3.client(

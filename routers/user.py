@@ -5,7 +5,9 @@ from starlette.responses import JSONResponse
 
 from auth.auth import get_current_user
 from db.database import get_db
-from repositories.userRepo import get_user, get_rated_user_by_id, get_followings, get_user_by_id as user_by_id, get_followers, update_user_role
+from repositories.productRepo import get_products_by_user_id
+from repositories.userRepo import get_user, get_rated_user_by_id, get_followings, get_user_by_id as user_by_id, \
+    get_followers, update_user_role
 from schemas.user import UserUpdate
 from auth.auth import get_current_user, jwks
 from auth.JWTBearer import JWTBearer
@@ -92,13 +94,16 @@ async def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
     user = user_by_id(user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return JSONResponse(status_code=200, content=jsonable_encoder(user.information()))
+    response = user.information()
+    response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
+    return JSONResponse(status_code=200, content=jsonable_encoder(response))
+
 
 @router.put("/user/role/{role}", dependencies=[Depends(auth)])
 async def change_user_role(role: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
         change user role
     """
-    if role!="Client" and role!="Premium":
+    if role != "Client" and role != "Premium":
         raise HTTPException(status_code=403, detail="User role is not valid. Valid options are: Client and Premium.")
     return JSONResponse(status_code=200, content=jsonable_encoder(update_user_role(role, username, db)))

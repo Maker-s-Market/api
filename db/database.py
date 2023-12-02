@@ -12,7 +12,6 @@ MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE")
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_HOST = os.environ.get("MYSQL_HOST")
-print(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST)
 SQLALCHEMY_DATABASE_URL = os.environ.get("MYSQL_URL",
                                          f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}")
 

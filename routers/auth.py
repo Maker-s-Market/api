@@ -14,6 +14,8 @@ from auth.user_auth import check_email_auth, sign_up_auth, resend_email_code_aut
     forgot_password_auth, confirm_forgot_password_auth
 from db.database import get_db
 from models.user import User
+from repositories.orderRepo import get_orders_by_user_id
+from repositories.productRepo import get_products_by_user_id
 from repositories.userRepo import new_user, delete_user, get_user, get_user_by_email
 from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin
 from utils import verify_password
@@ -124,4 +126,7 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     """
     Function that returns the current user
     """
-    return JSONResponse(status_code=200, content=jsonable_encoder(get_user(username=username, db=db).information()))
+    response = get_user(username=username, db=db).information()
+    response['orders'] = [order.to_dict(db=db) for order in get_orders_by_user_id(user_id=response['id'], db=db)]
+    response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
+    return JSONResponse(status_code=200, content=jsonable_encoder(response))

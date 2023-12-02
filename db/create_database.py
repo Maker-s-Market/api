@@ -1,4 +1,6 @@
 from models.category import Category
+from models.orders.order import Order
+from models.orders.order_item import OrderItem
 from models.product import Product
 from models.ratingProduct import RatingProduct
 from models.ratingUser import RatingUser
@@ -17,3 +19,5 @@ def create_tables():
     RatingUser.metadata.create_all(bind=engine)
     Review.metadata.create_all(bind=engine)
     Wishlist.metadata.create_all(bind=engine)
+    Order.metadata.create_all(bind=engine)
+    OrderItem.metadata.create_all(bind=engine)

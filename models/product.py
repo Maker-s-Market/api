@@ -97,7 +97,6 @@ class Product(Base):
             'updated_at': self.updated_at,
             'categories': [category.to_dict() for category in self.categories],
             'user_id': self.user_id
-
         }
 
 

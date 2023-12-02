@@ -36,15 +36,12 @@ class User(Base):
     photo = Column(String(200), index=True, nullable=False)
     role = Column(Enum(Role), index=True, nullable=False, default="Client")
     avg_rating = Column(Float, index=True, default=0)
-    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
-                        nullable=False)
-    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(),
-                        nullable=False)
+    created_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), index=True, default=datetime.datetime.now(), nullable=False)
     is_active = Column(Integer, index=True, default=True, nullable=False)
-    # POR CAUSA DO RGPD
-    deleted_at = Column(DateTime(timezone=True), index=True, nullable=True)  # TODO - remover
 
     wishlist_id = Column(String(50), ForeignKey("wishlist.id"))
+
     following = relationship(
         "User",
         secondary=followers,
@@ -67,24 +64,6 @@ class User(Base):
     def is_following(self, user):
         return any(following.id == user.id for following in self.following)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "username": self.username,
-            "email": self.email,
-            "city": self.city,
-            "region": self.region,
-            "photo": self.photo,
-            "role": self.role,
-            "average_rating": self.avg_rating,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-            "deleted_at": self.deleted_at,
-            "is_active": self.is_active,
-            "wishlist_id": self.wishlist_id,
-        }
-
     def information(self, following_bool: bool = True):
         info = {
             "id": self.id,
@@ -97,6 +76,7 @@ class User(Base):
             "photo": self.photo,
             "average_rating": self.avg_rating,
             "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
         if following_bool:
             info["following"] = [user.information(following_bool=False) for user in self.following]
