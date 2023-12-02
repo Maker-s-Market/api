@@ -19,6 +19,7 @@ from repositories.userRepo import get_user, get_user_by_id
 from schemas.order import CreateOrder
 from schemas.orderItem import CreateOrderItem
 import stripe
+
 env_path = os.path.join(os.path.dirname(__file__), "..", '.env')
 load_dotenv(env_path)
 stripe.api_key = os.getenv("STRIPE_KEY")
@@ -48,25 +49,15 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
             raise HTTPException(status_code=400, detail=detail)
         # TODO : quantidade em stock
         total_quantity += item.quantity
-        total_price += ((product.price * (1 - product.discount)) * item.quantity) # TODO : refazer o calculo do preço
+        total_price += ((product.price * (1 - product.discount)) * item.quantity)  # TODO : refazer o calculo do preço
 
-    amount_in_cents = int(total_price * 100)
-
-    payment = stripe.PaymentIntent.create(
-        amount=amount_in_cents,
-        currency="eur",
-        payment_method_types=["card"],
-        description="Order payment in MarkersMarket",
-    )
     order = CreateOrder(user_id=user.id, total_price=total_price, total_quantity=total_quantity)
     order_db = save_order(order, db)
 
     for item in products:
         save_order_item(item, order_db.id, db)
 
-    return JSONResponse(status_code=201,
-                        content=jsonable_encoder({"order": order_db.to_dict(db=db),
-                                                  "client_secret": payment.client_secret}))
+    return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
 
 @router.get("/order", dependencies=[Depends(auth)])
