@@ -25,10 +25,6 @@ class RatingUser(Base):
     user_id = Column(String(50), ForeignKey("user.id"))
     rated_user_id = Column(String(50), ForeignKey("user.id"))
 
-    def delete(self, db: Session = Depends(get_db)):
-        db.delete(self)
-        db.commit()
-        return self
 
     def to_dict(self):
         return {
