@@ -9,6 +9,8 @@ dist
 site
 .coverage
 coverage.xml
+lcov.info
+coverage.lcov
 .netlify
 test.db
 log.txt
