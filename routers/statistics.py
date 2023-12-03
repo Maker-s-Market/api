@@ -22,20 +22,21 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
         Function that returns the statistics of the seller
     """
     user = get_user(username, db)
-    products_name = [product.name for product in get_products_by_user_id(user.id, db)]
+    products_id = [product.id for product in get_products_by_user_id(user.id, db)]
     sales = []
     total_quantity = 0
     total_views_products = 0
-    for product_name in products_name:
+    for product_id in products_id:
         value = 0
-        items = get_orders_items_by_product_id(product_name, db)
+        items = get_orders_items_by_product_id(product_id, db)
         for item in items:
             value += item.quantity
             total_quantity += item.quantity
-        total_views_products += get_product_by_id(product_name, db).number_views
-        sales.append({"name": product_name, "value": value})
+        product = get_product_by_id(product_id, db)
+        total_views_products += product.number_views
+        sales.append({"name": product.name, "value": value})
     total_views_profile = user.views
-    top_product_sale = max(sales, key=lambda k: sales[k])
+    top_product_sale = max(sales, key=lambda x: x["value"])["name"] if sales else ""
 
     response = {"chart": sales,
                 "statistics":
@@ -99,7 +100,7 @@ def calculate_statistics(orders, db):
     max_product = get_product_by_id(max_product_id, db)
     max_productor = get_user_by_id(max_productor_id, db)
 
-    max_category = None
+    max_category = ""
 
     if quantity_per_category:
         max_category_id = max(quantity_per_category, key=quantity_per_category.get)
