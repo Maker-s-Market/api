@@ -70,6 +70,7 @@ async def get_products(q: str = "", limit: int = 10,
 
 
 @router.get("/product/{product_id}")
+# TODO: PROBLEM THE PRODUCT IS NOT AVAILABLE BUT THE OWNER CAN SEE IT
 async def get_product(product_id: str, db: Session = Depends(get_db)):
     product = get_product_by_id(product_id, db)
     if not product:
