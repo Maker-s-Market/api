@@ -41,10 +41,10 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     response = {"chart": sales,
                 "statistics":
                     [
-                        {"name": "total quantity", "value": total_quantity},
-                        {"name": "total views profile", "value": total_views_profile},
-                        {"name": "total views Products", "value": total_views_products},
-                        {"name": "top product sale", "value": top_product_sale}
+                        {"name": "Total Quantity", "value": total_quantity},
+                        {"name": "Total Views Profile", "value": total_views_profile},
+                        {"name": "Total Views Products", "value": total_views_products},
+                        {"name": "Top Product Sale", "value": top_product_sale}
                     ]
                 }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
@@ -68,9 +68,9 @@ def create_empty_response():
     response = {
         "statistics":
         [
-            {"name": "max_product", "value": ""},
-            {"name": "max_category", "value": ""},
-            {"name": "max_productor", "value": ""},
+            {"name": "Max Product", "value": ""},
+            {"name": "Max Category", "value": ""},
+            {"name": "Max Productor", "value": ""},
         ]
     }
     return response
@@ -109,8 +109,8 @@ def calculate_statistics(orders, db):
     return {
         "statistics":
         [
-            {"name": "max_product", "value": max_product.name},
-            {"name": "max_category", "value": max_category.name if max_category else ""},
-            {"name": "max_productor", "value": max_productor.username},
+            {"name": "Max Product", "value": max_product.name},
+            {"name": "Max Category", "value": max_category.name if max_category else ""},
+            {"name": "Max Productor", "value": max_productor.username if max_productor else ""},
         ]
     }

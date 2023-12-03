@@ -98,9 +98,12 @@ def test_get_statistics_buyer_no_orders():
 
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["statistics"]["max_product"] == None
-    assert data["statistics"]["max_category"] == None
-    assert data["statistics"]["max_productor"] == None
+    assert data["statistics"][0]["name"] == "Max Product"
+    assert data["statistics"][0]["value"] == ""
+    assert data["statistics"][1]["name"] == "Max Category"
+    assert data["statistics"][1]["value"] == ""
+    assert data["statistics"][2]["name"] == "Max Productor"
+    assert data["statistics"][2]["value"] == ""
 
 
 def test_get_statistics_buyer_no_category():
@@ -124,9 +127,12 @@ def test_get_statistics_buyer_no_category():
 
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["statistics"]["max_product"] != None
-    assert data["statistics"]["max_category"] == None
-    assert data["statistics"]["max_productor"] != None
+    assert data["statistics"][0]["name"] == "Max Product"
+    assert data["statistics"][0]["value"] != ""
+    assert data["statistics"][1]["name"] == "Max Category"
+    assert data["statistics"][1]["value"] == ""
+    assert data["statistics"][2]["name"] == "Max Productor"
+    assert data["statistics"][2]["value"] != ""
 
 
 def test_get_statistics_buyer_accepted():
@@ -150,6 +156,9 @@ def test_get_statistics_buyer_accepted():
 
     data = response.json()
     assert response.status_code == 200, response.text
-    assert data["statistics"]["max_product"] is not None
-    assert data["statistics"]["max_category"] is not None
-    assert data["statistics"]["max_productor"] is not None
+    assert data["statistics"][0]["name"] == "Max Product"
+    assert data["statistics"][0]["value"] != ""
+    assert data["statistics"][1]["name"] == "Max Category"
+    assert data["statistics"][1]["value"] != ""
+    assert data["statistics"][2]["name"] == "Max Productor"
+    assert data["statistics"][2]["value"] != ""
