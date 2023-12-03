@@ -106,11 +106,11 @@ app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs", redoc_url="
               },
               servers=[
                   {
-                      "url": "http://localhost:8000/api",
+                      "url": "http://localhost:8000",
                       "description": "Local server"
                   },
                   {
-                      "url": os.getenv("AWS_URL", "COLOCAR URL") + "/api",
+                      "url": os.getenv("AWS_URL", "COLOCAR URL"),
                       "description": "AWS server"
                   }]
               )
