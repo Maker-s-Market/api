@@ -21,10 +21,11 @@ async def lifespan(app):
     yield
 
 
-description = """
-COLOCAR MORE INFORMATION THE PLATAFORME 
+description = """Makers Market is an innovative marketplace that bridges the gap between creative sellers and 
+enthusiastic buyers. Our platform is designed to empower users to both sell their unique products and discover a 
+diverse range of items from other community members.
 
-Some useful links:
+Discover more about Makers Market:
 <br> - [Makers Market Repository](https://github.com/Maker-s-Market/)
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
@@ -94,7 +95,7 @@ tags_metadata = [
 
 ]
 
-app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
+app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs", redoc_url="/api/redoc",
               lifespan=lifespan,
               title="Makers Market API",
               description=description,
@@ -105,7 +106,7 @@ app = FastAPI(openapi_url="/openapi.json", docs_url="/docs", redoc_url="/redoc",
               },
               servers=[
                   {
-                      "url": "http://localhost:8000/",
+                      "url": "http://localhost:8000",
                       "description": "Local server"
                   },
                   {
@@ -122,18 +123,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Add routers
-app.include_router(router=insert_data.router)
-app.include_router(router=auth.router)
-app.include_router(router=user.router)
-app.include_router(router=category.router)
-app.include_router(router=product.router)
-app.include_router(router=review.router)
-app.include_router(router=ratingProduct.router)
-app.include_router(router=ratingUser.router)
-app.include_router(router=wishlist.router)
-app.include_router(router=orders.router)
-app.include_router(router=statistics.router)
-app.include_router(router=payment.router)
+app.include_router(prefix="/api", router=insert_data.router)
+app.include_router(prefix="/api", router=auth.router)
+app.include_router(prefix="/api", router=product.router)
+app.include_router(prefix="/api", router=category.router)
+app.include_router(prefix="/api", router=user.router)
+app.include_router(prefix="/api", router=review.router)
+app.include_router(prefix="/api", router=ratingUser.router)
+app.include_router(prefix="/api", router=ratingProduct.router)
+app.include_router(prefix="/api", router=wishlist.router)
+app.include_router(prefix="/api", router=orders.router)
+app.include_router(prefix="/api", router=statistics.router)
+app.include_router(prefix="/api", router=payment.router)
 
 load_dotenv(".aws")
 s3 = boto3.client(
@@ -152,15 +153,15 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/health")
+@app.get("/api/health")
 async def main():
     return {"Hello": "from makers market AWS"}
 
 
-@app.get("/", tags=["Home Page"])
-async def main():
-    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
-
+# @app.get("/", tags=["Home Page"])
+# async def main():
+#     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
+#
 
 @app.post("/api/uploadfile/", tags=["Image"])
 async def create_upload_file(file: UploadFile = File(...)):

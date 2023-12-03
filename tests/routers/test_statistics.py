@@ -19,8 +19,8 @@ COGNITO_USER_CLIENT_ID = os.getenv("COGNITO_USER_CLIENT_ID")
 
 client = TestClient(app)
 
-SELLER_STATISTICS = "/statistics/seller"
-BUYER_STATISTICS = "/statistics/buyer"
+SELLER_STATISTICS = "/api/statistics/seller"
+BUYER_STATISTICS = "/api/statistics/buyer"
 
 
 def get_client_id():
@@ -61,7 +61,7 @@ def load_data():
 
 def login_user_1():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -72,7 +72,7 @@ def login_user_1():
 
 def login_user_2():
     os.environ['COGNITO_USER_CLIENT_ID'] = os.getenv("COGNITO_USER_CLIENT_ID")
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -110,7 +110,7 @@ def test_get_statistics_buyer_no_category():
     ]
 
     response = client.post(
-        "/order",
+        "/api/order",
         headers={"Authorization": f"Bearer {login_user_1()}"},
         json=order_items
     )
@@ -136,7 +136,7 @@ def test_get_statistics_buyer_accepted():
     ]
 
     response = client.post(
-        "/order",
+        "/api/order",
         headers={"Authorization": f"Bearer {login_user_1()}"},
         json=order_items
     )

@@ -49,14 +49,14 @@ def load_data():
 
 def test_normal_post_product_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -84,7 +84,7 @@ def test_normal_post_product_success():
 
 
 def test_post_product_no_token():
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -103,14 +103,14 @@ def test_post_product_no_token():
 def test_post_product_but_wrong_category():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -131,14 +131,14 @@ def test_post_product_but_wrong_category():
 def test_get_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -154,7 +154,7 @@ def test_get_product():
     data = response.json()
     product_id = data["id"]
 
-    response = client.get("/product/" + str(product_id))  # ig this could go wrong
+    response = client.get("/api/product/" + str(product_id))  # ig this could go wrong
 
     assert response.status_code == 200
 
@@ -178,12 +178,12 @@ def test_get_product():
 
 def test_get_product_not_existing_id_the_product():
     mock_id = "some random id string"
-    response = client.get("/product/" + mock_id)
+    response = client.get("/api/product/" + mock_id)
     assert response.status_code == 404, response.text == "Product not found"
 
 
 def test_get_product_not_existing_id_the_user():
-    response = client.get("/product/06e0da01-57fd-2229-95be-123455555566")
+    response = client.get("/api/product/06e0da01-57fd-2229-95be-123455555566")
     assert response.status_code == 404, response.text == "User not found"
 
 
@@ -191,14 +191,14 @@ def test_get_product_not_existing_id_the_user():
 def test_put_not_existing_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/product/1",
+    response = client.put("/api/product/1",
                           json={
                               "name": "product1",
                               "description": "product1's description",
@@ -219,14 +219,14 @@ def test_put_not_existing_product():
 def test_put_existing_product_no_category():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -242,7 +242,7 @@ def test_put_existing_product_no_category():
 
     product_id = response.json()["id"]
 
-    response = client.put("/product/" + str(product_id),
+    response = client.put("/api/product/" + str(product_id),
                           json={
                               "name": "product123",
                               "description": "product123's description",
@@ -274,14 +274,14 @@ def test_put_existing_product_no_category():
 def test_put_existing_product_no_existing_category():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -297,7 +297,7 @@ def test_put_existing_product_no_existing_category():
 
     product_id = response.json()["id"]
 
-    response = client.put("/product/" + str(product_id),
+    response = client.put("/api/product/" + str(product_id),
                           json={
                               "name": "product123",
                               "description": "product123's description",
@@ -320,14 +320,14 @@ def test_put_existing_product_no_existing_category():
 def test_put_existing_product_existing_category():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/category",
+    response = client.post("/api/category",
                            json={
                                "name": "category1edit",
                                "icon": "icon1"
@@ -335,7 +335,7 @@ def test_put_existing_product_existing_category():
 
     category1_id = response.json()["id"]
 
-    response = client.post("/category",
+    response = client.post("/api/category",
                            json={
                                "name": "category2edit",
                                "icon": "icon2"
@@ -343,7 +343,7 @@ def test_put_existing_product_existing_category():
 
     category2_id = response.json()["id"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -359,7 +359,7 @@ def test_put_existing_product_existing_category():
 
     product_id = response.json()["id"]
 
-    response = client.put("/product/" + str(product_id),
+    response = client.put("/api/product/" + str(product_id),
                           json={
                               "name": "product1",
                               "description": "product1's description",
@@ -399,14 +399,14 @@ def test_put_existing_product_existing_category():
 def test_put_not_authenticated():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -422,7 +422,7 @@ def test_put_not_authenticated():
 
     product_id = response.json()["id"]
 
-    response = client.put("/product/" + str(product_id),
+    response = client.put("/api/product/" + str(product_id),
                           json={
                               "name": "product1",
                               "description": "product1's description",
@@ -440,14 +440,14 @@ def test_put_not_authenticated():
 def test_put_not_allowed():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -463,14 +463,14 @@ def test_put_not_allowed():
 
     product_id = response.json()["id"]
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/product/" + str(product_id),
+    response = client.put("/api/product/" + str(product_id),
                           json={
                               "name": "product1",
                               "description": "product1's description",
@@ -490,13 +490,13 @@ def test_put_not_allowed():
 
 def test_delete_existing_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -512,7 +512,7 @@ def test_delete_existing_product():
 
     product_id = response.json()["id"]
 
-    response = client.delete("/product/" + product_id, headers={"Authorization": "Bearer " + token})
+    response = client.delete("/api/product/" + product_id, headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200
     assert response.json() == {"message": "Product deleted"}
@@ -521,7 +521,7 @@ def test_delete_existing_product():
 def test_delete_non_existing_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -530,7 +530,7 @@ def test_delete_non_existing_product():
 
     id = "some non-existing id"
 
-    response = client.delete("/product/" + id, headers={"Authorization": "Bearer " + token})
+    response = client.delete("/api/product/" + id, headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Product not found"}
@@ -538,13 +538,13 @@ def test_delete_non_existing_product():
 
 def test_delete_not_authenticated():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -560,7 +560,7 @@ def test_delete_not_authenticated():
 
     product_id = response.json()["id"]
 
-    response = client.delete("/product/" + product_id)
+    response = client.delete("/api/product/" + product_id)
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
@@ -569,13 +569,13 @@ def test_delete_not_authenticated():
 def test_delete_not_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -591,14 +591,14 @@ def test_delete_not_owner():
 
     product_id = response.json()["id"]
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.delete("/product/" + str(product_id), headers={"Authorization": "Bearer " + token})
+    response = client.delete("/api/product/" + str(product_id), headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'Only the user can change its products'}
@@ -606,14 +606,14 @@ def test_delete_not_owner():
 
 def test_filter_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product1",
                     "description": "product1's description",
@@ -628,7 +628,7 @@ def test_filter_product():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product2",
                     "description": "product2's description",
@@ -642,7 +642,7 @@ def test_filter_product():
                 )
 
     response = client.get(
-        "/product?q=" + str(1) + "&limit=" + str(4) + "&price_min=" + str(3) + "&price_max=" + str(20) +
+        "/api/product?q=" + str(1) + "&limit=" + str(4) + "&price_min=" + str(3) + "&price_max=" + str(20) +
         "&location=" + str("") + "&sort=price_asc&discount=" + str(0))
 
     data = response.json()
@@ -653,14 +653,14 @@ def test_filter_product():
 
 def test_filter_product_category_not_found():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product1",
                     "description": "product1's description",
@@ -675,7 +675,7 @@ def test_filter_product_category_not_found():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    response = client.get("/product" +
+    response = client.get("/api/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(3) +
@@ -690,7 +690,7 @@ def test_filter_product_category_not_found():
 
 
 def test_filter_product_invalid_price_range():
-    response = client.get("/product" +
+    response = client.get("/api/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(20) +
@@ -706,14 +706,14 @@ def test_filter_product_invalid_price_range():
 # this
 def test_product_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product1",
                     "description": "product1's description",
@@ -728,7 +728,7 @@ def test_product_location():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product2",
                     "description": "product2's description",
@@ -741,7 +741,7 @@ def test_product_location():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    response = client.get("/product" +
+    response = client.get("/api/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(2) +
                           "&price_min=" + str(3) +
@@ -757,14 +757,14 @@ def test_product_location():
 
 def test_product_no_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product1",
                     "description": "product1's description",
@@ -779,7 +779,7 @@ def test_product_no_location():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    client.post("/product",
+    client.post("/api/product",
                 json={
                     "name": "product2",
                     "description": "product2's description",
@@ -792,7 +792,7 @@ def test_product_no_location():
                 headers={"Authorization": "Bearer " + token}
                 )
 
-    response = client.get("/product" +
+    response = client.get("/api/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(2) +
                           "&price_min=" + str(3) +
@@ -807,7 +807,7 @@ def test_product_no_location():
 
 
 def test_filter_product_invalid_sort():
-    response = client.get("/product" +
+    response = client.get("/api/product" +
                           "?q=" + str(1) +
                           "&limit=" + str(1) +
                           "&price_min=" + str(3) +
@@ -820,7 +820,7 @@ def test_filter_product_invalid_sort():
 
 
 def test_get_top_products():
-    response = client.get("/product/top/4")
+    response = client.get("/api/product/top/4")
 
     assert response.status_code == 200, response.text
 
@@ -829,7 +829,7 @@ def test_get_top_products():
 
 
 def test_put_products_available_not_auth():
-    response = client.put("/products/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
+    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
@@ -837,14 +837,14 @@ def test_put_products_available_not_auth():
 
 def test_put_products_available_not_owner():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "marianaandrade@ua.pt",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/products/06e0da01-57fd-2229-95be-123455555566/available?available=true",
+    response = client.put("/api/products/06e0da01-57fd-2229-95be-123455555566/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 403
@@ -853,14 +853,14 @@ def test_put_products_available_not_owner():
 
 def test_put_products_available_not_existing_product():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "marianaandrade@ua.pt",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/products/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
@@ -869,14 +869,14 @@ def test_put_products_available_not_existing_product():
 
 def test_put_products_available_already_available():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "marianaandrade@ua.pt",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 400
@@ -885,14 +885,14 @@ def test_put_products_available_already_available():
 
 def test_put_products_available_success():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "marianaandrade@ua.pt",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
+    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200
@@ -902,6 +902,6 @@ def test_put_products_available_success():
 
 
 def test_get_product_id_not_available():
-    response = client.get("/product/06e0da01-57fd-2228-95be-0d25c764ea57")
+    response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57")
     assert response.status_code == 404
     assert response.json() == {'detail': 'Product not available'}

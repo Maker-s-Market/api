@@ -24,7 +24,7 @@ def get_client_id():
     return COGNITO_USER_CLIENT_ID
 
 
-ORDER = "/order"
+ORDER = "/api/order"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -54,7 +54,7 @@ def load_data():
 
 def login_user_1():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -65,7 +65,7 @@ def login_user_1():
 
 def login_user_2():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
