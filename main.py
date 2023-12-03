@@ -133,7 +133,7 @@ app.include_router(prefix="/api", router=ratingProduct.router)
 app.include_router(prefix="/api", router=wishlist.router)
 app.include_router(prefix="/api", router=orders.router)
 app.include_router(prefix="/api", router=statistics.router)
-app.include_router(router=payment.router)
+app.include_router(prefix="/api", router=payment.router)
 
 load_dotenv(".aws")
 s3 = boto3.client(
