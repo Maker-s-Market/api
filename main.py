@@ -100,7 +100,7 @@ app = FastAPI(openapi_url="/api/openapi.json", docs_url="/api/docs", redoc_url="
               title="Makers Market API",
               description=description,
               openapi_tags=tags_metadata,
-              version="0.0.1",
+              version="4.0.0",
               contact={
                   "name": "Makers Market",
               },
