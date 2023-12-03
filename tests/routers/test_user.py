@@ -315,3 +315,8 @@ def test_get_followers_sort_desc_num_rating():
     assert len(data) == 2
     assert data[0]["username"] == "mariana"
     assert data[1]["username"] == "joao"
+
+def test_get_user_products():
+    response = client.get("/api/user/products", 
+                        headers={"Authorization": BEARER + login_user_1()})
+    assert response.status_code == 200

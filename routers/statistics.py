@@ -23,25 +23,29 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
     """
     user = get_user(username, db)
     products_id = [product.id for product in get_products_by_user_id(user.id, db)]
-    sales = {}
+    sales = []
     total_quantity = 0
     total_views_products = 0
     for product_id in products_id:
-        sales[product_id] = 0
+        value = 0
         items = get_orders_items_by_product_id(product_id, db)
         for item in items:
-            sales[product_id] += item.quantity
+            value += item.quantity
             total_quantity += item.quantity
-        total_views_products += get_product_by_id(product_id, db).number_views
+        product = get_product_by_id(product_id, db)
+        total_views_products += product.number_views
+        sales.append({"name": product.name, "value": value})
     total_views_profile = user.views
-    top_product_sale = max(sales, key=lambda k: sales[k])
+    top_product_sale = max(sales, key=lambda x: x["value"])["name"] if sales else ""
 
     response = {"chart": sales,
                 "statistics":
-                    {
-                        "total quantity": total_quantity, "total views profile": total_views_profile,
-                        "total views Products": total_views_products, "top product sale": top_product_sale
-                    }
+                    [
+                        {"name": "Total Quantity", "value": total_quantity},
+                        {"name": "Total Views Profile", "value": total_views_profile},
+                        {"name": "Total Views Products", "value": total_views_products},
+                        {"name": "Top Product Sale", "value": top_product_sale}
+                    ]
                 }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
@@ -57,20 +61,17 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
 
     if not orders:
         return JSONResponse(status_code=200, content=jsonable_encoder(create_empty_response()))
-
-    statistics = calculate_statistics(orders, db)
-
-    return JSONResponse(status_code=200, content=jsonable_encoder({"statistics": statistics}))
+    return JSONResponse(status_code=200, content=jsonable_encoder(calculate_statistics(orders, db)))
 
 
 def create_empty_response():
     response = {
         "statistics":
-            {
-                "max_product": None,
-                "max_category": None,
-                "max_productor": None
-            }
+        [
+            {"name": "Max Product", "value": ""},
+            {"name": "Max Category", "value": ""},
+            {"name": "Max Productor", "value": ""},
+        ]
     }
     return response
 
@@ -99,10 +100,17 @@ def calculate_statistics(orders, db):
     max_product = get_product_by_id(max_product_id, db)
     max_productor = get_user_by_id(max_productor_id, db)
 
-    max_category = None
+    max_category = ""
 
     if quantity_per_category:
         max_category_id = max(quantity_per_category, key=quantity_per_category.get)
         max_category = get_category_by_id(max_category_id, db)
 
-    return {"max_product": max_product, "max_category": max_category, "max_productor": max_productor}
+    return {
+        "statistics":
+        [
+            {"name": "Max Product", "value": max_product.name},
+            {"name": "Max Category", "value": max_category.name if max_category else ""},
+            {"name": "Max Productor", "value": max_productor.username if max_productor else ""},
+        ]
+    }

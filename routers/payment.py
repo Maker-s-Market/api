@@ -33,7 +33,7 @@ async def payment(amount: float, db: Session = Depends(get_db), username: str = 
         amount=amount_in_cents,
         currency="eur",
         payment_method_types=["card"],
-        description="Order payment in MarkersMarket",
+        description="Payment in MarkersMarket",
     )
     return JSONResponse(status_code=201,
                         content=jsonable_encoder({"client_secret": payment.client_secret}))
