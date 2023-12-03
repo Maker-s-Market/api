@@ -47,7 +47,7 @@ def load_data():
 def login_user1():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
 
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
@@ -59,19 +59,19 @@ def login_user1():
 def test_process_payment():
     token = login_user1()
     print(token)
-    response = client.post("/payment/process-payment?amount=10.0", headers={"Authorization":  f"Bearer {token}"})
+    response = client.post("/api/payment/process-payment?amount=10.0", headers={"Authorization":  f"Bearer {token}"})
     assert response.status_code == 201
     assert response.json()["client_secret"] is not None
 
 
 def test_process_payment_invalid_amount():
     token = login_user1()
-    response = client.post("/payment/process-payment?amount=0.1", headers={"Authorization":  f"Bearer {token}"})
+    response = client.post("/api/payment/process-payment?amount=0.1", headers={"Authorization":  f"Bearer {token}"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Amount must be greater than 50 cents."
 
 
 def test_process_payment_not_logged():
-    response = client.post("/payment/process-payment?amount=10.0")
+    response = client.post("/api/payment/process-payment?amount=10.0")
     assert response.status_code == 403
     assert response.json()["detail"] == "Not authenticated"

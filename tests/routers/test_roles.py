@@ -67,14 +67,14 @@ def load_data():
 
 def test_post_product_greater_than_five_client():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -94,14 +94,14 @@ def test_post_product_greater_than_five_client():
 
 def test_post_product_greater_than_five_premium():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "mariana",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -129,14 +129,14 @@ def test_post_product_greater_than_five_premium():
 
 def test_change_role_valid():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/user/role" + "/Premium",
+    response = client.put("/api/user/role" + "/Premium",
                            headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200, response.text
@@ -152,14 +152,14 @@ def test_change_role_valid():
 
 def test_change_role_invalid():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/user/role" + "/random",
+    response = client.put("/api/user/role" + "/random",
                            headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 403, response.text
@@ -169,19 +169,19 @@ def test_change_role_invalid():
 
 def test_change_role_and_put_product_premium_to_client():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
-    response = client.post("/auth/sign-in", json={
+    response = client.post("/api/auth/sign-in", json={
         "identifier": "brums21",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/user/role" + "/Premium",
+    response = client.put("/api/user/role" + "/Premium",
                            headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200, response.text
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product1",
                                "description": "product1's description",
@@ -196,7 +196,7 @@ def test_change_role_and_put_product_premium_to_client():
 
     assert response.status_code == 201
 
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product2",
                                "description": "product2's description",
@@ -211,10 +211,10 @@ def test_change_role_and_put_product_premium_to_client():
     
     assert response.status_code == 201
 
-    response = client.put("/user/role" + "/Client",
+    response = client.put("/api/user/role" + "/Client",
                            headers={"Authorization": "Bearer " + token})
     
-    response = client.post("/product",
+    response = client.post("/api/product",
                            json={
                                "name": "product2",
                                "description": "product2's description",
