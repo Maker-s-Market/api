@@ -108,3 +108,13 @@ async def change_user_role(role: str, db: Session = Depends(get_db), username: s
     if role != "Client" and role != "Premium":
         raise HTTPException(status_code=403, detail="User role is not valid. Valid options are: Client and Premium.")
     return JSONResponse(status_code=200, content=jsonable_encoder(update_user_role(role, username, db)))
+
+
+@router.get("/user/products", dependencies=[Depends(auth)])
+async def get_user_products(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
+    """
+        get user products
+    """
+    user = get_user(username, db)
+    products = get_products_by_user_id(user_id=user.id, db=db)
+    return JSONResponse(status_code=200, content=jsonable_encoder([product.to_dict() for product in products]))
