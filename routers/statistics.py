@@ -22,26 +22,29 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
         Function that returns the statistics of the seller
     """
     user = get_user(username, db)
-    products_id = [product.id for product in get_products_by_user_id(user.id, db)]
-    sales = {}
+    products_name = [product.name for product in get_products_by_user_id(user.id, db)]
+    sales = []
     total_quantity = 0
     total_views_products = 0
-    for product_id in products_id:
-        sales[product_id] = 0
-        items = get_orders_items_by_product_id(product_id, db)
+    for product_name in products_name:
+        value = 0
+        items = get_orders_items_by_product_id(product_name, db)
         for item in items:
-            sales[product_id] += item.quantity
+            value += item.quantity
             total_quantity += item.quantity
-        total_views_products += get_product_by_id(product_id, db).number_views
+        total_views_products += get_product_by_id(product_name, db).number_views
+        sales.append({"name": product_name, "value": value})
     total_views_profile = user.views
     top_product_sale = max(sales, key=lambda k: sales[k])
 
     response = {"chart": sales,
                 "statistics":
-                    {
-                        "total quantity": total_quantity, "total views profile": total_views_profile,
-                        "total views Products": total_views_products, "top product sale": top_product_sale
-                    }
+                    [
+                        {"name": "total quantity", "value": total_quantity},
+                        {"name": "total views profile", "value": total_views_profile},
+                        {"name": "total views Products", "value": total_views_products},
+                        {"name": "top product sale", "value": top_product_sale}
+                    ]
                 }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
@@ -57,20 +60,17 @@ async def statistics(db: Session = Depends(get_db), username: str = Depends(get_
 
     if not orders:
         return JSONResponse(status_code=200, content=jsonable_encoder(create_empty_response()))
-
-    statistics = calculate_statistics(orders, db)
-
-    return JSONResponse(status_code=200, content=jsonable_encoder({"statistics": statistics}))
+    return JSONResponse(status_code=200, content=jsonable_encoder(calculate_statistics(orders, db)))
 
 
 def create_empty_response():
     response = {
         "statistics":
-            {
-                "max_product": None,
-                "max_category": None,
-                "max_productor": None
-            }
+        [
+            {"name": "max_product", "value": ""},
+            {"name": "max_category", "value": ""},
+            {"name": "max_productor", "value": ""},
+        ]
     }
     return response
 
@@ -105,4 +105,11 @@ def calculate_statistics(orders, db):
         max_category_id = max(quantity_per_category, key=quantity_per_category.get)
         max_category = get_category_by_id(max_category_id, db)
 
-    return {"max_product": max_product, "max_category": max_category, "max_productor": max_productor}
+    return {
+        "statistics":
+        [
+            {"name": "max_product", "value": max_product.name},
+            {"name": "max_category", "value": max_category.name if max_category else ""},
+            {"name": "max_productor", "value": max_productor.username},
+        ]
+    }

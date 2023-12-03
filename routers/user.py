@@ -114,6 +114,7 @@ async def change_user_role(role: str, db: Session = Depends(get_db), username: s
 async def get_user_products(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """
         get user products
+        # TODO: implement Test
     """
     user = get_user(username, db)
     products = get_products_by_user_id(user_id=user.id, db=db)
