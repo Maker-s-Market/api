@@ -17,6 +17,7 @@ log.txt
 Pipfile.lock
 env3.*
 env
+lcov.info
 docs_build
 site_build
 venv

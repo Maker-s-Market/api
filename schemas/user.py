@@ -9,7 +9,7 @@ class CreateUser(BaseModel):
     city: str
     region: str
     photo: str
-    role: str
+    role: str = "Client"
 
 class UserUpdate(BaseModel):
     id: str
