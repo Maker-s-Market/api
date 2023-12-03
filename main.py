@@ -21,10 +21,11 @@ async def lifespan(app):
     yield
 
 
-description = """
-COLOCAR MORE INFORMATION THE PLATAFORME 
+description = """Makers Market is an innovative marketplace that bridges the gap between creative sellers and 
+enthusiastic buyers. Our platform is designed to empower users to both sell their unique products and discover a 
+diverse range of items from other community members.
 
-Some useful links:
+Discover more about Makers Market:
 <br> - [Makers Market Repository](https://github.com/Maker-s-Market/)
 <br> - [Makers Market Documentation](https://maker-s-market.github.io/documentation/)
 <br> - [Makers Market Jira](https://es-proj.atlassian.net/jira/software/projects/KAN/boards/1)
