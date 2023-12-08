@@ -57,7 +57,8 @@ class JWTBearer(HTTPBearer):
             message, signature = jwt_token.rsplit(".", 1)
 
             try:
-                claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], algorithms=['RS256'])
+
+                claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], options={"verify_signature": True, "verify_exp": False}, algorithms=['RS256'])
 
                 if "auth_time" in claims:
                     claims["auth_time"] = str(claims["auth_time"])
@@ -70,8 +71,8 @@ class JWTBearer(HTTPBearer):
                     jwt_token=jwt_token,
                     header=jwt.get_unverified_header(jwt_token),
                     claims=claims,
-                    signature=jwt_token.rsplit(".", 1)[1],
-                    message=jwt_token.rsplit(".", 1)[0],
+                    signature=signature,
+                    message=message,
                )
             except JWTError:
                 raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
