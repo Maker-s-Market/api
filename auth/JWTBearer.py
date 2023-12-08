@@ -57,7 +57,14 @@ class JWTBearer(HTTPBearer):
 
         try:
 
-            claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], options={"verify_signature": True, "verify_exp": False}, algorithms=['RS256'])
+            header = jwt.get_unverified_headers(jwt_token)
+            public_key = self.kid_to_jwk[header["kid"]]
+            claims = jwt.decode(
+                jwt_token,
+                public_key,
+                options={"verify_signature": True, "verify_exp": False},
+                algorithms=["RS256"],
+            )
 
             if "auth_time" in claims:
                 claims["auth_time"] = str(claims["auth_time"])
@@ -68,7 +75,7 @@ class JWTBearer(HTTPBearer):
 
             jwt_credentials = JWTAuthorizationCredentials(
                 jwt_token=jwt_token,
-                header=jwt.get_unverified_header(jwt_token),
+                header=header,
                 claims=claims,
                 signature=signature,
                 message=message,
