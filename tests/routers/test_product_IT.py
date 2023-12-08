@@ -829,7 +829,7 @@ def test_get_top_products():
 
 
 def test_put_products_available_not_auth():
-    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
+    response = client.put("/api/product/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
@@ -844,7 +844,7 @@ def test_put_products_available_not_owner():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2229-95be-123455555566/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2229-95be-123455555566/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 403
@@ -860,7 +860,7 @@ def test_put_products_available_not_existing_product():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
@@ -876,7 +876,7 @@ def test_put_products_available_already_available():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 400
@@ -892,7 +892,7 @@ def test_put_products_available_success():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
+    response = client.put("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200
