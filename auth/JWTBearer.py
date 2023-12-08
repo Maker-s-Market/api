@@ -46,44 +46,37 @@ class JWTBearer(HTTPBearer):
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
-        if credentials:
-            if credentials.scheme != "Bearer":
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
-                )
+        if not credentials or credentials.scheme != "Bearer":
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
+            )
 
-            jwt_token = credentials.credentials
+        jwt_token = credentials.credentials
 
-            message, signature = jwt_token.rsplit(".", 1)
+        message, signature = jwt_token.rsplit(".", 1)
 
-            try:
+        try:
 
-                claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], options={"verify_signature": True, "verify_exp": False}, algorithms=['RS256'])
+            claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], options={"verify_signature": True, "verify_exp": False}, algorithms=['RS256'])
 
-                if "auth_time" in claims:
-                    claims["auth_time"] = str(claims["auth_time"])
-                if "iat" in claims:
-                    claims["iat"] = str(claims["iat"])
-                if "exp" in claims:
-                    claims["exp"] = str(claims["exp"])
+            if "auth_time" in claims:
+                claims["auth_time"] = str(claims["auth_time"])
+            if "iat" in claims:
+                claims["iat"] = str(claims["iat"])
+            if "exp" in claims:
+                claims["exp"] = str(claims["exp"])
 
-                jwt_credentials = JWTAuthorizationCredentials(
-                    jwt_token=jwt_token,
-                    header=jwt.get_unverified_header(jwt_token),
-                    claims=claims,
-                    signature=signature,
-                    message=message,
-               )
-            except JWTError:
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
-            
-            except ExpiredSignatureError:
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Token has expired")
-            
-            except InvalidTokenError:
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid token")
+            jwt_credentials = JWTAuthorizationCredentials(
+                jwt_token=jwt_token,
+                header=jwt.get_unverified_header(jwt_token),
+                claims=claims,
+                signature=signature,
+                message=message,
+            )
+        except JWTError:
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
-            if not self.verify_jwk_token(jwt_credentials):
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+        if not self.verify_jwk_token(jwt_credentials):
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
-            return jwt_credentials
+        return jwt_credentials
