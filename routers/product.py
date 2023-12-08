@@ -69,6 +69,25 @@ async def get_products(q: str = "", limit: int = 10,
                         content=jsonable_encoder([product.to_dict() for product in result]))
 
 
+@router.put("/product/discount/", dependencies=[Depends(auth)])
+async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
+                                username: str = Depends(get_current_user)):
+    """
+        Create/Update a product discount
+    """
+    product = get_product_by_id(product_id=update.product_id, db=db)
+    user = get_user(username, db)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
+
+    product.discount = update.discount
+    updated_product = product.update_product(db, product)
+
+    return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))
+
+
 @router.get("/product/{product_id}")
 # TODO: PROBLEM THE PRODUCT IS NOT AVAILABLE BUT THE OWNER CAN SEE IT
 async def get_product(product_id: str, db: Session = Depends(get_db)):
@@ -95,32 +114,11 @@ async def get_top_products(limit: int = 4, db: Session = Depends(get_db)):
                                                                                                       db=db)]))
 
 
-@router.put("/products/discount", dependencies=[Depends(auth)])
-async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
-                                username: str = Depends(get_current_user)):
-    """
-        Create/Update a product discount
-        # TODO: CANGHE THe name of this endpoint
-    """
-    product = get_product_by_id(product_id=update.product_id, db=db)
-    user = get_user(username, db)
-    if product is None:
-        raise HTTPException(status_code=404, detail="Product not found")
-    if product.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
-
-    product.discount = update.discount
-    updated_product = product.update_product(db, product)
-
-    return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))
-
-
-@router.put("/products/{product_id}/available", dependencies=[Depends(auth)])
+@router.put("/product/{product_id}/available", dependencies=[Depends(auth)])
 async def put_products_available(product_id: str, available: bool, db: Session = Depends(get_db),
                                  username: str = Depends(get_current_user)):
     """
     Change product available
-    # TODO: CANGHE THe name of this endpoint
     """
 
     product = get_product_by_id(product_id=product_id, db=db)
