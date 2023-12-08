@@ -47,7 +47,7 @@ websockets==11.0.3
 wrapt==1.15.0
 boto3~=1.28.68
 python-multipart~=0.0.6
-jwt
+pyjwt
 python-jose
 pip~=22.3.1
 wheel~=0.38.4

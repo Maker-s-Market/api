@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, jwk, JWTError
 from jose.utils import base64url_decode
+from jwt import InvalidTokenError, ExpiredSignatureError
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
@@ -56,7 +57,7 @@ class JWTBearer(HTTPBearer):
             message, signature = jwt_token.rsplit(".", 1)
 
             try:
-                claims = jwt.get_unverified_claims(jwt_token)
+                claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], algorithms=['RS256'])
 
                 if "auth_time" in claims:
                     claims["auth_time"] = str(claims["auth_time"])
@@ -69,11 +70,17 @@ class JWTBearer(HTTPBearer):
                     jwt_token=jwt_token,
                     header=jwt.get_unverified_header(jwt_token),
                     claims=claims,
-                    signature=signature,
-                    message=message,
-                )
+                    signature=jwt_token.rsplit(".", 1)[1],
+                    message=jwt_token.rsplit(".", 1)[0],
+               )
             except JWTError:
                 raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+            
+            except ExpiredSignatureError:
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Token has expired")
+            
+            except InvalidTokenError:
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid token")
 
             if not self.verify_jwk_token(jwt_credentials):
                 raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
