@@ -14,7 +14,8 @@ from models.wishList import Wishlist
 router = APIRouter(tags=['Insert Data'])
 
 
-@router.on_event("startup")
+# TODO CHANGE THIS TO BEGIN WITH A CLEAN DATABASE
+@router.get("/insert_data")
 async def insert_data(db: Session = Depends(get_db)):
     # CATEGORY
     drinks = Category(id=str(uuid4()), name="Drinks", icon="wine-bottle", slug="drinks")

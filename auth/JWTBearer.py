@@ -18,8 +18,8 @@ class JWKS(BaseModel):
 
 class JWTAuthorizationCredentials(BaseModel):
     jwt_token: str
-    header: dict[str, str]
-    claims: dict[str, str]
+    header: dict
+    claims: dict
     signature: str
     message: str
 
@@ -44,6 +44,7 @@ class JWTBearer(HTTPBearer):
         return key.verify(jwt_credentials.message.encode(), decoded_signature)
 
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
+
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
         if not credentials or credentials.scheme != "Bearer":
@@ -52,13 +53,15 @@ class JWTBearer(HTTPBearer):
             )
 
         jwt_token = credentials.credentials
-
         message, signature = jwt_token.rsplit(".", 1)
 
         try:
+            padded = jwt_token + "="*divmod(len(jwt_token),4)[1]
+            jsondata = base64.urlsafe_b64decode(padded)
+            header = json.loads(jsondata)
 
-            header = jwt.get_unverified_headers(jwt_token)
             public_key = self.kid_to_jwk[header["kid"]]
+
             claims = jwt.decode(
                 jwt_token,
                 public_key,
@@ -66,10 +69,14 @@ class JWTBearer(HTTPBearer):
                 algorithms=["RS256"],
             )
 
+            print(claims)
+
             if "auth_time" in claims:
                 claims["auth_time"] = str(claims["auth_time"])
+
             if "iat" in claims:
                 claims["iat"] = str(claims["iat"])
+
             if "exp" in claims:
                 claims["exp"] = str(claims["exp"])
 
@@ -80,6 +87,7 @@ class JWTBearer(HTTPBearer):
                 signature=signature,
                 message=message,
             )
+
         except JWTError:
             raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
