@@ -56,10 +56,8 @@ class JWTBearer(HTTPBearer):
         message, signature = jwt_token.rsplit(".", 1)
 
         try:
-            padded = jwt_token + "="*divmod(len(jwt_token),4)[1]
-            jsondata = base64.urlsafe_b64decode(padded)
-            header = json.loads(jsondata)
 
+            header = jwt.get_unverified_header(jwt_token)
             public_key = self.kid_to_jwk[header["kid"]]
 
             claims = jwt.decode(
@@ -68,8 +66,6 @@ class JWTBearer(HTTPBearer):
                 options={"verify_signature": True, "verify_exp": False},
                 algorithms=["RS256"],
             )
-
-            print(claims)
 
             if "auth_time" in claims:
                 claims["auth_time"] = str(claims["auth_time"])
