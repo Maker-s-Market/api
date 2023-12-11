@@ -7,8 +7,7 @@ from models.user import User
 from models.wishList import Wishlist
 from sqlalchemy.orm import Session
 
-def insertdata(session: Session):
-
+def insert_data(session: Session):
     # CATEGORY
     drinks = Category(id=str(uuid4()), name="Drinks", icon="wine-bottle", slug="drinks")
     food = Category(id=str(uuid4()), name="Food", icon="bowl-food", slug="food")

@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 from starlette.responses import JSONResponse, RedirectResponse
 
-from db.insert_data import insertdata
+from db.insert_data import insert_data
 from db.create_database import create_tables
 from db.database import SessionLocal 
 from routers import (product, category, auth, ratingUser, review, user, ratingProduct, wishlist, orders,
@@ -21,7 +21,7 @@ async def lifespan(app):
     create_tables()
     session = SessionLocal()
     try:
-        insertdata(session)
+        insert_data(session)
     except Exception:
         print("Data already inserted")
     yield
@@ -140,12 +140,6 @@ app.include_router(prefix="/api", router=wishlist.router)
 app.include_router(prefix="/api", router=orders.router)
 app.include_router(prefix="/api", router=statistics.router)
 app.include_router(prefix="/api", router=payment.router)
-
-@app.on_event("startup")
-def startup_event():
-    print("here")
-    session = SessionLocal()
-    insertdata(session)
 
 load_dotenv(".aws")
 s3 = boto3.client(
