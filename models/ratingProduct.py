@@ -43,6 +43,15 @@ class RatingProduct(Base):
             "user_id": self.user_id,
             "product_id": self.product_id
         }
+    
+    def to_dict_no_product(self):
+        return {
+            "id": self.id,
+            "rating": self.rating,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "user_id": self.user_id
+        }
 
 
 def create_rating(rating: CreateRatingProduct, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
