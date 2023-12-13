@@ -819,6 +819,20 @@ def test_filter_product_invalid_sort():
     assert response.json() == {'detail': 'Invalid sort parameter'}
 
 
+def test_get_products_but_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = client.get("/api/product", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert len(data) == 9
+
+
 def test_get_top_products():
     response = client.get("/api/product/top/4")
 

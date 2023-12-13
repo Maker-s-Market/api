@@ -53,7 +53,7 @@ async def delete_product(product_id: str, db: Session = Depends(get_db), usernam
 
 @router.get("/product")
 async def get_products(request: Request,
-                        q: str = "", limit: int = 10,
+                       q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False, location: str = "",
                        category_id: str = "", db: Session = Depends(get_db)):
@@ -72,16 +72,16 @@ async def get_products(request: Request,
     else:
         username = await get_current_user(await JWTBearer(jwks).__call__(request))
         user = get_user(username, db)
-        if user is None:
-            return JSONResponse(status_code=200,
-                                content=jsonable_encoder([product.to_dict() for product in result]))
-        else:
+        if user is not None:
             new_result = []
             for product in result:
                 if product.user_id != user.id:
-                    new_result.append(product.to_dict())
+                    new_result.append(product)
             return JSONResponse(status_code=200,
                                 content=jsonable_encoder([product.to_dict() for product in new_result]))
+
+    return JSONResponse(status_code=200,
+                        content=jsonable_encoder([product.to_dict() for product in result]))
 
 
 @router.put("/product/discount/", dependencies=[Depends(auth)])
