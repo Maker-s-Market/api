@@ -21,7 +21,6 @@ jwks = JWKS.parse_obj(
 
 auth = JWTBearer(jwks)
 
-
 async def get_current_user(credentials: JWTAuthorizationCredentials = Depends(auth)) -> str:
     try:
         return credentials.claims["username"]

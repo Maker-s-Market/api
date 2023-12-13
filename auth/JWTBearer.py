@@ -7,6 +7,8 @@ from jose.utils import base64url_decode
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+import base64
+import json
 
 JWK = Dict[str, str]
 
@@ -53,10 +55,21 @@ class JWTBearer(HTTPBearer):
 
             jwt_token = credentials.credentials
 
-            message, signature = jwt_token.rsplit(".", 1)
+            message, signature = jwt_token.rsplit(".",1)
+
+            header_, _, _ = jwt_token.split(".")
 
             try:
-                claims = jwt.get_unverified_claims(jwt_token)
+                padded = header_ + "="*divmod(len(header_),4)[1]
+                jsondata = base64.urlsafe_b64decode(padded)
+                data = json.loads(jsondata)
+
+                claims = jwt.decode(
+                    jwt_token, 
+                    self.kid_to_jwk[data["kid"]], 
+                    options={"verify_signature": True, "verify_exp": False}, 
+                    algorithms=['RS256']
+                )
 
                 if "auth_time" in claims:
                     claims["auth_time"] = str(claims["auth_time"])
@@ -67,14 +80,15 @@ class JWTBearer(HTTPBearer):
 
                 jwt_credentials = JWTAuthorizationCredentials(
                     jwt_token=jwt_token,
-                    header=jwt.get_unverified_header(jwt_token),
+                    header=data,
                     claims=claims,
                     signature=signature,
                     message=message,
                 )
+                
             except JWTError:
                 raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
-
+                
             if not self.verify_jwk_token(jwt_credentials):
                 raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
