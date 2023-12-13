@@ -703,7 +703,6 @@ def test_filter_product_invalid_price_range():
     assert response.json() == {'detail': 'Invalid price range'}
 
 
-# this
 def test_product_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/api/auth/sign-in", json={
@@ -915,7 +914,47 @@ def test_put_products_available_success():
     assert data["available"] == False
 
 
-def test_get_product_id_not_available():
+def test_get_product_id_not_available_not_auth():
     response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57")
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Product not available'}
+
+
+def test_get_product_id_available_not_auth():
+    response = client.get("/api/product/06e0da01-57fd-2227-95be-0d25c764ea56")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["product"]["id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
+    assert data["product"]["available"] == True
+
+
+def test_get_product_id_not_available_but_ower_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57",
+                          headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["product"]["id"] == "06e0da01-57fd-2228-95be-0d25c764ea57"
+    assert data["product"]["available"] == False
+
+
+def test_get_product_id_not_available_not_owner_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57",
+                          headers={"Authorization": "Bearer " + token})
     assert response.status_code == 404
     assert response.json() == {'detail': 'Product not available'}
