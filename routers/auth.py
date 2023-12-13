@@ -1,12 +1,14 @@
 import os
 
+import json
+
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, requests
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from auth.JWTBearer import JWTBearer
 from auth.auth import jwks, get_current_user
@@ -130,3 +132,34 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     response['orders'] = [order.to_dict(db=db) for order in get_orders_by_user_id(user_id=response['id'], db=db)]
     response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
+
+@router.get("/auth/token_code")
+async def get_token_from_code(code: str):
+    """
+    Function that takes the call back IDP response code and returns the token
+    TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    """
+
+    client_id = os.getenv("COGNITO_USER_CLIENT_ID")
+    domain = "https://" + os.getenv("COGNITO_DOMAIN")
+    redirect_url = "http://localhost:8000/auth/token_code"
+
+    body = (
+        'grant_type=authorization_code' +
+        f'&client_id={client_id}' + f'&code={code}' +
+        f'&redirect_uri={redirect_url}'
+    )
+
+    response = requests.post(
+        f'{domain}/oauth2/token',
+        body,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+    )
+
+    response_body = json.loads(response.text)
+    print(response_body)
+    access_token = response_body['access_token']
+
+    print("access_token: " + access_token)
+
+    return RedirectResponse(url="http://localhost:8000/docs", status_code=302)
