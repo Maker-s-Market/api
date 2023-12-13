@@ -7,7 +7,7 @@ from auth.auth import get_current_user
 from db.database import Base, get_db
 from fastapi import Depends, HTTPException
 from repositories.productRepo import get_product_by_id
-from repositories.userRepo import get_user
+from repositories.userRepo import get_user, get_user_by_id
 
 from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
 
@@ -51,6 +51,15 @@ class RatingProduct(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "user_id": self.user_id
+        }
+    
+    def to_dict_user(self, db):
+        return {
+            "id": self.id,
+            "rating": self.rating,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "user": get_user_by_id(self.user_id, db).information()
         }
 
 
