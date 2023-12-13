@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
@@ -90,15 +90,26 @@ async def put_products_discount(update: UpdateDiscount, db: Session = Depends(ge
 
 @router.get("/product/{product_id}")
 # TODO: PROBLEM THE PRODUCT IS NOT AVAILABLE BUT THE OWNER CAN SEE IT
-async def get_product(product_id: str, db: Session = Depends(get_db)):
+async def get_product(request: Request,
+                      product_id: str, db: Session = Depends(get_db)):
+    authorization = request.headers.get("authorization")
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     user = get_user_by_id(product.user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if product.available is False:
-        raise HTTPException(status_code=404, detail="Product not available")
+    if authorization is None:
+        print("no token")
+        if product.available is False:
+            raise HTTPException(status_code=404, detail="Product not available")
+    else:
+        # get token e username.
+        credentials = await JWTBearer(jwks).__call__(request)
+        username = await get_current_user(credentials)
+        user = get_user(username, db)
+        if product.user_id != user.id and product.available is False:
+            raise HTTPException(status_code=404, detail="Product not available")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
