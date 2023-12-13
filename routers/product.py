@@ -123,7 +123,7 @@ async def put_products_discount(update: UpdateDiscount, db: Session = Depends(ge
     product = get_product_by_id(product_id=update.product_id, db=db)
     user = get_user(username, db)
     if product is None:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     if product.user_id != user.id:
         raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
 
@@ -144,7 +144,7 @@ async def put_products_available(product_id: str, available: bool, db: Session =
     product = get_product_by_id(product_id=product_id, db=db)
     user = get_user(username, db)
     if product is None:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     if product.user_id != user.id:
         raise HTTPException(status_code=403, detail="Only the user can change their product's available")
     if product.available == available:

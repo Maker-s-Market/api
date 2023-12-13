@@ -5,8 +5,9 @@ import json
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, requests
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+import requests
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, RedirectResponse
 
@@ -19,7 +20,7 @@ from models.user import User
 from repositories.orderRepo import get_orders_by_user_id
 from repositories.productRepo import get_products_by_user_id
 from repositories.userRepo import new_user, delete_user, get_user, get_user_by_email
-from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin
+from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin, CreateUserIDP
 from utils import verify_password
 
 load_dotenv(".aws")
@@ -133,8 +134,25 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
+
+@router.post("/auth/sign-up-idp")
+async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
+    """
+        Function that takes the call back IDP response code and returns the token
+        TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    """
+
+    if (db.query(User).filter(User.username == user.username).first() or
+            db.query(User).filter(User.email == user.email).first()):
+        raise HTTPException(status_code=500, detail="User already exists in database")
+
+    new_user(user, db)
+
+    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
+
+
 @router.get("/auth/token_code")
-async def get_token_from_code(code: str):
+async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     """
     Function that takes the call back IDP response code and returns the token
     TODO: add user to database if it doesn't exist, else return user in database (search for the username)
@@ -142,7 +160,7 @@ async def get_token_from_code(code: str):
 
     client_id = os.getenv("COGNITO_USER_CLIENT_ID")
     domain = "https://" + os.getenv("COGNITO_DOMAIN")
-    redirect_url = "http://localhost:8000/auth/token_code"
+    redirect_url = "http://localhost:8000/api/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
 
     body = (
         'grant_type=authorization_code' +
@@ -157,9 +175,33 @@ async def get_token_from_code(code: str):
     )
 
     response_body = json.loads(response.text)
-    print(response_body)
+    
+    if "error" in response_body.keys():
+        raise HTTPException(status_code=403, detail=("Error: " + response_body["error"]))
+
     access_token = response_body['access_token']
 
-    print("access_token: " + access_token)
+    user_info_response = requests.get(
+        f'{domain}/oauth2/userInfo',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
 
-    return RedirectResponse(url="http://localhost:8000/docs", status_code=302)
+    user_info = json.loads(user_info_response.text)
+
+    print(user_info)
+
+    user_email = user_info["email"]
+    username = user_info["username"]
+    picture = None
+    if "picture" in user_info.keys():
+        picture = user_info["picture"]
+
+    user = get_user_by_email(user_email, db)
+
+    if user != None:
+        headers = {"Authorization": f"Bearer {access_token}"}
+        return RedirectResponse(url="https://makers-market.pt", headers=headers, status_code=302)
+
+    headers = {"Authorization": f"Bearer {access_token}", "email": user_email, "username": username, "picture": picture}
+
+    return RedirectResponse(url="https://makers-market.pt/sign-up-idp", headers=headers, status_code=302)
