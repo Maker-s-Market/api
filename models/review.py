@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from auth.auth import get_current_user
 from db.database import get_db, Base
-from repositories.userRepo import get_user
+from repositories.userRepo import get_user, get_user_by_id
 from schemas.review import CreateReview, UpdateReview
 
 
@@ -35,6 +35,15 @@ class Review(Base):
             "updated_at": self.updated_at,
             "user_id": self.user_id,
             "product_id": self.product_id
+        }
+    
+    def to_dict_user(self, db):
+        return {
+            "id": self.id,
+            "text": self.text,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "user": get_user_by_id(self.user_id, db).information()
         }
 
     def delete(self, db: Session = Depends(get_db)):

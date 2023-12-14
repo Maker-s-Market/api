@@ -1,5 +1,6 @@
 import os
 from contextlib import asynccontextmanager
+from sqlalchemy.ext.asyncio import async_scoped_session
 
 import boto3
 from dotenv import load_dotenv
@@ -9,15 +10,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 from starlette.responses import JSONResponse, RedirectResponse
 
+from db.insert_data import insert_data
 from db.create_database import create_tables
-from db.database import SessionLocal
-from routers import (product, category, insert_data, auth, ratingUser, review, user, ratingProduct, wishlist, orders,
+from db.database import SessionLocal 
+from routers import (product, category, auth, ratingUser, review, user, ratingProduct, wishlist, orders,
                      statistics, payment)
-
 
 @asynccontextmanager
 async def lifespan(app):
     create_tables()
+    session = SessionLocal()
+    try:
+        insert_data(session)
+    except Exception:
+        print("Data already inserted")
     yield
 
 
@@ -123,7 +129,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Add routers
-app.include_router(prefix="/api", router=insert_data.router)
 app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api", router=product.router)
 app.include_router(prefix="/api", router=category.router)
