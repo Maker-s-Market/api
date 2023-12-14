@@ -195,6 +195,8 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     picture = None
     if "picture" in user_info.keys():
         picture = user_info["picture"]
+    if "name" in user_info.keys():
+        name = user_info["name"]
 
     user = get_user_by_email(user_email, db)
 
@@ -209,6 +211,7 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     response.set_cookie(key="email", value=user_email)
     response.set_cookie(key="username", value=username)
     response.set_cookie(key="picture", value=picture)
+    response.set_cookie(key="name", value=name)
     response.set_cookie(key="Authorization", value=access_token)
 
     return response
