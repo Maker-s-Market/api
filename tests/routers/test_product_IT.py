@@ -10,6 +10,8 @@ from main import app
 from models.category import Category
 from models.product import Product
 from models.user import User
+from models.ratingProduct import RatingProduct as Rating
+from models.review import Review 
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -42,6 +44,9 @@ def load_data():
                    price=11.0, stockable=True, user_id=user2.id))
     db.add(Product(id="06e0da01-57fd-2229-95be-123455555566", name="random product 3", description="some description 3",
                    price=10.0, stockable=True, user_id="123456789023456789"))
+    
+    db.add(Rating(id="06e0da01-57fd-2229-95be-123455555561", rating=4.0, user_id=user1.id, product_id="06e0da01-57fd-2228-95be-0d25c764ea57"))
+    db.add(Review(id="06e0da01-57fd-2229-95be-123455555562", text="some review text" , user_id=user1.id, product_id="06e0da01-57fd-2228-95be-0d25c764ea57"))
 
     db.commit()
     db.close()
@@ -703,7 +708,6 @@ def test_filter_product_invalid_price_range():
     assert response.json() == {'detail': 'Invalid price range'}
 
 
-# this
 def test_product_location():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/api/auth/sign-in", json={
@@ -905,3 +909,17 @@ def test_get_product_id_not_available():
     response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57")
     assert response.status_code == 404
     assert response.json() == {'detail': 'Product not available'}
+
+
+def test_get_product_review_ratings():
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/api/product/seller/review-ratings",
+                          headers={"Authorization": "Bearer " + token})
+    
+    assert response.status_code == 200
