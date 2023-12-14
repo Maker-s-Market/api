@@ -76,15 +76,3 @@ async def get_rating(product_id: str, db: Session = Depends(get_db), username: s
     if rating is None:
         return Response(status_code=204)
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
-
-# TODO : PROXIMO SPRINT - IMPLEMENTAR UM ENDPOINT PARA LISTAR TODOS OS RATINGS ASSOCIADOS A UM USER
-#  (GET /rating-product/user)
-@router.get("/rating-procuct/user", dependencies=[Depends(auth)])
-async def get_user_rating_product(db: Session = Depends(get_db), username: str = Depends(get_current_user)):
-    """
-        List all ratings associated to a user
-    """
-    user = get_user(username, db)
-    products = get_products_by_user_id(user.id, db)
-
-    return JSONResponse(status_code=200, content=jsonable_encoder([product.to_rating_dict(get_ratings_by_product_id(product.id, db)) for product in products]))

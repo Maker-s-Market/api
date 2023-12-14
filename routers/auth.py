@@ -202,6 +202,10 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
         headers = {"Authorization": f"Bearer {access_token}"}
         return RedirectResponse(url="http://localhost:5173", headers=headers, status_code=302)
 
-    headers = {"Authorization": f"Bearer {access_token}", "email": user_email, "username": username, "picture": picture}
+    headers = {"Authorization": f"Bearer {access_token}"}
+    params={"email": user_email, "username": username, "picture": picture}
 
-    return RedirectResponse(url="http://localhost:5173/sign-up-idp", headers=headers, status_code=302)
+    return RedirectResponse(url="http://localhost:5173/sign-up-idp?email="+user_email
+                                                                +"&username="+username
+                                                                +"&picture="+picture, 
+                                                                headers=headers, params=params, status_code=302)
