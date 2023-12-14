@@ -148,9 +148,7 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 
     new_user(user, db)
 
-
-
-    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created", "token": ""}))
+    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
 
 
 @router.get("/auth/token_code")
@@ -202,7 +200,7 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
 
     if user != None:
         response = RedirectResponse(url=("http://localhost:5173/sign-up-idp?signType=signIn"), status_code=302)
-        response.set_cookie(key="Authorization", value=f"Bearer {access_token}")
+        response.set_cookie(key="Authorization", value=access_token)
 
         return response
 
@@ -211,6 +209,6 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     response.set_cookie(key="email", value=user_email)
     response.set_cookie(key="username", value=username)
     response.set_cookie(key="picture", value=picture)
-    response.set_cookie(key="Authorization", value=f"Bearer {access_token}")
+    response.set_cookie(key="Authorization", value=access_token")
 
     return response
