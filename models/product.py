@@ -101,6 +101,22 @@ class Product(Base):
             'available': self.available
         }
 
+    def to_rating_review_dict(self, ratings, reviews, db):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'discount': self.discount,
+            'image': self.image,
+            'avg_rating': self.avg_rating,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'available': self.available,
+            'reviews': [review.to_dict_user(db) for review in reviews],
+            'ratings': [rating.to_dict_user(db) for rating in ratings]
+        }
+
     def change_available(self, db: Session = Depends(get_db)):
         self.available = not self.available
         self.updated_at = datetime.datetime.now()

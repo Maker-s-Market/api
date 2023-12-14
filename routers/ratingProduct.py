@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Response, HTTPException
 from db.database import get_db
-from repositories.productRepo import get_product_by_id
+from repositories.productRepo import get_product_by_id, get_products_by_user_id
 from repositories.userRepo import get_user
+from repositories.ratingProductRepo import get_ratings_by_product_id
 from schemas.ratingProduct import CreateRatingProduct as CreateRating, UpdateRatingProduct as UpdateRating
 from auth.JWTBearer import JWTBearer
 from auth.auth import get_current_user, jwks
@@ -75,6 +76,3 @@ async def get_rating(product_id: str, db: Session = Depends(get_db), username: s
     if rating is None:
         return Response(status_code=204)
     return JSONResponse(status_code=200, content=jsonable_encoder(rating.to_dict()))
-
-# TODO : PROXIMO SPRINT - IMPLEMENTAR UM ENDPOINT PARA LISTAR TODOS OS RATINGS ASSOCIADOS A UM USER
-#  (GET /rating-product/user)
