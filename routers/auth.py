@@ -208,4 +208,4 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     return RedirectResponse(url="http://localhost:5173/sign-up-idp?email="+user_email
                                                                 +"&username="+username
                                                                 +"&picture="+picture, 
-                                                                headers=headers, params=params, status_code=302)
+                                                                headers=headers, status_code=302)
