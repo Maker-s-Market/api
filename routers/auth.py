@@ -148,7 +148,9 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 
     new_user(user, db)
 
-    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
+
+
+    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created", "token": ""}))
 
 
 @router.get("/auth/token_code")
@@ -199,13 +201,16 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     user = get_user_by_email(user_email, db)
 
     if user != None:
-        headers = {"Authorization": f"Bearer {access_token}"}
-        return RedirectResponse(url="http://localhost:5173", headers=headers, status_code=302)
+        response = RedirectResponse(url=("http://localhost:5173/sign-up-idp?signType=signIn"), status_code=302)
+        response.set_cookie(key="Authorization", value=f"Bearer {access_token}")
 
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params={"email": user_email, "username": username, "picture": picture}
+        return response
 
-    return RedirectResponse(url="http://localhost:5173/sign-up-idp?email="+user_email
-                                                                +"&username="+username
-                                                                +"&picture="+picture, 
-                                                                headers=headers, status_code=302)
+    response = RedirectResponse(url="http://localhost:5173/sign-up-idp?signType=signUp", status_code=302)
+    
+    response.set_cookie(key="email", value=user_email)
+    response.set_cookie(key="username", value=username)
+    response.set_cookie(key="picture", value=picture)
+    response.set_cookie(key="Authorization", value=f"Bearer {access_token}")
+
+    return response
