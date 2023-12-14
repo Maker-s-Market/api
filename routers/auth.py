@@ -209,6 +209,6 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     response.set_cookie(key="email", value=user_email)
     response.set_cookie(key="username", value=username)
     response.set_cookie(key="picture", value=picture)
-    response.set_cookie(key="Authorization", value=access_token")
+    response.set_cookie(key="Authorization", value=access_token)
 
     return response
