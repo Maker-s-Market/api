@@ -200,8 +200,8 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
 
     if user != None:
         headers = {"Authorization": f"Bearer {access_token}"}
-        return RedirectResponse(url="https://makers-market.pt", headers=headers, status_code=302)
+        return RedirectResponse(url="http://localhost:5173", headers=headers, status_code=302)
 
     headers = {"Authorization": f"Bearer {access_token}", "email": user_email, "username": username, "picture": picture}
 
-    return RedirectResponse(url="https://makers-market.pt/sign-up-idp", headers=headers, status_code=302)
+    return RedirectResponse(url="http://localhost:5173/sign-up-idp", headers=headers, status_code=302)
