@@ -4,10 +4,11 @@ from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, jwk, JWTError
 from jose.utils import base64url_decode
-from jwt import InvalidTokenError, ExpiredSignatureError
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+import base64
+import json
 
 JWK = Dict[str, str]
 
@@ -46,37 +47,49 @@ class JWTBearer(HTTPBearer):
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
-        if not credentials or credentials.scheme != "Bearer":
-            raise HTTPException(
-                status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
-            )
+        if credentials:
+            if credentials.scheme != "Bearer":
+                raise HTTPException(
+                    status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
+                )
 
-        jwt_token = credentials.credentials
+            jwt_token = credentials.credentials
 
-        message, signature = jwt_token.rsplit(".", 1)
+            message, signature = jwt_token.rsplit(".",1)
 
-        try:
+            header_, _, _ = jwt_token.split(".")
 
-            claims = jwt.decode(jwt_token, self.kid_to_jwk[jwt.get_unverified_header(jwt_token)["kid"]], options={"verify_signature": True, "verify_exp": False}, algorithms=['RS256'])
+            try:
+                padded = header_ + "="*divmod(len(header_),4)[1]
+                jsondata = base64.urlsafe_b64decode(padded)
+                data = json.loads(jsondata)
 
-            if "auth_time" in claims:
-                claims["auth_time"] = str(claims["auth_time"])
-            if "iat" in claims:
-                claims["iat"] = str(claims["iat"])
-            if "exp" in claims:
-                claims["exp"] = str(claims["exp"])
+                claims = jwt.decode(
+                    jwt_token, 
+                    self.kid_to_jwk[data["kid"]], 
+                    options={"verify_signature": True, "verify_exp": False}, 
+                    algorithms=['RS256']
+                )
 
-            jwt_credentials = JWTAuthorizationCredentials(
-                jwt_token=jwt_token,
-                header=jwt.get_unverified_header(jwt_token),
-                claims=claims,
-                signature=signature,
-                message=message,
-            )
-        except JWTError:
-            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+                if "auth_time" in claims:
+                    claims["auth_time"] = str(claims["auth_time"])
+                if "iat" in claims:
+                    claims["iat"] = str(claims["iat"])
+                if "exp" in claims:
+                    claims["exp"] = str(claims["exp"])
 
-        if not self.verify_jwk_token(jwt_credentials):
-            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+                jwt_credentials = JWTAuthorizationCredentials(
+                    jwt_token=jwt_token,
+                    header=data,
+                    claims=claims,
+                    signature=signature,
+                    message=message,
+                )
+                
+            except JWTError:
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+                
+            if not self.verify_jwk_token(jwt_credentials):
+                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
-        return jwt_credentials
+            return jwt_credentials
