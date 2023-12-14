@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from auth.JWTBearer import JWTBearer
 from auth.auth import jwks, get_current_user
 from db.database import get_db
+from models.orders.history_order import create_history_order
 from models.orders.order_item import save_order_item
 from models.orders.status import Status
 from repositories.orderItemRepo import get_orders_items_by_product_id
@@ -49,6 +50,9 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
 
     for item in products:
         save_order_item(item, order_db.id, db)
+
+    create_history_order("Accepted", order_db.id, db)
+    order_db.change_order_status("Accepted", db)
 
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
@@ -104,4 +108,23 @@ async def get_order_by_id(order_id: str, db: Session = Depends(get_db),
     if order.user_id != user.id:
         detail = "You don't have permission to access this order."
         raise HTTPException(status_code=403, detail=detail)
+    return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
+
+
+@router.put("/order/{order_id}/status", dependencies=[Depends(auth)])
+def change_order_status(order_id: str, status: str, db: Session = Depends(get_db),
+                        username: str = Depends(get_current_user)):
+    user = get_user(username, db)
+    order = get_order_id(order_id, db)
+    if order is None:
+        detail = "Order with id: " + order_id + " was not found."
+        raise HTTPException(status_code=404, detail=detail)
+    if order.user_id != user.id:
+        detail = "You don't have permission to access this order."
+        raise HTTPException(status_code=403, detail=detail)
+    if status not in Status.__members__:
+        detail = "Status " + status + " is not valid."
+        raise HTTPException(status_code=400, detail=detail)
+    create_history_order(status, order_id, db)
+    order.change_order_status(status, db)
     return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
