@@ -1,3 +1,6 @@
+import asyncio
+import json
+import boto3
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -21,6 +24,21 @@ from schemas.orderItem import CreateOrderItem
 auth = JWTBearer(jwks)
 
 router = APIRouter(tags=['Order'])
+
+client = boto3.client(
+    'lambda',
+    region_name="us-east-1",
+    aws_access_key_id="AKIAVY7OHB33BVFZX4WZ",
+    aws_secret_access_key="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"
+)
+
+
+async def invoke(order):
+    client.invoke(
+        FunctionName='lambda_func',
+        InvocationType='RequestResponse',
+        Payload=json.dumps({"order_id": order.id})
+    )
 
 
 @router.post("/order", dependencies=[Depends(auth)])
@@ -53,6 +71,8 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
 
     create_history_order("Accepted", order_db.id, db)
     order_db.change_order_status("Accepted", db)
+
+    asyncio.create_task(invoke(order_db))
 
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
@@ -111,20 +131,20 @@ async def get_order_by_id(order_id: str, db: Session = Depends(get_db),
     return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
 
 
-@router.put("/order/{order_id}/status", dependencies=[Depends(auth)])
-def change_order_status(order_id: str, status: str, db: Session = Depends(get_db),
-                        username: str = Depends(get_current_user)):
-    user = get_user(username, db)
+@router.put("/order/{order_id}/status")
+def change_order_status(order_id: str, status: str, db: Session = Depends(get_db)):
     order = get_order_id(order_id, db)
     if order is None:
         detail = "Order with id: " + order_id + " was not found."
         raise HTTPException(status_code=404, detail=detail)
-    if order.user_id != user.id:
-        detail = "You don't have permission to access this order."
-        raise HTTPException(status_code=403, detail=detail)
     if status not in Status.__members__:
         detail = "Status " + status + " is not valid."
         raise HTTPException(status_code=400, detail=detail)
     create_history_order(status, order_id, db)
     order.change_order_status(status, db)
     return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
+
+
+@router.get("/")
+async def root():
+    return {"message": "Hello World"}

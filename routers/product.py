@@ -138,7 +138,7 @@ async def put_products_available(product_id: str, available: bool, db: Session =
                                  username: str = Depends(get_current_user)):
     """
     Change product available
-    # TODO: CANGHE THe name of this endpoint
+    # TODO: CANGHE THe name of this endpoint\
     """
 
     product = get_product_by_id(product_id=product_id, db=db)
