@@ -11,6 +11,7 @@ from auth.JWTBearer import JWTBearer
 from auth.auth import jwks, get_current_user
 from db.database import get_db
 from repositories.userRepo import get_user
+from routers.orders import send_email
 
 env_path = os.path.join(os.path.dirname(__file__), "..", '.env')
 load_dotenv(env_path)
@@ -35,5 +36,8 @@ async def payment(amount: float, db: Session = Depends(get_db), username: str = 
         payment_method_types=["card"],
         description="Payment in MarkersMarket",
     )
+
+    await send_email(user.email, "Payment processed successfully!")
+
     return JSONResponse(status_code=201,
                         content=jsonable_encoder({"client_secret": payment.client_secret}))

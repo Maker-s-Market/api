@@ -3,6 +3,7 @@ import json
 import os
 import boto3
 from typing import List
+import resend
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
@@ -33,6 +34,8 @@ load_dotenv(env_path)
 AWS_REGION = os.environ.get("AWS_REGION")
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+API_KEY_EMAIL = os.environ.get("API_KEY_EMAIL")
+resend.api_key = API_KEY_EMAIL
 
 client = boto3.client(
     'lambda',
@@ -48,6 +51,19 @@ async def invoke(order):
         InvocationType='Event',
         Payload=json.dumps({"order_id": order.id})
     )
+
+
+async def send_email(email, message):
+    params = {
+        "from": "Makers Market <helpdesk@makers-market.pt>",
+        "to": [email],
+        "subject": "Order status changed",
+        "text": message,
+        "html": "<p>" + message + "</p>"
+    }
+
+    email = resend.Emails.send(params)
+    print(email)
 
 
 @router.post("/order", dependencies=[Depends(auth)])
@@ -82,6 +98,7 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
     order_db.change_order_status("Accepted", db)
 
     await invoke(order_db)
+    await send_email(user.email, "Your order has been accepted.")
 
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
@@ -141,7 +158,7 @@ async def get_order_by_id(order_id: str, db: Session = Depends(get_db),
 
 
 @router.put("/order/{order_id}/status")
-def change_order_status(order_id: str, status: str, db: Session = Depends(get_db)):
+async def change_order_status(order_id: str, status: str, db: Session = Depends(get_db)):
     order = get_order_id(order_id, db)
     if order is None:
         detail = "Order with id: " + order_id + " was not found."
@@ -154,5 +171,8 @@ def change_order_status(order_id: str, status: str, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail=detail)
     create_history_order(status, order_id, db)
     order.change_order_status(status, db)
-    return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
+    user = get_user_by_id(order.user_id, db)
 
+    await send_email(user.email, "Your order status has been changed to " + status + ".")
+
+    return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
