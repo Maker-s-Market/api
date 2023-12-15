@@ -59,6 +59,7 @@ class Product(Base):
         self.stockable = product.stockable
         self.stock = product.stock
         self.discount = product.discount
+        self.image = product.image
         self.categories = []
         for category in product.categories:
             db_category = db.query(Category).filter(Category.id == category.id).first()
