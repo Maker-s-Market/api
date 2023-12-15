@@ -1,7 +1,9 @@
+from mock import MagicMock
 import pytest
 import unittest
 import os
 
+from starlette.responses import Response
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from main import app
@@ -13,16 +15,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+client = TestClient(app)
+
 LINK_SIGN_UP = 'routers.auth.sign_up_auth'
 LINK_SIGN_IN = 'routers.auth.sign_in_auth'
 LINK_CONFIRM_PASSWORD = 'routers.auth.confirm_forgot_password_auth'
 LINK_RESEND_EMAIL_CODE = 'routers.auth.resend_email_code_auth'
+LINK_AUTH_POST = 'routers.auth.requests.post'
+LINK_USER_INFO = 'routers.auth.requests.get'
 
+GET_TOKEN = "/api/auth/token_code"
 SIGN_UP_DIR = "/api/auth/sign-up"
 SIGN_IN_DIR = "/api/auth/sign-in"
 CONFIRM_PASSWORD_DIR = "/api/auth/confirm-forgot-password"
 RESEND_EMAIL_CODE = "/api/auth/resend-email-code"
-
 
 USERNAME_TEST = "user name test"
 RANDOM_EMAIL = "randomemail@email.com"
@@ -343,3 +349,34 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.status_code, 406)
             self.assertEqual(response.json(), {"detail": "Couldn't send the code, try again later"})
 
+@patch(LINK_AUTH_POST)
+@patch(LINK_USER_INFO)
+def test_idp_sign_up_with_user_in_db(mock_get, mock_post):
+
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = '{"access_token": "mocked_access_token"}'
+
+    mock_post.return_value = mock_response_post
+
+    mock_response_get = MagicMock(spec=Response)
+    mock_response_get.text = '{\
+        "email": "testuser@example.com",\
+        "username": "testuser",\
+        "picture": "https://example.com/avatar.jpg",\
+        "name": "Test User"\
+    }'
+    mock_get.return_value = mock_response_get
+
+    response = client.get(GET_TOKEN+"?code=testcode" )
+
+    assert response.status_code == 302
+
+    assert "Authorization" in response.cookies
+    assert "email" in response.cookies
+    assert "username" in response.cookies
+    assert "picture" in response.cookies
+    assert "name" in response.cookies
+
+
+
+    
