@@ -10,6 +10,9 @@ from starlette.status import HTTP_403_FORBIDDEN
 import base64
 import json
 
+import base64
+import json
+
 JWK = Dict[str, str]
 
 
@@ -59,37 +62,38 @@ class JWTBearer(HTTPBearer):
 
             header_, _, _ = jwt_token.split(".")
 
-            try:
-                padded = header_ + "="*divmod(len(header_),4)[1]
-                jsondata = base64.urlsafe_b64decode(padded)
-                data = json.loads(jsondata)
+        try:
 
-                claims = jwt.decode(
-                    jwt_token, 
-                    self.kid_to_jwk[data["kid"]], 
-                    options={"verify_signature": True, "verify_exp": False}, 
-                    algorithms=['RS256']
-                )
+            padded = header_ + "="*divmod(len(header_),4)[1]
+            jsondata = base64.urlsafe_b64decode(padded)
+            data = json.loads(jsondata)
 
-                if "auth_time" in claims:
-                    claims["auth_time"] = str(claims["auth_time"])
-                if "iat" in claims:
-                    claims["iat"] = str(claims["iat"])
-                if "exp" in claims:
-                    claims["exp"] = str(claims["exp"])
+            claims = jwt.decode(
+                jwt_token, 
+                self.kid_to_jwk[data["kid"]], 
+                options={"verify_signature": True, "verify_exp": False}, 
+                algorithms=['RS256']
+            )
 
-                jwt_credentials = JWTAuthorizationCredentials(
-                    jwt_token=jwt_token,
-                    header=data,
-                    claims=claims,
-                    signature=signature,
-                    message=message,
-                )
+            if "auth_time" in claims:
+                claims["auth_time"] = str(claims["auth_time"])
+            if "iat" in claims:
+                claims["iat"] = str(claims["iat"])
+            if "exp" in claims:
+                claims["exp"] = str(claims["exp"])
+
+            jwt_credentials = JWTAuthorizationCredentials(
+                jwt_token=jwt_token,
+                header=data,
+                claims=claims,
+                signature=signature,
+                message=message,
+            )
                 
-            except JWTError:
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
-                
-            if not self.verify_jwk_token(jwt_credentials):
-                raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+        except JWTError:
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
+            
+        if not self.verify_jwk_token(jwt_credentials):
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
-            return jwt_credentials
+        return jwt_credentials

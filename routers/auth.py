@@ -1,12 +1,15 @@
 import os
 
+import json
+
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+import requests
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from auth.JWTBearer import JWTBearer
 from auth.auth import jwks, get_current_user
@@ -17,7 +20,7 @@ from models.user import User
 from repositories.orderRepo import get_orders_by_user_id
 from repositories.productRepo import get_products_by_user_id
 from repositories.userRepo import new_user, delete_user, get_user, get_user_by_email
-from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin
+from schemas.user import CreateUser, ActivateUser, UserIdentifier, ChangePassword, UserLogin, CreateUserIDP
 from utils import verify_password
 
 load_dotenv(".aws")
@@ -137,3 +140,85 @@ async def current_user(username: str = Depends(get_current_user), db: Session = 
     response['orders'] = [order.to_dict(db=db) for order in get_orders_by_user_id(user_id=response['id'], db=db)]
     response["products"] = [product.to_dict() for product in get_products_by_user_id(user_id=response['id'], db=db)]
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
+
+
+@router.post("/auth/sign-up-idp")
+async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
+    """
+        Function that takes the call back IDP response code and returns the token
+        TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    """
+
+    if (db.query(User).filter(User.username == user.username).first() or
+            db.query(User).filter(User.email == user.email).first()):
+        raise HTTPException(status_code=406, detail="User already exists in database")
+
+    new_user(user, db)
+
+    return JSONResponse(status_code=201, content=jsonable_encoder({"message": "User created"}))
+
+
+@router.get("/auth/token_code")
+async def get_token_from_code(code: str, db: Session = Depends(get_db)):
+    """
+    Function that takes the call back IDP response code and returns the token with user idp info
+    """
+
+    client_id = os.getenv("COGNITO_USER_CLIENT_ID")
+    domain = "https://" + os.getenv("COGNITO_DOMAIN")
+    redirect_url = os.getenv("MAKERS_URL_API") + "/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
+
+    body = (
+        'grant_type=authorization_code' +
+        f'&client_id={client_id}' + f'&code={code}' +
+        f'&redirect_uri={redirect_url}'
+    )
+
+    response = requests.post(
+        f'{domain}/oauth2/token',
+        body,
+        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+    )
+
+    response_body = json.loads(response.text)
+    
+    if "error" in response_body.keys():
+        raise HTTPException(status_code=403, detail=("Error: " + response_body["error"]))
+
+    access_token = response_body['access_token']
+
+    user_info_response = requests.get(
+        f'{domain}/oauth2/userInfo',
+        headers={'Authorization': f'Bearer {access_token}'}
+    )
+
+    user_info = json.loads(user_info_response.text)
+
+    print(user_info)
+
+    user_email = user_info["email"]
+    username = user_info["username"]
+    picture = None
+    name = None
+    if "picture" in user_info.keys():
+        picture = user_info["picture"]
+    if "name" in user_info.keys():
+        name = user_info["name"]
+
+    user = get_user_by_email(user_email, db)
+
+    if user != None:
+        response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signIn"), status_code=302)
+        response.set_cookie(key="Authorization", value=access_token, secure=True, httponly=True)
+
+        return response
+
+    response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signUp"), status_code=302)
+    
+    response.set_cookie(key="email", value=user_email, secure=True, httponly=True)
+    response.set_cookie(key="username", value=username, secure=True, httponly=True)
+    response.set_cookie(key="picture", value=picture, secure=True, httponly=True)
+    response.set_cookie(key="name", value=name, secure=True, httponly=True)
+    response.set_cookie(key="Authorization", value=access_token, secure=True, httponly=True)
+
+    return response

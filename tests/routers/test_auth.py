@@ -1,7 +1,9 @@
+from mock import MagicMock
 import pytest
 import unittest
 import os
 
+from starlette.responses import Response
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from main import app
@@ -13,6 +15,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+client = TestClient(app)
+
 LINK_SIGN_UP = 'routers.auth.sign_up_auth'
 LINK_SIGN_IN = 'routers.auth.sign_in_auth'
 LINK_CONFIRM_PASSWORD = 'routers.auth.confirm_forgot_password_auth'
@@ -23,10 +27,10 @@ SIGN_IN_DIR = "/api/auth/sign-in"
 CONFIRM_PASSWORD_DIR = "/api/auth/confirm-forgot-password"
 RESEND_EMAIL_CODE = "/api/auth/resend-email-code"
 
-
 USERNAME_TEST = "user name test"
 RANDOM_EMAIL = "randomemail@email.com"
 MARIA_EMAIL = "maria@email.com"
+MARIA_USERNAME = "maria123"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -343,3 +347,194 @@ class TestAuthRoutes(unittest.TestCase):
             self.assertEqual(response.status_code, 406)
             self.assertEqual(response.json(), {"detail": "Couldn't send the code, try again later"})
 
+
+LINK_AUTH_POST = 'routers.auth.requests.post'
+LINK_USER_INFO = 'routers.auth.requests.get'
+
+GET_TOKEN = "/api/auth/token_code?code=test-code"
+POST_IDP = "/api/auth/sign-up-idp"
+
+access_token_mock = '{"access_token": "mocked_access_token"}'
+
+
+@patch(LINK_AUTH_POST)
+@patch(LINK_USER_INFO)
+def test_idp_sign_up_with_no_user_in_db(mock_get, mock_post):
+
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = access_token_mock
+
+    mock_post.return_value = mock_response_post
+
+    mock_response_get = MagicMock(spec=Response)
+    mock_response_get.text = '{\
+        "email": "testuser@example.com",\
+        "username": "testuser",\
+        "picture": "example_photo.png",\
+        "name": "Test User"\
+    }'
+    mock_get.return_value = mock_response_get
+
+    response = client.get(GET_TOKEN, allow_redirects=False)
+
+    assert response.status_code == 302
+
+    assert "Authorization" in response.cookies
+    assert "email" in response.cookies
+    assert "username" in response.cookies
+    assert "picture" in response.cookies and response.cookies["picture"] != 'None'
+    assert "name" in response.cookies and response.cookies["name"] != 'None'
+
+
+@patch(LINK_AUTH_POST)
+@patch(LINK_USER_INFO)
+def test_idp_sign_up_with_no_user_in_db_no_picture(mock_get, mock_post):
+
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = access_token_mock
+
+    mock_post.return_value = mock_response_post
+
+    mock_response_get = MagicMock(spec=Response)
+    mock_response_get.text = '{\
+        "email": "testuser@example.com",\
+        "username": "testuser",\
+        "name": "Test User"\
+    }'
+    mock_get.return_value = mock_response_get
+
+    response = client.get(GET_TOKEN, allow_redirects=False)
+
+    assert response.status_code == 302
+
+    assert "Authorization" in response.cookies
+    assert "email" in response.cookies
+    assert "username" in response.cookies
+    assert "picture" in response.cookies and response.cookies["picture"] == 'None'
+    assert "name" in response.cookies and response.cookies["name"] != 'None'
+    
+    
+@patch(LINK_AUTH_POST)
+@patch(LINK_USER_INFO)
+def test_idp_sign_up_with_no_user_in_db_no_name(mock_get, mock_post):
+
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = access_token_mock
+
+    mock_post.return_value = mock_response_post
+
+    mock_response_get = MagicMock(spec=Response)
+    mock_response_get.text = '{\
+        "email": "testuser@example.com",\
+        "username": "testuser",\
+        "picture": "example_photo.png"\
+    }'
+    mock_get.return_value = mock_response_get
+
+    response = client.get(GET_TOKEN, allow_redirects=False)
+
+    assert response.status_code == 302
+
+    assert "Authorization" in response.cookies
+    assert "email" in response.cookies
+    assert "username" in response.cookies
+    assert "picture" in response.cookies and response.cookies["picture"] != 'None'
+    assert "name" in response.cookies and response.cookies["name"] == 'None'
+     
+
+@patch(LINK_AUTH_POST)
+def test_idp_sign_up_with_no_user_in_db_error_code(mock_post):
+
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = '{"error": "some error"}'
+
+    mock_post.return_value = mock_response_post
+
+    response = client.get(GET_TOKEN, allow_redirects=False)
+    data = response.json()
+
+    assert response.status_code == 403
+    assert data["detail"] == "Error: some error"
+ 
+    
+@patch(LINK_AUTH_POST)
+@patch(LINK_USER_INFO)
+def test_idp_sign_up_user_in_db(mock_get, mock_post):
+    
+    mock_response_post = MagicMock(spec=Response)
+    mock_response_post.text = access_token_mock
+
+    mock_post.return_value = mock_response_post
+
+    mock_response_get = MagicMock(spec=Response)
+    mock_response_get.text = f'{{\
+        "email": "{MARIA_EMAIL}",\
+        "username": "{MARIA_USERNAME}",\
+        "picture": "photo",\
+        "name": "maria"\
+    }}'
+    mock_get.return_value = mock_response_get
+
+    response = client.get(GET_TOKEN, allow_redirects=False)
+
+    assert response.status_code == 302
+
+    assert "Authorization" in response.cookies
+    assert "email" not in response.cookies
+    assert "username" not in response.cookies
+    assert "picture" not in response.cookies
+    assert "name" not in response.cookies
+    
+
+def test_post_sign_up_idp_email_in_db():
+    user_data = {
+        "name": "John Doe",
+        "username": "john_doe",
+        "email": MARIA_EMAIL,
+        "city": "New York",
+        "region": "NY",
+        "photo": "profile.jpg",
+        "role": "Client",
+    }
+    
+    response = client.post(POST_IDP, json=user_data)
+    data = response.json()
+
+    assert response.status_code == 406
+    assert data["detail"] == "User already exists in database"
+   
+    
+def test_post_sign_up_idp_username_in_db():
+    user_data = {
+        "name": "John Doe",
+        "username": MARIA_USERNAME,
+        "email": "john.doe@example.com",
+        "city": "New York",
+        "region": "NY",
+        "photo": "profile.jpg",
+        "role": "Client",
+    }
+    
+    response = client.post(POST_IDP, json=user_data)
+    data = response.json()
+
+    assert response.status_code == 406
+    assert data["detail"] == "User already exists in database"
+
+
+def test_post_sign_up_idp_no_user_in_db():
+    user_data = {
+        "name": "John Doe",
+        "username": "john",
+        "email": "john.doe@example.com",
+        "city": "New York",
+        "region": "NY",
+        "photo": "profile.jpg",
+        "role": "Client",
+    }
+    
+    response = client.post(POST_IDP, json=user_data)
+    data = response.json()
+
+    assert response.status_code == 201
+    assert data["message"] == "User created"

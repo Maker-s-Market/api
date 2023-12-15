@@ -11,6 +11,15 @@ class CreateUser(BaseModel):
     photo: str
     role: str = "Client"
 
+class CreateUserIDP(BaseModel):
+    name: str
+    username: str
+    email: str
+    city: str
+    region: str
+    photo: str
+    role: str = "Client"
+
 class UserUpdate(BaseModel):
     id: str
     name: str
