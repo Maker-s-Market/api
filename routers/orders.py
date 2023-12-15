@@ -4,6 +4,7 @@ import os
 import boto3
 from typing import List
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
