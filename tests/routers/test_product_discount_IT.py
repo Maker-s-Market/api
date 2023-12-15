@@ -70,7 +70,7 @@ def login_user2():
 def test_put_products_discount_not_owner():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea56", discount=0.5)
 
-    response = client.put("/api/products/discount",
+    response = client.put("/api/product/discount/",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user2()})
 
@@ -81,7 +81,7 @@ def test_put_products_discount_not_owner():
 def test_put_products_discount_not_found():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea59", discount=0.5)
 
-    response = client.put("/api/products/discount",
+    response = client.put("/api/product/discount/",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user1()})
 
@@ -92,7 +92,7 @@ def test_put_products_discount_not_found():
 def test_put_products_discount():
     upd_discount = UpdateDiscount(product_id="06e0da01-57fd-2227-95be-0d25c764ea56", discount=0.5)
 
-    response = client.put("/api/products/discount",
+    response = client.put("/api/product/discount/",
                           json=upd_discount.model_dump(),
                           headers={"Authorization": "Bearer " + login_user1()})
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
@@ -54,7 +54,8 @@ async def delete_product(product_id: str, db: Session = Depends(get_db), usernam
 
 
 @router.get("/product")
-async def get_products(q: str = "", limit: int = 10,
+async def get_products(request: Request,
+                       q: str = "", limit: int = 10,
                        price_min: int = 0, price_max: int = 100000000,
                        sort: str = "newest", discount: bool = False, location: str = "",
                        category_id: str = "", db: Session = Depends(get_db)):
@@ -67,21 +68,63 @@ async def get_products(q: str = "", limit: int = 10,
     result = get_products_by_filters(q=q, limit=limit, price_min=price_min, price_max=price_max,
                                      discount=discount, location=location, sort=sort, category_id=category_id, db=db)
 
+    if request.headers.get("authorization") is None:
+        return JSONResponse(status_code=200,
+                            content=jsonable_encoder([product.to_dict() for product in result]))
+    else:
+        username = await get_current_user(await JWTBearer(jwks).__call__(request))
+        user = get_user(username, db)
+        if user is not None:
+            new_result = []
+            for product in result:
+                if product.user_id != user.id:
+                    new_result.append(product)
+            return JSONResponse(status_code=200,
+                                content=jsonable_encoder([product.to_dict() for product in new_result]))
+
     return JSONResponse(status_code=200,
                         content=jsonable_encoder([product.to_dict() for product in result]))
 
 
+@router.put("/product/discount/", dependencies=[Depends(auth)])
+async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
+                                username: str = Depends(get_current_user)):
+    """
+        Create/Update a product discount
+    """
+    product = get_product_by_id(product_id=update.product_id, db=db)
+    user = get_user(username, db)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
+
+    product.discount = update.discount
+    updated_product = product.update_product(db, product)
+
+    return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))
+
+
 @router.get("/product/{product_id}")
-# TODO: PROBLEM THE PRODUCT IS NOT AVAILABLE BUT THE OWNER CAN SEE IT
-async def get_product(product_id: str, db: Session = Depends(get_db)):
+async def get_product(request: Request,
+                      product_id: str, db: Session = Depends(get_db)):
+    authorization = request.headers.get("authorization")
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
     user = get_user_by_id(product.user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if product.available is False:
-        raise HTTPException(status_code=404, detail="Product not available")
+    if authorization is None:
+        print("no token")
+        if product.available is False:
+            raise HTTPException(status_code=404, detail="Product not available")
+    else:
+        credentials = await JWTBearer(jwks).__call__(request)
+        username = await get_current_user(credentials)
+        user = get_user(username, db)
+        if product.user_id != user.id and product.available is False:
+            raise HTTPException(status_code=404, detail="Product not available")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
@@ -99,46 +142,25 @@ async def get_top_products(limit: int = 4, db: Session = Depends(get_db)):
 
 @router.get("/product/seller/review-ratings", dependencies=[Depends(auth)])
 async def get_reviews_and_ratings_of_seller_products(db: Session = Depends(get_db),
-                                username: str = Depends(get_current_user)):
+                                                     username: str = Depends(get_current_user)):
     user = get_user(username, db)
     products = get_products_by_user_id(user.id, db)
     product_list = [
         product.to_rating_review_dict(
-            ratings = get_ratings_by_product_id(product.id, db), 
-            reviews = get_product_reviews(product.id, db),
-            db = db
+            ratings=get_ratings_by_product_id(product.id, db),
+            reviews=get_product_reviews(product.id, db),
+            db=db
         )
         for product in products]
 
     return JSONResponse(status_code=200, content=jsonable_encoder(product_list))
 
 
-@router.put("/products/discount", dependencies=[Depends(auth)])
-async def put_products_discount(update: UpdateDiscount, db: Session = Depends(get_db),
-                                username: str = Depends(get_current_user)):
-    """
-        Create/Update a product discount
-        # TODO: CANGHE THe name of this endpoint
-    """
-    product = get_product_by_id(product_id=update.product_id, db=db)
-    user = get_user(username, db)
-    if product is None:
-        raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
-    if product.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Only the user can change their product's discount")
-
-    product.discount = update.discount
-    updated_product = product.update_product(db, product)
-
-    return JSONResponse(status_code=200, content=jsonable_encoder(updated_product.to_dict()))
-
-
-@router.put("/products/{product_id}/available", dependencies=[Depends(auth)])
+@router.put("/product/{product_id}/available", dependencies=[Depends(auth)])
 async def put_products_available(product_id: str, available: bool, db: Session = Depends(get_db),
                                  username: str = Depends(get_current_user)):
     """
     Change product available
-    # TODO: CANGHE THe name of this endpoint
     """
 
     product = get_product_by_id(product_id=product_id, db=db)

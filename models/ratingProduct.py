@@ -44,15 +44,6 @@ class RatingProduct(Base):
             "product_id": self.product_id
         }
     
-    def to_dict_no_product(self):
-        return {
-            "id": self.id,
-            "rating": self.rating,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
-            "user_id": self.user_id
-        }
-    
     def to_dict_user(self, db):
         return {
             "id": self.id,

@@ -37,6 +37,8 @@ async def sign_up(user: CreateUser, db: Session = Depends(get_db)):
     """
         Function that puts a user in the AWS user pool and sends an email with a 1 time code
     """
+    user.email = user.email.strip()
+    user.username = user.username.strip()
     if (db.query(User).filter(User.username == user.username).first() or
             db.query(User).filter(User.email == user.email).first()):
         raise HTTPException(status_code=500, detail="User already exists in database")
@@ -59,6 +61,7 @@ async def verify_email(user: ActivateUser, db: Session = Depends(get_db)):
         Function that checks if the code provided by email is correct or not
         If it is, the user is activated and can now sign in
     """
+    user.username = user.username.strip()
     status = check_email_auth(user.username, user.code)
     if status != 200:
         raise HTTPException(status_code=406, detail="Unable to confirm access, resend a code")
@@ -73,6 +76,7 @@ async def resend_email_code(user: UserIdentifier, db: Session = Depends(get_db))
     """
         Resends the confirmation code to the specified email
     """
+    user.identifier = user.identifier.strip()
     if get_user_by_email(user.identifier, db) is None:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -88,6 +92,7 @@ async def login(user: UserLogin):
     """
     Function that signs in a user and returns a token
     """
+    user.identifier = user.identifier.strip()
     token = sign_in_auth(user.identifier, user.password)
     if token is None:
         raise HTTPException(status_code=404, detail="Error loging in...")
@@ -101,6 +106,7 @@ async def forgot_password(user: UserIdentifier):
     """
         Function that sends a code to the user's email to change the password
     """
+    user.identifier = user.identifier.strip()
     status = forgot_password_auth(user.identifier)
     if status != 200:
         raise HTTPException(status_code=406, detail="Couldn't send the code, try again later")
@@ -113,6 +119,7 @@ async def confirm_forgot_password(user: ChangePassword):
     """
     Function that changes the password of a user
     """
+    user.identifier = user.identifier.strip()
     if verify_password(user.password) is False:
         raise HTTPException(status_code=500, detail="Password does not meet requirements")
 
@@ -144,7 +151,7 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 
     if (db.query(User).filter(User.username == user.username).first() or
             db.query(User).filter(User.email == user.email).first()):
-        raise HTTPException(status_code=500, detail="User already exists in database")
+        raise HTTPException(status_code=406, detail="User already exists in database")
 
     new_user(user, db)
 
@@ -154,13 +161,12 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 @router.get("/auth/token_code")
 async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     """
-    Function that takes the call back IDP response code and returns the token
-    TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    Function that takes the call back IDP response code and returns the token with user idp info
     """
 
     client_id = os.getenv("COGNITO_USER_CLIENT_ID")
     domain = "https://" + os.getenv("COGNITO_DOMAIN")
-    redirect_url = "http://localhost:8000/api/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
+    redirect_url = os.getenv("MAKERS_URL_API") + "/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
 
     body = (
         'grant_type=authorization_code' +
@@ -202,12 +208,12 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     user = get_user_by_email(user_email, db)
 
     if user != None:
-        response = RedirectResponse(url=("http://localhost:5173/sign-up-idp?signType=signIn"), status_code=302)
+        response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signIn"), status_code=302)
         response.set_cookie(key="Authorization", value=access_token)
 
         return response
 
-    response = RedirectResponse(url="http://localhost:5173/sign-up-idp?signType=signUp", status_code=302)
+    response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signUp"), status_code=302)
     
     response.set_cookie(key="email", value=user_email)
     response.set_cookie(key="username", value=username)
