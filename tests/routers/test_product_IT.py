@@ -46,7 +46,7 @@ def load_data():
                    price=10.0, stockable=True, user_id="123456789023456789"))
     
     db.add(Rating(id="06e0da01-57fd-2229-95be-123455555561", rating=4.0, user_id=user1.id, product_id="06e0da01-57fd-2228-95be-0d25c764ea57"))
-    db.add(Review(id="06e0da01-57fd-2229-95be-123455555562", text="some review text" , user_id=user1.id, product_id="06e0da01-57fd-2228-95be-0d25c764ea57"))
+    db.add(Review(id="06e0da01-57fd-2229-95be-123455555562", text="some review text", user_id=user1.id, product_id="06e0da01-57fd-2228-95be-0d25c764ea57"))
 
     db.commit()
     db.close()
@@ -823,6 +823,20 @@ def test_filter_product_invalid_sort():
     assert response.json() == {'detail': 'Invalid sort parameter'}
 
 
+def test_get_products_but_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "marianaandrade@ua.pt",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = client.get("/api/product", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert len(data) == 9
+
+
 def test_get_top_products():
     response = client.get("/api/product/top/4")
 
@@ -833,7 +847,7 @@ def test_get_top_products():
 
 
 def test_put_products_available_not_auth():
-    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
+    response = client.put("/api/product/06e0da01-57fd-2227-95be-0d25c764ea57/available", json={"available": True})
 
     assert response.status_code == 403
     assert response.json() == {'detail': 'Not authenticated'}
@@ -848,7 +862,7 @@ def test_put_products_available_not_owner():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2229-95be-123455555566/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2229-95be-123455555566/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 403
@@ -864,7 +878,7 @@ def test_put_products_available_not_existing_product():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2227-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 404
@@ -880,7 +894,7 @@ def test_put_products_available_already_available():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
+    response = client.put("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=true",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 400
@@ -896,7 +910,7 @@ def test_put_products_available_success():
     assert response.status_code == 200
     token = response.json()["token"]
 
-    response = client.put("/api/products/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
+    response = client.put("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57/available?available=false",
                           headers={"Authorization": "Bearer " + token})
 
     assert response.status_code == 200
@@ -905,10 +919,34 @@ def test_put_products_available_success():
     assert data["available"] == False
 
 
-def test_get_product_id_not_available():
+def test_get_product_id_not_available_not_auth():
     response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57")
     assert response.status_code == 404
     assert response.json() == {'detail': 'Product not available'}
+
+def test_get_product_id_available_not_auth():
+    response = client.get("/api/product/06e0da01-57fd-2227-95be-0d25c764ea56")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["product"]["id"] == "06e0da01-57fd-2227-95be-0d25c764ea56"
+    assert data["product"]["available"] == True
+
+
+def test_get_product_id_not_available_but_ower_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "mariana",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57",
+                              headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["product"]["id"] == "06e0da01-57fd-2228-95be-0d25c764ea57"
+    assert data["product"]["available"] == False
 
 
 def test_get_product_review_ratings():
@@ -918,8 +956,22 @@ def test_get_product_review_ratings():
     })
     assert response.status_code == 200
     token = response.json()["token"]
-
     response = client.get("/api/product/seller/review-ratings",
                           headers={"Authorization": "Bearer " + token})
-    
+
     assert response.status_code == 200
+
+
+def test_get_product_id_not_available_not_owner_auth():
+    os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
+    response = client.post("/api/auth/sign-in", json={
+        "identifier": "brums21",
+        "password": os.getenv("PASSWORD_CORRECT")
+    })
+    assert response.status_code == 200
+    token = response.json()["token"]
+
+    response = client.get("/api/product/06e0da01-57fd-2228-95be-0d25c764ea57",
+                          headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Product not available'}

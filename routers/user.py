@@ -57,7 +57,7 @@ async def get_following(db: Session = Depends(get_db), username: str = Depends(g
                         content=jsonable_encoder([follower.information() for follower in followers]))
 
 
-@router.delete("/user/remove-following/{following_id}")
+@router.delete("/user/following/{following_id}")
 async def remove_following(following_id: str, db: Session = Depends(get_db), username: str = Depends(get_current_user)):
     """ 
         remove following
