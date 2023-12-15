@@ -137,6 +137,9 @@ def change_order_status(order_id: str, status: str, db: Session = Depends(get_db
     if order is None:
         detail = "Order with id: " + order_id + " was not found."
         raise HTTPException(status_code=404, detail=detail)
+    if status == order.status:
+        detail = "Order already has status " + status + "."
+        raise HTTPException(status_code=400, detail=detail)
     if status not in Status.__members__:
         detail = "Status " + status + " is not valid."
         raise HTTPException(status_code=400, detail=detail)
