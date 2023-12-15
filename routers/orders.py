@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import boto3
 from typing import List
 
@@ -25,11 +26,18 @@ auth = JWTBearer(jwks)
 
 router = APIRouter(tags=['Order'])
 
+env_path = os.path.join(os.path.dirname(__file__), "..", '.aws')
+load_dotenv(env_path)
+
+AWS_REGION = os.environ.get("AWS_REGION")
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+
 client = boto3.client(
     'lambda',
-    region_name="us-east-1",
-    aws_access_key_id="AKIAVY7OHB33BVFZX4WZ",
-    aws_secret_access_key="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"
+    region_name=AWS_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
 
 
