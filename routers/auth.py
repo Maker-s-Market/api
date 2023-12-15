@@ -144,7 +144,7 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 
     if (db.query(User).filter(User.username == user.username).first() or
             db.query(User).filter(User.email == user.email).first()):
-        raise HTTPException(status_code=500, detail="User already exists in database")
+        raise HTTPException(status_code=406, detail="User already exists in database")
 
     new_user(user, db)
 
@@ -154,13 +154,12 @@ async def sign_up_with_idp(user: CreateUserIDP, db: Session = Depends(get_db)):
 @router.get("/auth/token_code")
 async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     """
-    Function that takes the call back IDP response code and returns the token
-    TODO: add user to database if it doesn't exist, else return user in database (search for the username)
+    Function that takes the call back IDP response code and returns the token with user idp info
     """
 
     client_id = os.getenv("COGNITO_USER_CLIENT_ID")
     domain = "https://" + os.getenv("COGNITO_DOMAIN")
-    redirect_url = "http://localhost:8000/api/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
+    redirect_url = os.getenv("MAKERS_URL_API") + "/auth/token_code"      # mudar isto depois se nao da erro de unauthorized client
 
     body = (
         'grant_type=authorization_code' +
@@ -202,12 +201,12 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     user = get_user_by_email(user_email, db)
 
     if user != None:
-        response = RedirectResponse(url=("http://localhost:5173/sign-up-idp?signType=signIn"), status_code=302)
+        response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signIn"), status_code=302)
         response.set_cookie(key="Authorization", value=access_token)
 
         return response
 
-    response = RedirectResponse(url="http://localhost:5173/sign-up-idp?signType=signUp", status_code=302)
+    response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signUp"), status_code=302)
     
     response.set_cookie(key="email", value=user_email)
     response.set_cookie(key="username", value=username)
