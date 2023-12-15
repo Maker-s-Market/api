@@ -7,6 +7,7 @@ from models.ratingUser import RatingUser
 from models.review import Review
 from models.user import User
 from models.wishList import Wishlist
+from models.orders.history_order import HistoryOrder
 
 from db.database import engine
 
@@ -21,3 +22,4 @@ def create_tables():
     Wishlist.metadata.create_all(bind=engine)
     Order.metadata.create_all(bind=engine)
     OrderItem.metadata.create_all(bind=engine)
+    HistoryOrder.metadata.create_all(bind=engine)
