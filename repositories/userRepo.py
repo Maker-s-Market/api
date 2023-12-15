@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from models.user import save_user, User as UserModel, followers
 
-from schemas.user import CreateUser
+from schemas.user import CreateUser, CreateUserIDP
 
 
-def new_user(user: CreateUser, db: Session = Depends(get_db)):
+def new_user(user: CreateUser | CreateUserIDP, db: Session = Depends(get_db)):
     if user.role != "Client" and user.role != "Premium":
         raise HTTPException(status_code=403, detail="User role is not valid. Valid options are: Client and Premium.")
     return save_user(new_user=user, db=db)

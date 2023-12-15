@@ -20,6 +20,11 @@ env:
   TOKEN_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/oauth2/token
   LOGOUT_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/logout
 
+  MAKERS_URL_API: https://makers-market.pt/api
+  FRONTEND_SIGN_UP_IDP_LINK: https://makers-market.pt/sign-up-idp
+
+
+
 jobs:
   build-and-test:
     name: Build and Test

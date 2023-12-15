@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship, Session
 from db.database import Base, get_db
 from models.wishList import Wishlist
 from models.role import Role
-from schemas.user import CreateUser, UserUpdate
+from schemas.user import CreateUser, UserUpdate, CreateUserIDP
 
 followers = Table(
     'followers',
@@ -123,7 +123,7 @@ class User(Base):
         db.refresh(self)
 
 
-def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
+def save_user(new_user: CreateUser | CreateUserIDP, db: Session = Depends(get_db)):
     wishlist = Wishlist(products=[])
     db.add(wishlist)
     db.commit()
