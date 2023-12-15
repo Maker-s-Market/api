@@ -36,7 +36,7 @@ client = boto3.client(
 async def invoke(order):
     client.invoke(
         FunctionName='lambda_func',
-        InvocationType='RequestResponse',
+        InvocationType='Event',
         Payload=json.dumps({"order_id": order.id})
     )
 
@@ -72,7 +72,7 @@ async def create_order(products: List[CreateOrderItem], db: Session = Depends(ge
     create_history_order("Accepted", order_db.id, db)
     order_db.change_order_status("Accepted", db)
 
-    asyncio.create_task(invoke(order_db))
+    await invoke(order_db)
 
     return JSONResponse(status_code=201, content=jsonable_encoder(order_db.to_dict(db=db)))
 
@@ -144,7 +144,3 @@ def change_order_status(order_id: str, status: str, db: Session = Depends(get_db
     order.change_order_status(status, db)
     return JSONResponse(status_code=200, content=jsonable_encoder(order.to_dict(db=db)))
 
-
-@router.get("/")
-async def root():
-    return {"message": "Hello World"}
