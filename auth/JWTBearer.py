@@ -4,10 +4,11 @@ from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, jwk, JWTError
 from jose.utils import base64url_decode
-from jwt import InvalidTokenError, ExpiredSignatureError
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+import base64
+import json
 
 import base64
 import json
@@ -49,16 +50,17 @@ class JWTBearer(HTTPBearer):
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
-        if not credentials or credentials.scheme != "Bearer":
-            raise HTTPException(
-                status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
-            )
+        if credentials:
+            if credentials.scheme != "Bearer":
+                raise HTTPException(
+                    status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
+                )
 
-        jwt_token = credentials.credentials
+            jwt_token = credentials.credentials
 
-        message, signature = jwt_token.rsplit(".", 1)
+            message, signature = jwt_token.rsplit(".",1)
 
-        header_, _, _ = jwt_token.split(".")
+            header_, _, _ = jwt_token.split(".")
 
         try:
 
@@ -80,9 +82,6 @@ class JWTBearer(HTTPBearer):
             if "exp" in claims:
                 claims["exp"] = str(claims["exp"])
 
-            claims.pop('version', None)
-            claims.pop('cognito:groups', None)     
-
             jwt_credentials = JWTAuthorizationCredentials(
                 jwt_token=jwt_token,
                 header=data,
@@ -90,9 +89,10 @@ class JWTBearer(HTTPBearer):
                 signature=signature,
                 message=message,
             )
+                
         except JWTError:
             raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
-
+            
         if not self.verify_jwk_token(jwt_credentials):
             raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 

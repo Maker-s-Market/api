@@ -262,19 +262,19 @@ def insert_data(session: Session):
 
     session.add_all([brincos, colares])
 
-    Corda_cao = Product(id=str(uuid4()), name="Corda para cão",
+    corda_cao = Product(id=str(uuid4()), name="Corda para cão",
                         description="Corda para cão, feita à mão com diferentes cores e tamanhos",
                         price=4.05, stockable=False, stock=0, discount=0.0,
                         image="https://static.zoomalia.com/prod_img/61824/lm_276db8e1af0cb3aca1ae2d00186242045291571142472.jpg",
                         number_views=2, categories=[animals_and_plants], user_id = user1.id)
 
-    Cacto = Product(id=str(uuid4()), name="Cacto Artificial Opuntia 72 cm",
+    cacto = Product(id=str(uuid4()), name="Cacto Artificial Opuntia 72 cm",
                     description="Cacto artificial com 72 cm de altura, com vaso de cerâmica",
                     price=32.95, stockable=True, stock=50, discount=3,
                     image="https://cdn.sklum.com/pt/wk/2426848/cacto-artificial-opuntia-72-cm.jpg?cf-resize=gallery",
                     number_views=2, categories=[animals_and_plants, home], user_id = user2.id)
 
-    session.add_all([Corda_cao, Cacto])
+    session.add_all([corda_cao, cacto])
     caneca = Product(id=str(uuid4()), name="Caneca de Cerâmica",
                     description="Todas as canecas são feitas e pintadas à mão em cerâmica. Podem apresentar variações no seu formato, tamanho e detalhe entre eles. Caneca artesanal feita à mão ideal para  que desfrute de um bom café ou chá.",
                     price=6.00, stockable=True, stock=100, discount=0.0,
