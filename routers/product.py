@@ -112,23 +112,22 @@ async def get_product(request: Request,
     product = get_product_by_id(product_id, db)
     if not product:
         raise HTTPException(status_code=404, detail=MESSAGE_NOT_FOUND)
-    user = get_user_by_id(product.user_id, db)
-    if not user:
+    user_product = get_user_by_id(product.user_id, db)
+    if not user_product:
         raise HTTPException(status_code=404, detail="User not found")
     if authorization is None:
-        print("no token")
         if product.available is False:
             raise HTTPException(status_code=404, detail="Product not available")
     else:
         credentials = await JWTBearer(jwks).__call__(request)
         username = await get_current_user(credentials)
-        user = get_user(username, db)
-        if product.user_id != user.id and product.available is False:
+        user_auth = get_user(username, db)
+        if product.user_id != user_auth.id and product.available is False:
             raise HTTPException(status_code=404, detail="Product not available")
     product.increment_number_views(db=db)
     response = {
         "product": product.to_dict(),
-        "user": user.information()
+        "user": user_product.information()
     }
     return JSONResponse(status_code=200, content=jsonable_encoder(response))
 
