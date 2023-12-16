@@ -10,6 +10,7 @@ from fastapi.encoders import jsonable_encoder
 import requests
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, RedirectResponse
+from fastapi import Cookie
 
 from auth.JWTBearer import JWTBearer
 from auth.auth import jwks, get_current_user
@@ -219,6 +220,23 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     response.set_cookie(key="username", value=username, secure=True, httponly=True)
     response.set_cookie(key="picture", value=picture, secure=True, httponly=True)
     response.set_cookie(key="name", value=name, secure=True, httponly=True)
-    response.set_cookie(key="Authorization", value=access_token, secure=True, httponly=True)
+    response.set_cookie(key="authorization", value=access_token, secure=True, httponly=True)
 
     return response
+
+@router.get("/auth/token-read")
+async def get_info_from_cookies(authorization: str = Cookie(None), 
+                                email: str = Cookie(None), 
+                                name = Cookie(None), 
+                                picture = Cookie(None), 
+                                username = Cookie(None)):
+    
+    info = {
+        "authorization": authorization,
+        "email": email,
+        "name": name,
+        "picture": picture,
+        "username": username
+    }
+    
+    return JSONResponse(status_code=200, content=jsonable_encoder(info))
