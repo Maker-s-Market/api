@@ -63,13 +63,14 @@ def login_user1():
 def test_process_payment(mock_send_email):
     mock_send_email.return_value = True
     token = login_user1()
-    print(token)
     response = client.post("/api/payment/process-payment?amount=10.0", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 201
     assert response.json()["client_secret"] is not None
 
 
-def test_process_payment_invalid_amount():
+@patch(SEND_EMAIL)
+def test_process_payment_invalid_amount(mock_send_email):
+    mock_send_email.return_value = True
     token = login_user1()
     response = client.post("/api/payment/process-payment?amount=0.1", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 400
