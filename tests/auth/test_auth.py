@@ -6,7 +6,7 @@ from auth.user_auth import sign_up_auth, check_email_auth, resend_email_code_aut
     confirm_forgot_password_auth
 
 
-def mock_sign_up(client_id, username, password, user_attributes):
+def mock_sign_up(ClientId, Username, Password, UserAttributes):
     return {
         'ResponseMetadata': {
             'HTTPStatusCode': 200
@@ -29,7 +29,7 @@ def test_sign_up_auth(mock_boto3_client):
     assert status_code == 200
 
 
-def mock_check_email(client_id, username, confirmation_code):
+def mock_check_email(ClientId, Username, ConfirmationCode):
     return {
         'ResponseMetadata': {
             'HTTPStatusCode': 200
@@ -51,7 +51,7 @@ def test_check_email_auth(mock_boto3_client):
     assert status_code == 200
 
 
-def mock_resend_email(client_id, username):
+def mock_resend_email(ClientId, Username):
     return {
         'ResponseMetadata': {
             'HTTPStatusCode': 200
@@ -72,7 +72,7 @@ def test_resend_email_auth(mock_boto3_client):
     assert status_code == 200
 
 
-def mock_sign_in_return_token(client_id, auth_flow, auth_parameters):
+def mock_sign_in_return_token(ClientId, AuthFlow, AuthParameters):
     return {
         'AuthenticationResult': {
             'AccessToken': 'mock_access_token'
@@ -94,7 +94,7 @@ def test_sign_in_auth_return_token(mock_boto3_client):
     assert token == 'mock_access_token'
 
 
-def mock_sign_in_access_token_none(client_id, auth_flow, auth_parameters):
+def mock_sign_in_access_token_none(ClientId, AuthFlow, AuthParameters):
     return {
         'AuthenticationResult': {
             'AccessToken': None
@@ -116,7 +116,7 @@ def test_sign_in_auth_token_none(mock_boto3_client):
     assert token is None
 
 
-def mock_forgot_password(client_id, username):
+def mock_forgot_password(ClientId, Username):
     return {
         'ResponseMetadata': {
             'HTTPStatusCode': 200
@@ -136,7 +136,7 @@ def test_forgot_password_auth(mock_boto3_client):
     assert status_code == 200
 
 
-def mock_confirm_forgot_password(client_id, username, confirmation_code, password):
+def mock_confirm_forgot_password(ClientId, Username, ConfirmationCode, Password):
     return {
         'ResponseMetadata': {
             'HTTPStatusCode': 200

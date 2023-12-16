@@ -69,14 +69,14 @@ def insert_data(session: Session):
                                                   "1 Gf Vinho Tinto Merlot 2019",
                                       price=110.00, stockable=True, stock=70, discount=0.0,
                                       image="https://www.creative-gourmet.com/cdn/shop/products/BauMonocastasAdegaMaeWebcopy_5000x.jpg?v=1679582444",
-                                      number_views=5, categories=[drinks], user_id=user1.id)
+                                      number_views=5, categories=[drinks], user_id=user4.id)
     ginjinjinha = Product(id=str(uuid4()), name="Ginjinjinha",
                           description="Ginjinjinha is a Portuguese liqueur made by infusing ginja berries, a sour cherry type, in alcohol (aguardente is used) and adding sugar together with other ingredients. " +
                                       "It is served in a shot form with a piece of the fruit in the bottom of the cup. " +
                                       "It is a favourite liqueur of many Portuguese and a typical drink in Lisbon, Alcobaça and Óbidos.",
                           price=12.50, stockable=True, stock=10, discount=10.0,
                           image="https://wetravelportugal.com/wp-content/uploads/ginjinha-portugal-1024x768.jpg",
-                          number_views=5, categories=[drinks], user_id=user1.id)
+                          number_views=5, categories=[drinks], user_id=user2.id)
 
     cerveja_artesanal = Product(id=str(uuid4()), name="Cerveja Sovina - Pack 4",
                                 description="Pack 4 cervejas artesanais Sovina.<br> Contém 4 garrafas de 33cl cada das seguintes cervejas: " +
@@ -93,7 +93,7 @@ def insert_data(session: Session):
                                     " and Blueberry with Gin.",
                         price=12.50, stockable=True, stock=10, discount=10.0,
                         image="https://www.creative-gourmet.com/cdn/shop/products/4_Compotas_Tiptree_5000x.jpg?v=1570958543",
-                        number_views=5, categories=[food], user_id=user1.id)
+                        number_views=5, categories=[food], user_id=user4.id)
     extra_pumpkin_jam = Product(id=str(uuid4()), name="Extra Pumpkin Jam",
                                 description="Sweet pumpkin jam produced from old homemade recipes from S.Miguel with locally produced fruit.",
                                 price=4.50, stockable=True, stock=10, discount=0.0,
@@ -118,7 +118,7 @@ def insert_data(session: Session):
                       description="Rissóis de camarão, produzidos em Portugal, com um sabor doce e suave.",
                       price=15.00, stockable=False, stock=0, discount=0.0,
                       image="https://feed.continente.pt/media/puammcv3/rissois-de-camarao.jpg?anchor=center&mode=crop&width=1023&height=768&rnd=133129917583730000",
-                      number_views=2, categories=[food], user_id=user3.id)
+                      number_views=2, categories=[food], user_id=user4.id)
 
     session.add_all([pack_jams, extra_pumpkin_jam, azeite, mel, rissois])
 
@@ -128,19 +128,19 @@ def insert_data(session: Session):
                                     price=150.00, stockable=True, stock=10, discount=0.0,
                                     image="https://www.creative-gourmet.com/cdn/shop/products/Pack4CervejasSovinacopy_5000x.jpg?v=1601935894",
                                     number_views=5, categories=[home, for_kids_and_babies, toys_and_games],
-                                    user_id=user3.id)
+                                    user_id=user1.id)
 
     velas = Product(id=str(uuid4()), name="Velas de Natal",
                     description="Velas aromatizadas com decorações de Natal, para acentuar o espírito natalício.",
                     price=10.00, stockable=True, stock=20, discount=0.0,
                     image="https://hoosierhomemade.com/wp-content/uploads/DIY-Christmas-Candles-FEATURE.jpg",
-                    number_views=15, categories=[home, candles_and_air_fresheners], user_id=user2.id)
+                    number_views=15, categories=[home, candles_and_air_fresheners], user_id=user4.id)
 
     mesa = Product(id=str(uuid4()), name="Mesa ao Ar Livre",
                    description="Mesa construida utilizando paletes, e topo de vidro. Não inclui cadeiras.",
                    price=200.00, stockable=False, stock=0, discount=0.0,
                    image="https://i.pinimg.com/736x/89/42/e2/8942e2a144b37373f01f94149606a721.jpg",
-                   number_views=8, categories=[home], user_id=user1.id)
+                   number_views=8, categories=[home], user_id=user4.id)
 
     espanta_espiritos = Product(id=str(uuid4()), name="Espanta-Espíritos",
                                 description="Espanta-Espíritos, feitos com madeira de bambu resinada com 6 canas, para criar um ambiente relaxador em dias ventosos.",
@@ -170,7 +170,7 @@ def insert_data(session: Session):
                        description="Pantufas quentinhas feitas à mão, de lã macia e confortáveis para uso interior, em fio de malha. Deve disponibilizar o tamanho para fazer.",
                        price=12.00, stockable=False, stock=0, discount=0.0,
                        image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQU99YekSEGlHfNq99Xlk4qHCy9zUn2DxZdT4sVy7gmFjYuZp_pNwE9-8vNDvDr19PbVDw&usqp=CAU",
-                       number_views=5, categories=[for_kids_and_babies], user_id=user1.id)
+                       number_views=5, categories=[for_kids_and_babies], user_id=user4.id)
 
     session.add_all([cavalinho, pecas_madeira, pantufas])
 
@@ -180,14 +180,14 @@ def insert_data(session: Session):
                         Bastante enternecedor, o jogo Jenga é excelente para entreter não só crianças, como adultos também.",
                     price=5.00, stockable=True, stock=20, discount=0.0,
                     image="https://www.globalcraftsb2b.com/cdn/shop/products/2959b4cf-a696-43b3-a6e3-339a65417a78_2000x.jpg?v=1656437009",
-                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id=user4.id)
+                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id=user2.id)
 
     ludo = Product(id=str(uuid4()), name="Jogo Ludo Madeira",
                    description="Ludo é um jogo de estratégia para dois a quatro jogadores, no qual os jogadores competem com suas quatro fichas do início ao fim de acordo com os lançamentos de um único dado." \
                                "Tabuleiro e peças feitas em madeira, com dado incluido.",
                    price=20.00, stockable=True, stock=5, discount=0.0,
                    image="https://i.pinimg.com/736x/c2/b3/2c/c2b32cbb0a953022b101af834e2f63bf.jpg",
-                   number_views=9, categories=[toys_and_games], user_id=user1.id)
+                   number_views=9, categories=[toys_and_games], user_id=user4.id)
 
     xadrez = Product(id=str(uuid4()), name="Jogo Xadrez",
                      description="Clássico jogo de Xadrez feito em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
@@ -231,7 +231,7 @@ def insert_data(session: Session):
                        description="Hand-Woven Almofada De Lã Grossa Cheio de Fio De Tecido De Algodão, Sofá Cadeira Almofada, Cintura Travesseiro, Novo Estilo",
                        price=27.45, stockable=True, stock=50, discount=3,
                        image="https://ae01.alicdn.com/kf/Hd920f7510cef4bbbb4824418874ddc41G/Hand-Woven-Almofada-De-L-Grossa-Cheio-de-Fio-De-Tecido-De-Algod-o-Sof-Cadeira.jpg",
-                       number_views=2, categories=[diy_crafts, home], user_id=user2.id)
+                       number_views=2, categories=[diy_crafts, home], user_id=user4.id)
 
     session.add_all([pulseiras_amizade, caixa_lencos, saco_malha, toalhas_mesa, almofada])
 
@@ -252,7 +252,7 @@ def insert_data(session: Session):
                                   price=4.00, stockable=False, stock=0, discount=0.0,
                                   image="https://www.dhresource.com/0x0/f2/albu/g9/M00/AD/D5/rBVaVV2vC12AVuUMAAXGxBxxNj8736.jpg",
                                   number_views=7, categories=[stationery_and_party_supplies, diy_crafts],
-                                  user_id=user1.id)
+                                  user_id=user2.id)
 
     nomes_madeira = Product(id=str(uuid4()), name="Nomes de madeira personalizados",
                             description="Nomes de madeira personalizados, com diferentes tipos de letra e cores",
@@ -266,7 +266,7 @@ def insert_data(session: Session):
                       description="Brincos personalizados, decorados com missangas, fio e outros motivos.",
                       price=7.50, stockable=False, stock=0, discount=0.0,
                       image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkP_Zl8l6N-sgNzxOHc3g1MzH-lhGiAXLKM-js3W2AAznUKj7LhK63oVs71smYaabsF70&usqp=CAU",
-                      number_views=0, categories=[jewelry_and_accessories], user_id=user1.id)
+                      number_views=0, categories=[jewelry_and_accessories], user_id=user4.id)
 
     colares = Product(id=str(uuid4()), name="Colares",
                       description="Colares personalizados, decorados com missangas ou outro motivo, com fio de aço inoxidável ou linha.",
@@ -293,13 +293,13 @@ def insert_data(session: Session):
                      description="Todas as canecas são feitas e pintadas à mão em cerâmica. Podem apresentar variações no seu formato, tamanho e detalhe entre eles. Caneca artesanal feita à mão ideal para  que desfrute de um bom café ou chá.",
                      price=6.00, stockable=True, stock=100, discount=0.0,
                      image="https://i.pinimg.com/736x/6a/f3/76/6af376dea1e08739412a5fe65c713cef.jpg",
-                     number_views=2, categories=[piece_of_crockery, home], user_id=user1.id)
+                     number_views=2, categories=[piece_of_crockery, home], user_id=user2.id)
 
     jarra = Product(id=str(uuid4()), name="Jarra de Cerâmica",
                     description="Todas as jarras são feitas e pintadas à mão em cerâmica. Podem apresentar variações no seu formato, tamanho e detalhe entre eles. Jarra artesanal feita à mão ideal para  que desfrute de um bom café ou chá.",
                     price=45, stockable=True, stock=150, discount=0.0,
                     image="https://cdn.sklum.com/pt/wk/2386935/vaso-de-ceramica-dalita.jpg?cf-resize=gallery",
-                    number_views=2, categories=[piece_of_crockery, home], user_id=user3.id)
+                    number_views=2, categories=[piece_of_crockery, home], user_id=user4.id)
 
     session.add_all([caneca, jarra])
     cabaca = Product(id=str(uuid4()), name="Cabaça Pintada",
@@ -332,7 +332,7 @@ def insert_data(session: Session):
                        description="Incenso com aroma 12 unidades.",
                        price=2.00, stockable=True, stock=200, discount=0.0,
                        image="https://cdn.weasy.io/users/natura-store/catalog/022024330012.34_0.jpg",
-                       number_views=7, categories=[candles_and_air_fresheners, home], user_id=user1.id)
+                       number_views=7, categories=[candles_and_air_fresheners, home], user_id=user4.id)
 
     sabonetes = Product(id=str(uuid4()), name="Sabonete 100% Azeite",
                         description="Este sabonete tem um aroma suave e cítrico, com notas a madeira.",
