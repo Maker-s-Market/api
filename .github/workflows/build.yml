@@ -7,22 +7,19 @@ on:
     branches: ["dev", "master"]
 env:
   AWS_REGION: "us-east-1"
-  BUCKET_NAME: "makers-bucket-v3.5"
-  COGNITO_DOMAIN: "domain-makers-test.auth.us-east-1.amazoncognito.com"
+  BUCKET_NAME: "makers-bucket-v5.0"
+  COGNITO_DOMAIN: "domain-makers-market.auth.us-east-1.amazoncognito.com"
 
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
   USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
   STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+  API_KEY_EMAIL : ${{ secrets.API_KEY_EMAIL }}
 
-  AUTH_URL: https://domain-makers-test.auth.us-east-1.amazoncognito.com/oauth2/authorize
-  TOKEN_URL: https://domain-makers-test.auth.us-east-1.amazoncognito.com/oauth2/token
-  LOGOUT_URL: https://domain-makers-test.auth.us-east-1.amazoncognito.com/logout
-
-  MAKERS_URL_API: https://makers-market.pt/api
-  FRONTEND_SIGN_UP_IDP_LINK: https://makers-market.pt/sign-up-idp
-
+  AUTH_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/oauth2/authorize
+  TOKEN_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/oauth2/token
+  LOGOUT_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/logout
 
 
 jobs:

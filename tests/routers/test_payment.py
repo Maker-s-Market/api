@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -25,6 +26,8 @@ def get_client_id():
 
 
 ORDER = "/order"
+
+SEND_EMAIL = "routers.payment.send_email"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -56,17 +59,18 @@ def login_user1():
     return token
 
 
-def test_process_payment():
+@patch(SEND_EMAIL)
+def test_process_payment(mock_send_email):
+    mock_send_email.return_value = None
     token = login_user1()
-    print(token)
-    response = client.post("/api/payment/process-payment?amount=10.0", headers={"Authorization":  f"Bearer {token}"})
+    response = client.post("/api/payment/process-payment?amount=10.0", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 201
     assert response.json()["client_secret"] is not None
 
 
 def test_process_payment_invalid_amount():
     token = login_user1()
-    response = client.post("/api/payment/process-payment?amount=0.1", headers={"Authorization":  f"Bearer {token}"})
+    response = client.post("/api/payment/process-payment?amount=0.1", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Amount must be greater than 50 cents."
 

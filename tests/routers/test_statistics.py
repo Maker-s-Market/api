@@ -1,8 +1,8 @@
 import os
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-import math
 
 from fastapi.testclient import TestClient
 
@@ -10,7 +10,6 @@ from main import app
 from models.category import Category
 from models.product import Product
 from models.user import User
-from models.orders.order import Order
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -106,7 +105,15 @@ def test_get_statistics_buyer_no_orders():
     assert data["statistics"][2]["value"] == ""
 
 
-def test_get_statistics_buyer_no_category():
+INVOKE_USER_INFO = "routers.orders.invoke"
+SEND_EMAIL = "routers.orders.send_email"
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_get_statistics_buyer_no_category(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -135,7 +142,11 @@ def test_get_statistics_buyer_no_category():
     assert data["statistics"][2]["value"] != ""
 
 
-def test_get_statistics_buyer_accepted():
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_get_statistics_buyer_accepted(invoke_function, send_email):
+    send_email.return_value = None
+    invoke_function.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea58", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},

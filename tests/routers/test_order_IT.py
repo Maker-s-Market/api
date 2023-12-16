@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -33,7 +34,7 @@ def load_data():
     db.query(Category).delete()
     db.query(Product).delete()
     db.query(User).delete()
-    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="pombal",
+    user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brunams21.10@gmail.com", city="pombal",
                  region="nao existe", photo="", role="Premium")
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
                  region="nao sei", photo="", role="Premium")
@@ -52,16 +53,18 @@ def load_data():
     db.commit()
     db.close()
 
+
 def login_user_1():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
     response = client.post("/api/auth/sign-in", json={
-        "identifier": "brums21",
+        "identifier": "brunams21.10@gmail.com",
         "password": os.getenv("PASSWORD_CORRECT")
     })
     assert response.status_code == 200
     token = response.json()["token"]
 
     return token
+
 
 def login_user_2():
     os.environ['COGNITO_USER_CLIENT_ID'] = get_client_id()
@@ -74,7 +77,16 @@ def login_user_2():
 
     return token
 
-def test_create_order_success():
+
+INVOKE_USER_INFO = "routers.orders.invoke"
+SEND_EMAIL = "routers.orders.send_email"
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_create_order_success(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -96,7 +108,6 @@ def test_create_order_success():
 
 
 def test_create_order_no_quantity():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 0},
@@ -114,7 +125,6 @@ def test_create_order_no_quantity():
 
 
 def test_create_order_no_product_found():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea60", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -132,7 +142,6 @@ def test_create_order_no_product_found():
 
 
 def test_create_order_product_owner():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2227-95be-0d25c764ea56", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -150,7 +159,6 @@ def test_create_order_product_owner():
 
 
 def test_create_order_quantity_zero():
-
     order_items = [
         {"product_id": "06e0da01-57fd-2227-95be-0d25c764ea56", "quantity": 0},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -168,7 +176,6 @@ def test_create_order_quantity_zero():
 
 
 def test_get_order():
-
     response = client.get(
         ORDER + "?status=Accepted&sort=desc_date",
         headers={"Authorization": f"Bearer {login_user_2()}"},
@@ -209,7 +216,6 @@ def test_get_order():
 
 
 def test_get_order_invalid_sort():
-
     response = client.get(
         ORDER + "?status=Accepted&sort=invalid_sort",
         headers={"Authorization": f"Bearer {login_user_1()}"},
@@ -221,7 +227,6 @@ def test_get_order_invalid_sort():
 
 
 def test_get_order_invalid_status():
-
     response = client.get(
         ORDER + "?status=InvalidStatus&sort=desc_price",
         headers={"Authorization": f"Bearer {login_user_1()}"},
@@ -233,7 +238,6 @@ def test_get_order_invalid_status():
 
 
 def test_get_order_seller():
-
     response = client.get(
         ORDER + "/seller",
         headers={"Authorization": f"Bearer {login_user_2()}"},
@@ -243,11 +247,14 @@ def test_get_order_seller():
     assert response.status_code == 200, response.text
 
 
-def test_get_order_by_id_success():
-
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_get_order_by_id_success(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
-        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
     ]
 
     response = client.post(
@@ -270,7 +277,6 @@ def test_get_order_by_id_success():
 
 
 def test_order_by_id_order_not_found():
-
     response = client.get(
         ORDER + "/someorderid",
         headers={"Authorization": f"Bearer {login_user_1()}"},
@@ -281,8 +287,11 @@ def test_order_by_id_order_not_found():
     assert data["detail"] == "Order with id: someorderid was not found."
 
 
-def test_order_by_id_order_no_permission():
-
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_order_by_id_order_no_permission(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -306,3 +315,106 @@ def test_order_by_id_order_no_permission():
     data = response.json()
     assert response.status_code == 403, response.text
     assert data["detail"] == "You don't have permission to access this order."
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_order_status_change_the_same_status(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
+
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {login_user_1()}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+    id = data["id"]
+
+    response = client.put(
+        ORDER + "/" + id + "/status?status=Accepted",
+    )
+
+    data = response.json()
+    assert response.status_code == 400, response.text
+    assert data["detail"] == "Order already has status Accepted."
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_order_status_change_success(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {login_user_1()}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+    id = data["id"]
+
+    response = client.put(
+        ORDER + "/" + id + "/status?status=Delivered",
+    )
+
+    data = response.json()
+    assert response.status_code == 200, response.text
+    assert data["status"] == "Delivered"
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_order_status_change_invalid_status(invoke_function, send_email):
+    invoke_function.return_value = None
+    send_email.return_value = None
+    order_items = [
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
+        {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
+    ]
+
+    response = client.post(
+        ORDER,
+        headers={"Authorization": f"Bearer {login_user_1()}"},
+        json=order_items
+    )
+
+    data = response.json()
+    assert response.status_code == 201, response.text
+    id = data["id"]
+
+    response = client.put(
+        ORDER + "/" + id + "/status?status=InvalidStatus",
+    )
+
+    data = response.json()
+    assert response.status_code == 400, response.text
+    assert data["detail"] == "Status InvalidStatus is not valid."
+
+
+@patch(INVOKE_USER_INFO)
+@patch(SEND_EMAIL)
+def test_order_status_change_order_not_found(invoke_function, send_email):
+    send_email.return_value = None
+    invoke_function.return_value = None
+    response = client.put(
+        ORDER + "/someorderid/status?status=Accepted",
+        headers={"Authorization": f"Bearer {login_user_2()}"},
+    )
+
+    data = response.json()
+    assert response.status_code == 404, response.text
+    assert data["detail"] == "Order with id: someorderid was not found."

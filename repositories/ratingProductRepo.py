@@ -41,5 +41,6 @@ def get_rating_by_product_and_user(product_id: str, username: str, db: Session =
     return (db.query(RatingModel).filter(RatingModel.product_id == product_id)
             .filter(RatingModel.user_id == user.id).first())
 
+
 def get_ratings_by_product_id(product_id: str, db: Session = Depends(get_db)):
     return (db.query(RatingModel).filter(RatingModel.product_id == product_id)).all()
