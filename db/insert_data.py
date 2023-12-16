@@ -342,4 +342,7 @@ def insert_data(session: Session):
 
     session.add_all([candle_mediterranean, incensos, sabonetes])
 
+    #Reviews
+    review_incensos = 
+
     session.commit()
