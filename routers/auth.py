@@ -231,14 +231,14 @@ async def get_info_from_cookies(authorization: str = Cookie(None),
                                 picture = Cookie(None), 
                                 username = Cookie(None)):
     
-    print("Authorization:", Authorization)
+    print("authorization:", authorization)
     print("email:", email)
     print("name:", name)
     print("picture:", picture)
     print("username:", username)
     
     info = {
-        "authorization": Authorization,
+        "authorization": authorization,
         "email": email,
         "name": name,
         "picture": picture,
