@@ -1,9 +1,11 @@
-from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from models.category import Category
 from models.product import Product
 from models.user import User
+from models.ratingUser import RatingUser
+from models.ratingProduct import RatingProduct
+from models.review import Review
 from models.wishList import Wishlist
 from sqlalchemy.orm import Session
 
@@ -32,17 +34,15 @@ def insert_data(session: Session):
 
     session.commit()
 
-    # Wishlist
+
     wishlist1 = Wishlist(id=str(uuid4()), products=[])
     wishlist2 = Wishlist(id=str(uuid4()), products=[])
     wishlist3 = Wishlist(id=str(uuid4()), products=[])
     wishlist4 = Wishlist(id=str(uuid4()), products=[])
 
     session.add_all([wishlist1, wishlist2])
-
     session.commit()
 
-    # USER
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="Pombal",
                  region="Redinha", photo="", role="Client", wishlist_id=wishlist1.id)
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
@@ -55,6 +55,7 @@ def insert_data(session: Session):
                  region="Coimbra", photo="", role="Premium", wishlist_id=wishlist4.id)
 
     session.add_all([user1, user2, user3, user4])
+    session.commit()
 
     bau_monocastas_adegamae = Product(id=str(uuid4()), name="Bau Monocastas AdegaMãe",
                                       description="A Norte de Lisboa e a um passo da costa oceânica, a AdegaMãe potencia um terroir  fortemente influenciado pelas " +
@@ -341,8 +342,54 @@ def insert_data(session: Session):
                         number_views=3, categories=[candles_and_air_fresheners, home], user_id=user2.id)
 
     session.add_all([candle_mediterranean, incensos, sabonetes])
+    session.commit()
+    # reviews e ratings de bau_monocastas_adegamae - user 4
+    # do user 1
+    review1 = Review(id=str(uuid4()), text="Vinhos muito bons para o seu preço, gostei!", user_id=user3.id,
+                     product_id=bau_monocastas_adegamae.id)
+    rating1 = RatingProduct(id=str(uuid4()), rating=5.0)
 
-    #Reviews
-    review_incensos = 
+    review2 = Review(id=str(uuid4()), text="Gostei dos vinhos, mas esperava que tivessem melhor qualidade",
+                     user_id=user2, product_id=bau_monocastas_adegamae.id)
+    rating2 = RatingProduct(id=str(uuid4()), rating=4.0)
+
+    review_ = Review(id=str(uuid4()), text="Estas velas são supreendentemente duradouras, e demoram muito tempo a\
+                                            arder. Gostei imenso do cheiro, não muito forte, mas suficiente para \
+                                            deixar um aroma agradável em casa.", user_id=user1.id, product_id=velas.id)
+
+    rating_ = RatingProduct(id=str(uuid4()), rating=4, user_id=user1.id, product_id=velas.id)
+
+    review_brincos = Review(id=str(uuid4()),
+                      text="Estes brincos são mais ou menos... são bonitos, mas o mecanismo de fecho " +
+                           "não é muito bom, partiu após uma semana de os ter comprado.",
+                      user_id=user2.id,
+                      product_id=brincos.id)
+
+    rating_brincos = RatingProduct(id=str(uuid4()), rating=3, user_id=user2.id, product_id=brincos.id)
+
+    review_sabonetes = Review(id=str(uuid4()), text="Estes Sabonetes são muito bons, e deixam a pele muito suave.\
+                                            Recomendo!", user_id=user3.id, product_id=sabonetes.id)
+
+    rating_sabonetes = RatingProduct(id=str(uuid4()), rating=5, user_id=user3.id, product_id=sabonetes.id)
+
+    review_cacto = Review(id=str(uuid4()), text="Este cacto é muito bonito, e fica muito bem na minha sala. \
+                                            Recomendo!", user_id=user2.id, product_id=cacto.id)
+
+    rating_cacto = RatingProduct(id=str(uuid4()), rating=5, user_id=user2.id, product_id=cacto.id)
+
+    review_saco_malha_1 = Review(id=str(uuid4()), text="Este saco de malha muito confortável e elegante",
+                                 user_id=user1.id, product_id=saco_malha.id)
+
+    rating_saco_malha_1 = RatingProduct(id=str(uuid4()), rating=4.5, user_id=user1.id, product_id=saco_malha.id)
+
+
+    review_saco_malha_2 = Review(id=str(uuid4()), text="Este saco de malha muito confortável e elegante",
+                                 user_id=user1.id, product_id=saco_malha.id)
+
+
+    session.add_all([review1, rating1, review2, rating2, reid, productiew_, rating_, reviewing_brincos, review_sabonetes,
+                    rating_sabonetes, review_cacto, rating_cacto])
+
+
 
     session.commit()
