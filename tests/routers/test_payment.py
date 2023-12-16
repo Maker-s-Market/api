@@ -27,7 +27,7 @@ def get_client_id():
 
 ORDER = "/order"
 
-SEND_EMAIL = "routers.orders.send_email"
+SEND_EMAIL = "routers.payment.send_email"
 
 
 @pytest.fixture(scope="module", autouse=True)
