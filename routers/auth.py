@@ -245,4 +245,4 @@ async def get_info_from_cookies(Authorization: str = Cookie(None),
         "username:", username
     }
     
-    return JSONResponse(status_code=200, json=jsonable_encoder(info))
+    return JSONResponse(status_code=200, content=jsonable_encoder(info))
