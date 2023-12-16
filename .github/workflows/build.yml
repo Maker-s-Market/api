@@ -15,6 +15,7 @@ env:
   COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
   USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
   STRIPE_KEY: ${{ secrets.STRIPE_KEY }}
+  API_KEY_EMAIL : ${{ secrets.API_KEY_EMAIL }}
 
   AUTH_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/oauth2/authorize
   TOKEN_URL: https://domain-makers-market.auth.us-east-1.amazoncognito.com/oauth2/token
