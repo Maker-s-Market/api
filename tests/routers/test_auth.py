@@ -379,7 +379,7 @@ def test_idp_sign_up_with_no_user_in_db(mock_get, mock_post):
 
     assert response.status_code == 302
 
-    assert "Authorization" in response.cookies
+    assert "authorization" in response.cookies
     assert "email" in response.cookies
     assert "username" in response.cookies
     assert "picture" in response.cookies and response.cookies["picture"] != 'None'
@@ -407,7 +407,7 @@ def test_idp_sign_up_with_no_user_in_db_no_picture(mock_get, mock_post):
 
     assert response.status_code == 302
 
-    assert "Authorization" in response.cookies
+    assert "authorization" in response.cookies
     assert "email" in response.cookies
     assert "username" in response.cookies
     assert "picture" in response.cookies and response.cookies["picture"] == 'None'
@@ -435,7 +435,7 @@ def test_idp_sign_up_with_no_user_in_db_no_name(mock_get, mock_post):
 
     assert response.status_code == 302
 
-    assert "Authorization" in response.cookies
+    assert "authorization" in response.cookies
     assert "email" in response.cookies
     assert "username" in response.cookies
     assert "picture" in response.cookies and response.cookies["picture"] != 'None'
