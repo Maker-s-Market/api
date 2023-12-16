@@ -16,7 +16,6 @@ def random_uuid():
     return str(uuid4())
 
 
-# status : in_ progress, Shipped, Delivered, Cancelled, Rejected
 class Order(Base):
     __tablename__ = "order"
 

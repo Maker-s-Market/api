@@ -8,10 +8,7 @@ from models.wishList import Wishlist
 from sqlalchemy.orm import Session
 
 
-def category_in_db(session: Session):
-    if session.query(Category).count() > 0:
-        print("Categories already inserted")
-        return
+def insert_data(session: Session):
     drinks = Category(id=str(uuid4()), name="Drinks", icon="wine-bottle", slug="drinks")
     food = Category(id=str(uuid4()), name="Food", icon="bowl-food", slug="food")
     home = Category(id=str(uuid4()), name="Home", icon="house", slug="home")
@@ -35,10 +32,6 @@ def category_in_db(session: Session):
 
     session.commit()
 
-
-def insert_data(session: Session):
-    category_in_db(session)
-
     # Wishlist
     wishlist1 = Wishlist(id=str(uuid4()), products=[])
     wishlist2 = Wishlist(id=str(uuid4()), products=[])
@@ -53,11 +46,13 @@ def insert_data(session: Session):
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="Pombal",
                  region="Redinha", photo="", role="Client", wishlist_id=wishlist1.id)
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
-                 region="nao sei", photo="", role="Client", wishlist_id=wishlist2.id)
-    user3 = User(id=str(uuid4()), name="John Doe", username="johndoe", email="makersmarket.001@gmail.com", city="Lousada",
+                 region="nao sei", photo="", role="Premium", wishlist_id=wishlist2.id)
+    user3 = User(id=str(uuid4()), name="John Doe", username="johndoe", email="makersmarket.001@gmail.com",
+                 city="Lousada",
                  region="Porto", photo="", role="Client", wishlist_id=wishlist3.id)
-    user4 = User(id=str(uuid4()), name="Dave Allen", username="daveallen", email="makersmarket.002@gmail.com", city="aveiro",
-                 region="nao sei", photo="", role="Premium", wishlist_id=wishlist4.id)
+    user4 = User(id=str(uuid4()), name="Dave Allen", username="daveallen", email="makersmarket.002@gmail.com",
+                 city="Semide",
+                 region="Coimbra", photo="", role="Premium", wishlist_id=wishlist4.id)
 
     session.add_all([user1, user2, user3, user4])
 
@@ -92,13 +87,13 @@ def insert_data(session: Session):
 
     session.add_all([bau_monocastas_adegamae, ginjinjinha, cerveja_artesanal])
 
-    packJams = Product(id=str(uuid4()), name="Set 4 Tiptree Special Edition Jams",
-                       description="Set of 4 Tiptree special edition jams.<br> Includes 4 jars of 42g each of the " +
-                                   "following flavors: Strawberry with Champagne, Apricot with Armagnac, Orange with Malt Whiskey" +
-                                   " and Blueberry with Gin.",
-                       price=12.50, stockable=True, stock=10, discount=10.0,
-                       image="https://www.creative-gourmet.com/cdn/shop/products/4_Compotas_Tiptree_5000x.jpg?v=1570958543",
-                       number_views=5, categories=[food], user_id=user1.id)
+    pack_jams = Product(id=str(uuid4()), name="Set 4 Tiptree Special Edition Jams",
+                        description="Set of 4 Tiptree special edition jams.<br> Includes 4 jars of 42g each of the " +
+                                    "following flavors: Strawberry with Champagne, Apricot with Armagnac, Orange with Malt Whiskey" +
+                                    " and Blueberry with Gin.",
+                        price=12.50, stockable=True, stock=10, discount=10.0,
+                        image="https://www.creative-gourmet.com/cdn/shop/products/4_Compotas_Tiptree_5000x.jpg?v=1570958543",
+                        number_views=5, categories=[food], user_id=user1.id)
     extra_pumpkin_jam = Product(id=str(uuid4()), name="Extra Pumpkin Jam",
                                 description="Sweet pumpkin jam produced from old homemade recipes from S.Miguel with locally produced fruit.",
                                 price=4.50, stockable=True, stock=10, discount=0.0,
@@ -123,9 +118,9 @@ def insert_data(session: Session):
                       description="Rissóis de camarão, produzidos em Portugal, com um sabor doce e suave.",
                       price=15.00, stockable=False, stock=0, discount=0.0,
                       image="https://feed.continente.pt/media/puammcv3/rissois-de-camarao.jpg?anchor=center&mode=crop&width=1023&height=768&rnd=133129917583730000",
-                      number_views=2, categories=[food], user_id=user1.id)
+                      number_views=2, categories=[food], user_id=user3.id)
 
-    session.add_all([packJams, extra_pumpkin_jam, azeite, mel, rissois])
+    session.add_all([pack_jams, extra_pumpkin_jam, azeite, mel, rissois])
 
     torre_de_aprendizagem = Product(id=str(uuid4()), name="Torre de Aprendizagem",
                                     description="A torre de aprendizagem é um móvel que permite que as crianças participem nas atividades do dia a dia, " +
@@ -133,7 +128,7 @@ def insert_data(session: Session):
                                     price=150.00, stockable=True, stock=10, discount=0.0,
                                     image="https://www.creative-gourmet.com/cdn/shop/products/Pack4CervejasSovinacopy_5000x.jpg?v=1601935894",
                                     number_views=5, categories=[home, for_kids_and_babies, toys_and_games],
-                                    user_id=user2.id)
+                                    user_id=user3.id)
 
     velas = Product(id=str(uuid4()), name="Velas de Natal",
                     description="Velas aromatizadas com decorações de Natal, para acentuar o espírito natalício.",
@@ -161,7 +156,7 @@ def insert_data(session: Session):
                             Tem pegas e repouso de pés para a criança se poder equilibrar e assim disfrutar em maior segurança.",
                         price=45.00, stockable=True, stock=5, discount=0.0,
                         image="https://www.babytower.pt/cdn/shop/products/IMG_0407_1024x1024.jpg?v=1642445587",
-                        number_views=6, categories=[for_kids_and_babies], user_id=user1.id)
+                        number_views=6, categories=[for_kids_and_babies], user_id=user3.id)
 
     pecas_madeira = Product(id=str(uuid4()), name="Jogo de madeira",
                             description="Simples e clássico, o ato de empilhar e arranjar blocos de madeira de diferentes formas e cores torna-se numa atividade " \
@@ -185,7 +180,7 @@ def insert_data(session: Session):
                         Bastante enternecedor, o jogo Jenga é excelente para entreter não só crianças, como adultos também.",
                     price=5.00, stockable=True, stock=20, discount=0.0,
                     image="https://www.globalcraftsb2b.com/cdn/shop/products/2959b4cf-a696-43b3-a6e3-339a65417a78_2000x.jpg?v=1656437009",
-                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id=user2.id)
+                    number_views=16, categories=[toys_and_games, for_kids_and_babies], user_id=user4.id)
 
     ludo = Product(id=str(uuid4()), name="Jogo Ludo Madeira",
                    description="Ludo é um jogo de estratégia para dois a quatro jogadores, no qual os jogadores competem com suas quatro fichas do início ao fim de acordo com os lançamentos de um único dado." \
@@ -204,7 +199,7 @@ def insert_data(session: Session):
                     description="Jogo de damas em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
                     price=20.00, stockable=False, stock=0, discount=0.0,
                     image="https://i.ytimg.com/vi/H9_MvwDOT4M/maxresdefault.jpg",
-                    number_views=12, categories=[toys_and_games], user_id=user1.id)
+                    number_views=12, categories=[toys_and_games], user_id=user4.id)
 
     session.add_all([jenga, ludo, xadrez, damas])
 
@@ -212,7 +207,7 @@ def insert_data(session: Session):
                                 description="Pulseiras de diferentes tipo, com missangas, nome em fio ou outras decorações",
                                 price=3.00, stockable=False, stock=0, discount=0.0,
                                 image="https://img.fruugo.com/product/1/87/421566871_max.jpg",
-                                number_views=6, categories=[diy_crafts, jewelry_and_accessories], user_id=user2.id)
+                                number_views=6, categories=[diy_crafts, jewelry_and_accessories], user_id=user4.id)
 
     caixa_lencos = Product(id=str(uuid4()), name="Caixa de Lenços",
                            description="Caixinha de lenços pintada manualmente, de madeira. Mensagem nas caixas é personalizável.",
@@ -230,7 +225,7 @@ def insert_data(session: Session):
                            description="Toalha de mesa com bordas e figuras em renda",
                            price=20.00, stockable=False, stock=0, discount=0.0,
                            image="https://areliquia.pt/wp-content/uploads/2023/04/A03913_1-4.jpg",
-                           number_views=12, categories=[diy_crafts, home], user_id=user1.id)
+                           number_views=12, categories=[diy_crafts, home], user_id=user3.id)
 
     almofada = Product(id=str(uuid4()), name="Almofada",
                        description="Hand-Woven Almofada De Lã Grossa Cheio de Fio De Tecido De Algodão, Sofá Cadeira Almofada, Cintura Travesseiro, Novo Estilo",
@@ -250,7 +245,7 @@ def insert_data(session: Session):
                            description="Estes chaveiros são totalmente feitos à mão, com lindos motivos bordados. Embelezado com borlas e miçangas ou só com tecido.",
                            price=4.00, stockable=True, stock=50, discount=0.0,
                            image="https://ghabakala.com/wp-content/uploads/2022/12/Ghabakala_SKUKEYCHAIN04_Handcrafted-Keychain01.jpg",
-                           number_views=16, categories=[stationery_and_party_supplies, diy_crafts], user_id=user2.id)
+                           number_views=16, categories=[stationery_and_party_supplies, diy_crafts], user_id=user4.id)
 
     cartoes_aniversario = Product(id=str(uuid4()), name="Cartões para Festa",
                                   description="Cartões para festas de aniversário, casamentos, batizados e outras ocasiões.",
@@ -263,7 +258,7 @@ def insert_data(session: Session):
                             description="Nomes de madeira personalizados, com diferentes tipos de letra e cores",
                             price=12.95, stockable=False, stock=0, discount=0.0,
                             image="https://m.media-amazon.com/images/I/619E86zfqqL._SL1000_.jpg",
-                            number_views=2, categories=[diy_crafts, home], user_id=user2.id)
+                            number_views=2, categories=[diy_crafts, home], user_id=user3.id)
 
     session.add_all([bolo_aniversario, porta_chaves, nomes_madeira, cartoes_aniversario])
 
@@ -285,13 +280,13 @@ def insert_data(session: Session):
                         description="Corda para cão, feita à mão com diferentes cores e tamanhos",
                         price=4.05, stockable=False, stock=0, discount=0.0,
                         image="https://static.zoomalia.com/prod_img/61824/lm_276db8e1af0cb3aca1ae2d00186242045291571142472.jpg",
-                        number_views=2, categories=[animals_and_plants], user_id=user1.id)
+                        number_views=2, categories=[animals_and_plants], user_id=user3.id)
 
     cacto = Product(id=str(uuid4()), name="Cacto Artificial Opuntia 72 cm",
                     description="Cacto artificial com 72 cm de altura, com vaso de cerâmica",
                     price=32.95, stockable=True, stock=50, discount=3,
                     image="https://cdn.sklum.com/pt/wk/2426848/cacto-artificial-opuntia-72-cm.jpg?cf-resize=gallery",
-                    number_views=2, categories=[animals_and_plants, home], user_id=user2.id)
+                    number_views=2, categories=[animals_and_plants, home], user_id=user4.id)
 
     session.add_all([corda_cao, cacto])
     caneca = Product(id=str(uuid4()), name="Caneca de Cerâmica",
@@ -304,7 +299,7 @@ def insert_data(session: Session):
                     description="Todas as jarras são feitas e pintadas à mão em cerâmica. Podem apresentar variações no seu formato, tamanho e detalhe entre eles. Jarra artesanal feita à mão ideal para  que desfrute de um bom café ou chá.",
                     price=45, stockable=True, stock=150, discount=0.0,
                     image="https://cdn.sklum.com/pt/wk/2386935/vaso-de-ceramica-dalita.jpg?cf-resize=gallery",
-                    number_views=2, categories=[piece_of_crockery, home], user_id=user2.id)
+                    number_views=2, categories=[piece_of_crockery, home], user_id=user3.id)
 
     session.add_all([caneca, jarra])
     cabaca = Product(id=str(uuid4()), name="Cabaça Pintada",
@@ -323,7 +318,7 @@ def insert_data(session: Session):
                        description="Peça de cerâmica pintada com tinta acrílica e envolvida por uma camada de resina, para decoração de exteriores em ambientes mais rústicos",
                        price=20.00, stockable=False, stock=0, discount=0.0,
                        image="https://www.rostosdaaldeia.pt/wp-content/uploads/2022/03/ceramica-celia-macedo-corval.jpg",
-                       number_views=2, categories=[art, home, piece_of_crockery], user_id=user1.id)
+                       number_views=2, categories=[art, home, piece_of_crockery], user_id=user3.id)
 
     session.add_all([cabaca, azuleijo, ceramica])
 
