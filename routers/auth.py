@@ -238,11 +238,11 @@ async def get_info_from_cookies(Authorization: str = Cookie(None),
     print("username:", username)
     
     info = {
-        "Authorization:": Authorization,
-        "email:": email,
-        "name:": name,
-        "picture:": picture,
-        "username:": username
+        "Authorization": Authorization,
+        "email": email,
+        "name": name,
+        "picture": picture,
+        "username": username
     }
     
     return JSONResponse(status_code=200, content=jsonable_encoder(info))
