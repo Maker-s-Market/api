@@ -9,6 +9,7 @@ client = TestClient(app)
 
 CATEGORY = "/api/category"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def load_data():
     db = TestingSessionLocal()
@@ -97,7 +98,6 @@ def test_get_category_by_id_not_existing():
 
 
 def test_get_top_category():
-    
     response = client.get("/api/category/top/4")
 
     assert response.status_code == 200, response.text
@@ -131,4 +131,3 @@ def test_delete_existing_category():
     verify_response = client.get("/api/category/06e0da01-57fd-4441-95be-0d25c764ea57")
     assert verify_response.status_code == 404, verify_response.text
     assert verify_response.json() == {'detail': 'Category not found'}
-
