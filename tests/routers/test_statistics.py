@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -11,6 +12,7 @@ from models.category import Category
 from models.product import Product
 from models.user import User
 from models.orders.order import Order
+from tests.routers.test_order_IT import INVOKE_USER_INFO
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -106,7 +108,9 @@ def test_get_statistics_buyer_no_orders():
     assert data["statistics"][2]["value"] == ""
 
 
-def test_get_statistics_buyer_no_category():
+@patch(INVOKE_USER_INFO)
+def test_get_statistics_buyer_no_category(invoke_function):
+    invoke_function.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -135,7 +139,9 @@ def test_get_statistics_buyer_no_category():
     assert data["statistics"][2]["value"] != ""
 
 
-def test_get_statistics_buyer_accepted():
+@patch(INVOKE_USER_INFO)
+def test_get_statistics_buyer_accepted(invoke_function):
+    invoke_function.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea58", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
