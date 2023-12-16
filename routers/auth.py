@@ -220,12 +220,12 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
     response.set_cookie(key="username", value=username, secure=True, httponly=True)
     response.set_cookie(key="picture", value=picture, secure=True, httponly=True)
     response.set_cookie(key="name", value=name, secure=True, httponly=True)
-    response.set_cookie(key="Authorization", value=access_token, secure=True, httponly=True)
+    response.set_cookie(key="authorization", value=access_token, secure=True, httponly=True)
 
     return response
 
 @router.get("/auth/token-read")
-async def get_info_from_cookies(Authorization: str = Cookie(None), 
+async def get_info_from_cookies(authorization: str = Cookie(None), 
                                 email: str = Cookie(None), 
                                 name = Cookie(None), 
                                 picture = Cookie(None), 
@@ -238,7 +238,7 @@ async def get_info_from_cookies(Authorization: str = Cookie(None),
     print("username:", username)
     
     info = {
-        "Authorization": Authorization,
+        "authorization": Authorization,
         "email": email,
         "name": name,
         "picture": picture,
