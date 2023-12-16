@@ -538,3 +538,24 @@ def test_post_sign_up_idp_no_user_in_db():
 
     assert response.status_code == 201
     assert data["message"] == "User created"
+    
+def test_get_info_from_cookies():
+    cookies = {
+        "authorization": "yourAccessToken",
+        "email": "example@example.com",
+        "name": "John",
+        "picture": "example.jpg",
+        "username": "johndoe"
+    }
+
+    response = client.get("/api/auth/token-read", cookies=cookies)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data == {
+        "authorization": "yourAccessToken",
+        "email": "example@example.com",
+        "name": "John",
+        "picture": "example.jpg",
+        "username": "johndoe"
+    }

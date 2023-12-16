@@ -231,12 +231,6 @@ async def get_info_from_cookies(authorization: str = Cookie(None),
                                 picture = Cookie(None), 
                                 username = Cookie(None)):
     
-    print("authorization:", authorization)
-    print("email:", email)
-    print("name:", name)
-    print("picture:", picture)
-    print("username:", username)
-    
     info = {
         "authorization": authorization,
         "email": email,
