@@ -12,9 +12,10 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 from db.insert_data import insert_data
 from db.create_database import create_tables
-from db.database import SessionLocal 
+from db.database import SessionLocal
 from routers import (product, category, auth, ratingUser, review, user, ratingProduct, wishlist, orders,
                      statistics, payment)
+
 
 @asynccontextmanager
 async def lifespan(app):
@@ -128,7 +129,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Add routers
+
+
 app.include_router(prefix="/api", router=auth.router)
 app.include_router(prefix="/api", router=product.router)
 app.include_router(prefix="/api", router=category.router)
@@ -163,24 +165,13 @@ async def main():
     return {"Hello": "from makers market AWS"}
 
 
-# @app.get("/", tags=["Home Page"])
-# async def main():
-#     return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
-#
-
 @app.post("/api/uploadfile/", tags=["Image"])
 async def create_upload_file(file: UploadFile = File(...)):
-    # Generate a unique filename for the uploaded file
     filename = file.filename
-
-    # Upload the file to the S3 bucket
     s3.upload_fileobj(file.file, os.getenv("BUCKET_NAME"), filename)
-
-    # Generate a pre-signed URL to access the image in S3
     pre_signed_url = s3.generate_presigned_url(
         'get_object',
         Params={'Bucket': os.getenv("BUCKET_NAME"), 'Key': filename},
         ExpiresIn=3600
     )
-
     return JSONResponse(status_code=201, content=jsonable_encoder({"url": pre_signed_url}))

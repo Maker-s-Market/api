@@ -18,7 +18,7 @@ router = APIRouter(tags=['Rating The User'])
 
 @router.post("/rating-user", dependencies=[Depends(auth)])
 async def create_user_rating(rating: CreateRatingUser, db: Session = Depends(get_db),
-                               username: str = Depends(get_current_user)):
+                             username: str = Depends(get_current_user)):
     """
     function that creates a rating for a certain user
     rate (user) in catalog
@@ -26,7 +26,6 @@ async def create_user_rating(rating: CreateRatingUser, db: Session = Depends(get
     rated_user = get_user_by_id(rating.rated_user_id, db=db)
     if not rated_user:
         raise HTTPException(status_code=404, detail="To be rated user not not found")
-    # TODO: check if Len(product) do rated_user> 0
     if rating.rating < 0 or rating.rating > 5:
         raise HTTPException(status_code=403, detail="Rating should be between 0 and 5")
     if rating_in_db(rating, db, username):
@@ -40,7 +39,7 @@ async def create_user_rating(rating: CreateRatingUser, db: Session = Depends(get
 
 @router.put("/rating-user", dependencies=[Depends(auth)])
 async def put_user_rating(upd_rating: UpdateRatingUser, db: Session = Depends(get_db),
-                            username: str = Depends(get_current_user)):
+                          username: str = Depends(get_current_user)):
     """
     endpoint that updates a rating made to a user
     edit user rating
@@ -60,12 +59,11 @@ async def put_user_rating(upd_rating: UpdateRatingUser, db: Session = Depends(ge
 
 @router.get("/rating-user/{rated_user_id}", dependencies=[Depends(auth)])
 async def get_my_user_rating(rated_user_id: str, db: Session = Depends(get_db),
-                               username: str = Depends(get_current_user)):
+                             username: str = Depends(get_current_user)):
     """
         get my user rating based on the rated_user_id
-        #TODO: functional locally, need to perform tests
     """
-    rated_user = get_rated_user_by_id(rated_user_id, db)    #TODO: mudar isto
+    rated_user = get_rated_user_by_id(rated_user_id, db)
     if not rated_user:
         raise HTTPException(status_code=404, detail="Rated user not found")
     rating = get_rating_by_rated_user_id_and_user(rated_user_id, db, username)
@@ -78,9 +76,7 @@ async def get_my_user_rating(rated_user_id: str, db: Session = Depends(get_db),
 async def get_all_user_rating(rated_user_id: str, db: Session = Depends(get_db)):
     """
         get my user rating based on the rated_user_id
-        #TODO: functional locally, need to perform tests
     """
-    rated_user = get_rated_user_by_id(rated_user_id, db)
     return JSONResponse(status_code=200, content=jsonable_encoder([rating.to_dict()
                                                                    for rating in
                                                                    get_ratings_by_rated_user_id(rated_user_id, db)]))

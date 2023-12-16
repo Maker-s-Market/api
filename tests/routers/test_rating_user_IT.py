@@ -10,8 +10,7 @@ from schemas.ratingUser import CreateRatingUser, UpdateRatingUser
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
-load_dotenv()  # import pytest.ini env variables
-
+load_dotenv()
 client = TestClient(app)
 
 
@@ -98,7 +97,7 @@ def test_create_rating_user_rating_already_exists():
 
     assert response.status_code == 403
     assert response.json() == {
-        "detail": "A rating for this user was already created, please edit it instead"}  # TODO: check this
+        "detail": "A rating for this user was already created, please edit it instead"}
 
 
 def test_create_rating_user_rating_not_between_0_and_5():
