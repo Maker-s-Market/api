@@ -3,7 +3,6 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-import math
 
 from fastapi.testclient import TestClient
 
@@ -11,8 +10,6 @@ from main import app
 from models.category import Category
 from models.product import Product
 from models.user import User
-from models.orders.order import Order
-from tests.routers.test_order_IT import INVOKE_USER_INFO
 from tests.test_sql_app import TestingSessionLocal
 from dotenv import load_dotenv
 
@@ -106,6 +103,9 @@ def test_get_statistics_buyer_no_orders():
     assert data["statistics"][1]["value"] == ""
     assert data["statistics"][2]["name"] == "Max Productor"
     assert data["statistics"][2]["value"] == ""
+
+
+INVOKE_USER_INFO = "routers.orders.invoke"
 
 
 @patch(INVOKE_USER_INFO)
