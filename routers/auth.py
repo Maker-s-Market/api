@@ -210,7 +210,7 @@ async def get_token_from_code(code: str, db: Session = Depends(get_db)):
 
     if user != None:
         response = RedirectResponse(url=(os.getenv("FRONTEND_SIGN_UP_IDP_LINK") + "?signType=signIn"), status_code=302)
-        response.set_cookie(key="Authorization", value=access_token, secure=True, httponly=True)
+        response.set_cookie(key="authorization", value=access_token, secure=True, httponly=True)
 
         return response
 

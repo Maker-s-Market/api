@@ -479,7 +479,7 @@ def test_idp_sign_up_user_in_db(mock_get, mock_post):
 
     assert response.status_code == 302
 
-    assert "Authorization" in response.cookies
+    assert "authorization" in response.cookies
     assert "email" not in response.cookies
     assert "username" not in response.cookies
     assert "picture" not in response.cookies
