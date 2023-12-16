@@ -79,11 +79,14 @@ def login_user_2():
 
 
 INVOKE_USER_INFO = "routers.orders.invoke"
+SEND_EMAIL = "routers.orders.send_email"
 
 
 @patch(INVOKE_USER_INFO)
-def test_create_order_success(invoke_function):
+@patch(SEND_EMAIL)
+def test_create_order_success(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -245,8 +248,10 @@ def test_get_order_seller():
 
 
 @patch(INVOKE_USER_INFO)
-def test_get_order_by_id_success(invoke_function):
+@patch(SEND_EMAIL)
+def test_get_order_by_id_success(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
@@ -283,8 +288,10 @@ def test_order_by_id_order_not_found():
 
 
 @patch(INVOKE_USER_INFO)
-def test_order_by_id_order_no_permission(invoke_function):
+@patch(SEND_EMAIL)
+def test_order_by_id_order_no_permission(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1},
@@ -311,8 +318,11 @@ def test_order_by_id_order_no_permission(invoke_function):
 
 
 @patch(INVOKE_USER_INFO)
-def test_order_status_change_the_same_status(invoke_function):
+@patch(SEND_EMAIL)
+def test_order_status_change_the_same_status(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
+
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
@@ -338,8 +348,10 @@ def test_order_status_change_the_same_status(invoke_function):
 
 
 @patch(INVOKE_USER_INFO)
-def test_order_status_change_success(invoke_function):
+@patch(SEND_EMAIL)
+def test_order_status_change_success(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
@@ -365,8 +377,10 @@ def test_order_status_change_success(invoke_function):
 
 
 @patch(INVOKE_USER_INFO)
-def test_order_status_change_invalid_status(invoke_function):
+@patch(SEND_EMAIL)
+def test_order_status_change_invalid_status(invoke_function, send_email):
     invoke_function.return_value = None
+    send_email.return_value = None
     order_items = [
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea55", "quantity": 2},
         {"product_id": "06e0da01-57fd-2228-95be-0d25c764ea54", "quantity": 1}
@@ -392,7 +406,9 @@ def test_order_status_change_invalid_status(invoke_function):
 
 
 @patch(INVOKE_USER_INFO)
-def test_order_status_change_order_not_found(invoke_function):
+@patch(SEND_EMAIL)
+def test_order_status_change_order_not_found(invoke_function, send_email):
+    send_email.return_value = None
     invoke_function.return_value = None
     response = client.put(
         ORDER + "/someorderid/status?status=Accepted",
