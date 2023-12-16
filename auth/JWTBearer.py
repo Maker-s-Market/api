@@ -74,6 +74,9 @@ class JWTBearer(HTTPBearer):
                 options={"verify_signature": True, "verify_exp": False}, 
                 algorithms=['RS256']
             )
+            
+            claims.pop('version', None)
+            claims.pop('cognito:groups', None) 
 
             if "auth_time" in claims:
                 claims["auth_time"] = str(claims["auth_time"])
