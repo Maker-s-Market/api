@@ -23,8 +23,8 @@ async def lifespan(app):
     session = SessionLocal()
     try:
         insert_data(session)
-    except Exception:
-        print("Data already inserted")
+    except Exception as e:
+        print(f"Error: {e}")
     yield
 
 
