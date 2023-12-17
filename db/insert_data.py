@@ -47,15 +47,17 @@ def insert_data(session: Session):
     session.commit()
 
     user1 = User(id=str(uuid4()), name="Bruna", username="brums21", email="brums21.10@gmail.com", city="Pombal",
-                 region="Redinha", photo="", role="Client", wishlist_id=wishlist1.id)
+                 region="Redinha", photo="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png", 
+                 role="Client", wishlist_id=wishlist1.id)
     user2 = User(id=str(uuid4()), name="Mariana", username="mariana", email="marianaandrade@ua.pt", city="aveiro",
-                 region="nao sei", photo="", role="Premium", wishlist_id=wishlist2.id)
-    user3 = User(id=str(uuid4()), name="John Doe", username="johndoe", email="makersmarket.001@gmail.com",
-                 city="Lousada",
-                 region="Porto", photo="", role="Client", wishlist_id=wishlist3.id)
-    user4 = User(id=str(uuid4()), name="Dave Allen", username="daveallen", email="makersmarket.002@gmail.com",
-                 city="Semide",
-                 region="Coimbra", photo="", role="Premium", wishlist_id=wishlist4.id)
+                 region="nao sei", photo="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png", 
+                 role="Premium", wishlist_id=wishlist2.id)
+    user3 = User(id=str(uuid4()), name="John Doe", username="johndoe", email="makersmarket.001@gmail.com", city="Lousada", region="Porto", 
+                 photo="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png", 
+                 role="Client", wishlist_id=wishlist3.id)
+    user4 = User(id=str(uuid4()), name="Dave Allen", username="daveallen", email="makersmarket.002@gmail.com",city="Semide", region="Coimbra", 
+                 photo="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png", 
+                 role="Premium", wishlist_id=wishlist4.id)
 
     session.add_all([user1, user2, user3, user4])
     session.commit()
@@ -204,12 +206,6 @@ def insert_data(session: Session):
                    price=20.00, stockable=True, stock=5, discount=0.0,
                    image="https://i.pinimg.com/736x/c2/b3/2c/c2b32cbb0a953022b101af834e2f63bf.jpg",
                    number_views=9, categories=[toys_and_games], user_id=user4.id)
-
-    xadrez = Product(id=str(uuid4()), name="Jogo Xadrez",
-                     description="Clássico jogo de Xadrez feito em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
-                     price=40.00, stockable=False, stock=0, discount=0.0,
-                     image="https://ae01.alicdn.com/kf/Heb5ba19c76b94b2089ee20b09940ce7dT.jpg_640x640Q90.jpg_.webp",
-                     number_views=22, categories=[toys_and_games], user_id=user2.id)
 
     damas = Product(id=str(uuid4()), name="Jogo Damas",
                     description="Jogo de damas em madeira, com peças também em madeira pintada com tinta acrilica, revestida com resina",
