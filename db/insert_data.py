@@ -7,6 +7,9 @@ from models.ratingUser import RatingUser
 from models.ratingProduct import RatingProduct
 from models.review import Review
 from models.wishList import Wishlist
+from models.orders.order import Order
+from models.orders.order_item import OrderItem
+from models.orders.history_order import HistoryOrder
 from sqlalchemy.orm import Session
 
 
@@ -56,6 +59,18 @@ def insert_data(session: Session):
 
     session.add_all([user1, user2, user3, user4])
     session.commit()
+
+    user1_rating = RatingUser(id=str(uuid4()), user_id=user2.id, rated_user_id=user1.id)
+    user1_rating_ = RatingUser(id=str(uuid4()), user_id=user3.id, rated_user_id=user1.id)
+    user2_rating = RatingUser(id=str(uuid4()), user_id=user1.id, rated_user_id=user2.id)
+    user2_rating_ = RatingUser(id=str(uuid4()), user_id=user3.id, rated_user_id=user2.id)
+    user2_rating_1 = RatingUser(id=str(uuid4()), user_id=user4.id, rated_user_id=user2.id)
+    user4_rating_ = RatingUser(id=str(uuid4()), user_id=user1.id, rated_user_id=user4.id)
+    user4_rating_1 = RatingUser(id=str(uuid4()), user_id=user4.id, rated_user_id=user4.id)
+
+    session.add_all([user1_rating, user1_rating_, user2_rating, user2_rating_, user2_rating_1, user4_rating_, user4_rating_1])
+    session.commit()
+    
 
     bau_monocastas_adegamae = Product(id=str(uuid4()), name="Bau Monocastas AdegaMãe",
                                       description="A Norte de Lisboa e a um passo da costa oceânica, a AdegaMãe potencia um terroir  fortemente influenciado pelas " +
@@ -285,7 +300,7 @@ def insert_data(session: Session):
 
     cacto = Product(id=str(uuid4()), name="Cacto Artificial Opuntia 72 cm",
                     description="Cacto artificial com 72 cm de altura, com vaso de cerâmica",
-                    price=32.95, stockable=True, stock=50, discount=3,
+                    price=32.95, stockable=True, stock=50, discount=15.0,
                     image="https://cdn.sklum.com/pt/wk/2426848/cacto-artificial-opuntia-72-cm.jpg?cf-resize=gallery",
                     number_views=2, categories=[animals_and_plants, home], user_id=user4.id)
 
@@ -352,6 +367,33 @@ def insert_data(session: Session):
     review2 = Review(id=str(uuid4()), text="Gostei dos vinhos, mas esperava que tivessem melhor qualidade",
                      user_id=user2, product_id=bau_monocastas_adegamae.id)
     rating2 = RatingProduct(id=str(uuid4()), rating=4.0)
+    
+    review_cerveja_artesanal = Review(id=str(uuid4()), text="Excelente cerveja artesanal, com sabor muito forte",
+                                      user_id=user4.id, product_id=cerveja_artesanal.id)
+    rating_cerveja_artesanal = RatingProduct(id=str(uuid4()), rating=4.2, user_id=user4.id, product_id=cerveja_artesanal.id)
+    
+    review_pack_jams = Review(id=str(uuid4()), text="Muito docinhas, mas achava que trazia mais compota dentro de cada frasco", 
+                              user_id=user4.id, product_id=pack_jams.id)
+    rating_pack_jams = RatingProduct(id=str(uuid4()), rating=4.0, user_id=user4.id, product_id=pack_jams.id)
+    
+    review_pack_jams_ = Review(id=str(uuid4()), text="Sabores muito estranhos e fortes.", user_id=user3.id, product_id=pack_jams.id)
+    rating_pack_jams_ = RatingProduct(id=str(uuid4()), rating=3.0, user_id=user3.id, product_id=pack_jams.id)
+    
+    review_extra_pumpkin_jam = Review(id=str(uuid4()), text="Compota de abóbora muito docinha!",
+                                user_id=user1.id, product_id=extra_pumpkin_jam.id)
+    rating_extra_pumpkin_jam = RatingProduct(id=str(uuid4()), rating=5.0, user_id=user3.id, product_id=extra_pumpkin_jam.id)
+    
+    review_azeite = Review(id=str(uuid4()), text="Azeite não foi bem filtrado...",
+                            user_id=user2.id, product_id=azeite.id)
+    
+    rating_azeite = RatingProduct(id=str(uuid4()), rating=2.5, user_id=user2.id, product_id=azeite.id)
+    
+    
+    review_rissois = Review(id=str(uuid4()), text="Rissoes muito saborosos.",
+                            user_id=user2.id, product_id=rissois.id)
+    
+    rating_rissois = RatingProduct(id=str(uuid4()), rating=5.0, user_id=user2.id, product_id=rissois.id)
+    
 
     review_ = Review(id=str(uuid4()), text="Estas velas são supreendentemente duradouras, e demoram muito tempo a\
                                             arder. Gostei imenso do cheiro, não muito forte, mas suficiente para \
@@ -375,7 +417,7 @@ def insert_data(session: Session):
     review_cacto = Review(id=str(uuid4()), text="Este cacto é muito bonito, e fica muito bem na minha sala. \
                                             Recomendo!", user_id=user2.id, product_id=cacto.id)
 
-    rating_cacto = RatingProduct(id=str(uuid4()), rating=5, user_id=user2.id, product_id=cacto.id)
+    rating_cacto = RatingProduct(id=str(uuid4()), rating=4.5, user_id=user2.id, product_id=cacto.id)
 
     review_saco_malha_1 = Review(id=str(uuid4()), text="Este saco de malha muito confortável e elegante",
                                  user_id=user1.id, product_id=saco_malha.id)
@@ -384,12 +426,51 @@ def insert_data(session: Session):
 
 
     review_saco_malha_2 = Review(id=str(uuid4()), text="Este saco de malha muito confortável e elegante",
-                                 user_id=user1.id, product_id=saco_malha.id)
+                                 user_id=user3.id, product_id=saco_malha.id)
+    
+    rating_saco_malha_2 = RatingProduct(id=str(uuid4()), rating=4, user_id=user3.id, product_id=saco_malha.id)
 
 
-    session.add_all([review1, rating1, review2, rating2, reid, productiew_, rating_, reviewing_brincos, review_sabonetes,
-                    rating_sabonetes, review_cacto, rating_cacto])
-
-
+    session.add_all([review1, rating1, review2, rating2, review_, rating_, review_brincos, rating_brincos, review_sabonetes,
+                    rating_sabonetes, review_cacto, rating_cacto, review_saco_malha_1, rating_saco_malha_1, review_saco_malha_2,
+                    rating_saco_malha_2, review_cerveja_artesanal, rating_cerveja_artesanal, review_pack_jams, rating_pack_jams,
+                    review_pack_jams_, rating_pack_jams_, review_extra_pumpkin_jam, rating_extra_pumpkin_jam, review_azeite,
+                    rating_azeite, review_rissois, rating_rissois])
+    
 
     session.commit()
+
+    order1 = Order(id=str(uuid4()), status="Delivered", total_quantity=2, total_price=121.25, user_id=user3.id)
+    order2 = Order(id=str(uuid4()), status="Delivered", total_quantity=2, total_price=9.98, user_id=user3.id)
+    order3 = Order(id=str(uuid4()), status="Delivered", total_quantity=1, total_price=15.0, user_id=user3.id)
+    order4 = Order(id=str(uuid4()), status="Delivered", total_quantity=8, total_price=212.9, user_id=user2.id)
+    order5 = Order(id=str(uuid4()), status="Delivered", total_quantity=2, total_price=35.51, user_id=user2.id)
+    order6 = Order(id=str(uuid4()), status="Delivered", total_quantity=2, total_price=14.5, user_id=user1.id)
+    order7 = Order(id=str(uuid4()), status="Delivered", total_quantity=3, total_price=35.0, user_id=user1.id)
+    order8 = Order(id=str(uuid4()), status="Delivered", total_quantity=3, total_price=34.47, user_id=user4.id)
+    
+    session.add_all([order1, order2, order3, order4, order5, order6, order7, order8])
+    session.commit()
+    
+    product1 = OrderItem(id=str(uuid4()), quantity=1, order_id=order1.id, product_id=bau_monocastas_adegamae.id)
+    product2 = OrderItem(id=str(uuid4()), quantity=1, order_id=order1.id, product_id=pack_jams.id)
+    product3 = OrderItem(id=str(uuid4()), quantity=2, order_id=order2.id, product_id=sabonetes.id)
+    product4 = OrderItem(id=str(uuid4()), quantity=1, order_id=order3.id, product_id=saco_malha.id)
+    product5 = OrderItem(id=str(uuid4()), quantity=1, order_id=order4.id, product_id=bau_monocastas_adegamae.id)
+    product6 = OrderItem(id=str(uuid4()), quantity=1, order_id=order4.id, product_id=azeite.id)
+    product7 = OrderItem(id=str(uuid4()), quantity=6, order_id=order4.id, product_id=rissois.id)
+    product8 = OrderItem(id=str(uuid4()), quantity=1, order_id=order5.id, product_id=brincos.id)
+    product9 = OrderItem(id=str(uuid4()), quantity=1, order_id=order5.id, product_id=cacto.id)
+    product10 = OrderItem(id=str(uuid4()), quantity=1, order_id=order6.id, product_id=extra_pumpkin_jam.id)
+    product11 = OrderItem(id=str(uuid4()), quantity=1, order_id=order6.id, product_id=velas.id)
+    product12 = OrderItem(id=str(uuid4()), quantity=2, order_id=order7.id, product_id=velas.id)
+    product13 = OrderItem(id=str(uuid4()), quantity=1, order_id=order7.id, product_id=saco_malha.id)
+    product14 = OrderItem(id=str(uuid4()), quantity=2, order_id=order8.id, product_id=cerveja_artesanal.id)
+    product15 = OrderItem(id=str(uuid4()), quantity=1, order_id=order8.id, product_id=pack_jams.id)
+    
+    session.add_all([product1, product2, product3, product4, product5, 
+                     product6, product7, product8, product9, product10, 
+                     product11, product12, product13, product14, product15])
+    
+    session.commit()
+    
