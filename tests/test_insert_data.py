@@ -27,4 +27,4 @@ class TestInsertData(unittest.TestCase):
         assert len(ratings_users) == 7
         assert len(categories) == 12
         assert len(user) == 4
-        assert len(orders) == 2
+        assert len(orders) == 8
