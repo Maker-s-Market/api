@@ -115,6 +115,8 @@ async def get_orders(status: str = None, sort: str = None, db: Session = Depends
         raise HTTPException(status_code=400, detail=detail)
 
     user = get_user(username, db)
+    if sort is None:
+        sort = "desc_date"
     orders = get_orders_by_user_id_filter(user_id=user.id, status=status, sort=sort, db=db)
 
     return JSONResponse(status_code=200, content=jsonable_encoder([order.to_dict(db=db) for order in orders]))
