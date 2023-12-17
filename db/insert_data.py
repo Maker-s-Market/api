@@ -62,13 +62,13 @@ def insert_data(session: Session):
     session.add_all([user1, user2, user3, user4])
     session.commit()
 
-    user1_rating = RatingUser(id=str(uuid4()), user_id=user2.id, rated_user_id=user1.id)
-    user1_rating_ = RatingUser(id=str(uuid4()), user_id=user3.id, rated_user_id=user1.id)
-    user2_rating = RatingUser(id=str(uuid4()), user_id=user1.id, rated_user_id=user2.id)
-    user2_rating_ = RatingUser(id=str(uuid4()), user_id=user3.id, rated_user_id=user2.id)
-    user2_rating_1 = RatingUser(id=str(uuid4()), user_id=user4.id, rated_user_id=user2.id)
-    user4_rating_ = RatingUser(id=str(uuid4()), user_id=user1.id, rated_user_id=user4.id)
-    user4_rating_1 = RatingUser(id=str(uuid4()), user_id=user4.id, rated_user_id=user4.id)
+    user1_rating = RatingUser(id=str(uuid4()), rating=4.0, user_id=user2.id, rated_user_id=user1.id)
+    user1_rating_ = RatingUser(id=str(uuid4()), rating=4.0, user_id=user3.id, rated_user_id=user1.id)
+    user2_rating = RatingUser(id=str(uuid4()), rating=5.0, user_id=user1.id, rated_user_id=user2.id)
+    user2_rating_ = RatingUser(id=str(uuid4()), rating=5.0, user_id=user3.id, rated_user_id=user2.id)
+    user2_rating_1 = RatingUser(id=str(uuid4()), rating=4.0, user_id=user4.id, rated_user_id=user2.id)
+    user4_rating_ = RatingUser(id=str(uuid4()), rating=5.0, user_id=user1.id, rated_user_id=user4.id)
+    user4_rating_1 = RatingUser(id=str(uuid4()), rating=4.0, user_id=user4.id, rated_user_id=user4.id)
 
     session.add_all([user1_rating, user1_rating_, user2_rating, user2_rating_, user2_rating_1, user4_rating_, user4_rating_1])
     session.commit()
@@ -213,7 +213,7 @@ def insert_data(session: Session):
                     image="https://i.ytimg.com/vi/H9_MvwDOT4M/maxresdefault.jpg",
                     number_views=12, categories=[toys_and_games], user_id=user4.id)
 
-    session.add_all([jenga, ludo, xadrez, damas])
+    session.add_all([jenga, ludo, damas])
 
     pulseiras_amizade = Product(id=str(uuid4()), name="Pulseiras da Amizade",
                                 description="Pulseiras de diferentes tipo, com missangas, nome em fio ou outras decorações",
@@ -354,15 +354,14 @@ def insert_data(session: Session):
 
     session.add_all([candle_mediterranean, incensos, sabonetes])
     session.commit()
-    # reviews e ratings de bau_monocastas_adegamae - user 4
-    # do user 1
+
     review1 = Review(id=str(uuid4()), text="Vinhos muito bons para o seu preço, gostei!", user_id=user3.id,
                      product_id=bau_monocastas_adegamae.id)
-    rating1 = RatingProduct(id=str(uuid4()), rating=5.0)
+    rating1 = RatingProduct(id=str(uuid4()), rating=5.0, user_id=user3.id, product_id=bau_monocastas_adegamae.id)
 
     review2 = Review(id=str(uuid4()), text="Gostei dos vinhos, mas esperava que tivessem melhor qualidade",
-                     user_id=user2, product_id=bau_monocastas_adegamae.id)
-    rating2 = RatingProduct(id=str(uuid4()), rating=4.0)
+                     user_id=user2.id, product_id=bau_monocastas_adegamae.id)
+    rating2 = RatingProduct(id=str(uuid4()), rating=4.0, user_id=user2.id, product_id=bau_monocastas_adegamae.id)
     
     review_cerveja_artesanal = Review(id=str(uuid4()), text="Excelente cerveja artesanal, com sabor muito forte",
                                       user_id=user4.id, product_id=cerveja_artesanal.id)
