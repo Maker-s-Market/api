@@ -1,3 +1,5 @@
+import base64
+import json
 from typing import Dict, Optional, List
 
 from fastapi import HTTPException
@@ -7,11 +9,6 @@ from jose.utils import base64url_decode
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
-import base64
-import json
-
-import base64
-import json
 
 JWK = Dict[str, str]
 

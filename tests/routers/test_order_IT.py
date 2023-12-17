@@ -3,17 +3,14 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-import math
-
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
 from main import app
 from models.category import Category
 from models.product import Product
 from models.user import User
-from models.orders.order import Order
 from tests.test_sql_app import TestingSessionLocal
-from dotenv import load_dotenv
 
 load_dotenv()
 COGNITO_USER_CLIENT_ID = os.getenv("COGNITO_USER_CLIENT_ID")
@@ -272,7 +269,6 @@ def test_get_order_by_id_success(invoke_function, send_email):
         headers={"Authorization": f"Bearer {login_user_1()}"},
     )
 
-    data = response.json()
     assert response.status_code == 200, response.text
 
 

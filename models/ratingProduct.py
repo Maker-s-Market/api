@@ -1,14 +1,13 @@
 import datetime
-
 from uuid import uuid4
+
+from fastapi import Depends
 from sqlalchemy import Column, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import Session
+
 from auth.auth import get_current_user
 from db.database import Base, get_db
-from fastapi import Depends, HTTPException
-from repositories.productRepo import get_product_by_id
 from repositories.userRepo import get_user, get_user_by_id
-
 from schemas.ratingProduct import CreateRatingProduct, UpdateRatingProduct
 
 
